@@ -8,6 +8,7 @@
 int main()
 {
 
+    std::cout << "SPECIFIC VALUE IS BIG ENDIAN" << "RAW BYTES IS LITTLE ENDIAN FOR MULTI-BYTE DATA" << std::endl;
     unsigned char rawBytes[] = { 0x00, 0x01, 0x03 };
 
     char* buffer = reinterpret_cast<char*>(rawBytes);
