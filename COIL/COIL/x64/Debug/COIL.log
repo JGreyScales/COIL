@@ -1,2 +1,7 @@
 ﻿  COIL.cpp
+  HeaderDef.cpp
+C:\Programming\COIL-CONESTOGA\COIL\HeaderDef.cpp(49,5): warning C4102: 'std': unreferenced label
+  TurnBodyDef.cpp
+C:\Programming\COIL-CONESTOGA\COIL\TurnBodyDef.cpp(39,5): warning C4102: 'std': unreferenced label
+  Generating Code...
   COIL.vcxproj -> C:\Programming\COIL-CONESTOGA\COIL\x64\Debug\COIL.exe
