@@ -3,10 +3,14 @@
 
 #include <iostream>
 #include "HeaderDef.h"
+#include "TurnBodyDef.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+
+    unsigned char rawBytes[] = { 0x00, 0x01, 0x03 };
+
+    char* buffer = reinterpret_cast<char*>(rawBytes);
 
     HeaderDef* header = new HeaderDef();
 
@@ -14,17 +18,25 @@ int main()
 
     delete header;
 
-    unsigned char rawBytes[] = { 0x00, 0x01, 0x03 };
-
-    char* buffer = reinterpret_cast<char*>(rawBytes);
-
     HeaderDef* myHeader = HeaderDef::deserialize(buffer);
 
     std::cout << "\n\n\ndeserialized data" << std::endl;
     myHeader->display();
 
-    // Don't forget to delete if your deserialize uses 'new'
     delete myHeader;
+
+    TurnBodyDef* turnbody = new TurnBodyDef();
+
+    turnbody->display();
+
+    delete turnbody;
+
+    TurnBodyDef* myTurnBody = TurnBodyDef::deserialize(buffer);
+
+    std::cout << "\n\n\ndeserialized data" << std::endl;
+    myTurnBody->display();
+
+    delete myTurnBody;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

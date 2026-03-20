@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Programming\\COIL-CONESTOGA\\COIL\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\turnBodyDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:turnBodyDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:COIL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:HeaderDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:TurnBodyDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:TurnBodyDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 15,
+          "SelectedChildIndex": 14,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,26 +82,39 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "HeaderDef.cpp",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp",
-              "RelativeDocumentMoniker": "HeaderDef.cpp",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp",
-              "RelativeToolTip": "HeaderDef.cpp",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAYwAkAAAA0AAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "COIL.cpp",
+              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp",
+              "RelativeDocumentMoniker": "COIL.cpp",
+              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp",
+              "RelativeToolTip": "COIL.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-20T16:03:20.628Z",
+              "WhenOpened": "2026-03-20T16:11:21.139Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "TurnBodyDef.h",
+              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.h",
+              "RelativeDocumentMoniker": "TurnBodyDef.h",
+              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.h",
+              "RelativeToolTip": "TurnBodyDef.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-20T16:10:29.009Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "TurnBodyDef.cpp",
               "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.cpp",
               "RelativeDocumentMoniker": "TurnBodyDef.cpp",
               "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\TurnBodyDef.cpp",
               "RelativeToolTip": "TurnBodyDef.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADMAAAA1AAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAADcAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-20T16:02:27.054Z",
               "EditorCaption": ""

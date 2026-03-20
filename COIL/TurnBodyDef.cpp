@@ -45,11 +45,11 @@ TurnBodyDef* TurnBodyDef::deserialize(char* data) {
 
 // ai generated dev helper function
 void TurnBodyDef::display() {
-    std::cout << "--- Header Data ---" << std::endl;
+    std::cout << "--- TurnBody Data ---" << std::endl;
 
     std::cout << "Direction: " << (int)Direction << " [Binary: " << std::bitset<8>(Direction) << "]" << std::endl;
     std::cout << "Duration: " << (int)Duration << " [Binary: " << std::bitset<8>(Duration) << "]" << std::endl;
-    std::cout << "Power: " << (int)Power << " [Binary: " << std::bitset<8>(Direction) << "]" << std::endl;
+    std::cout << "Power: " << (int)Power << " [Binary: " << std::bitset<8>(Power) << "]" << std::endl;
 
     uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
 
