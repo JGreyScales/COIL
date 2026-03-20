@@ -4,6 +4,7 @@
 #include <iostream>
 #include "HeaderDef.h"
 #include "TurnBodyDef.h"
+#include "DriveBodyDef.h"
 
 int main()
 {
@@ -12,6 +13,15 @@ int main()
     unsigned char rawBytes[] = { 0x00, 0x01, 0x03 };
 
     char* buffer = reinterpret_cast<char*>(rawBytes);
+
+
+    DriveBodyDef* DriveBody = new DriveBodyDef();
+
+    DriveBody->display();
+
+    delete DriveBody;
+
+
 
     HeaderDef* header = new HeaderDef();
 

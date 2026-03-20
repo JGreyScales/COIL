@@ -128,10 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="COIL.cpp" />
+    <ClCompile Include="DriveBodyDef.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
     <ClCompile Include="TurnBodyDef.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="HeaderDef.h" />
     <ClInclude Include="TurnBodyDef.h" />
   </ItemGroup>
