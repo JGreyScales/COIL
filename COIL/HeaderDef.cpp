@@ -6,11 +6,12 @@ class HeaderDef
 {
 public:
     uint8_t PktCount : 8;
+    uint8_t Padding : 4; // padding comes first when using compiler packing
+    // this is because bytes are built right to left
     uint8_t Drive : 1;
     uint8_t Status : 1;
     uint8_t Sleep : 1;
     uint8_t Ack : 1;
-    uint8_t Padding : 4;
     uint8_t Length : 8;
 
     HeaderDef();
@@ -26,9 +27,9 @@ HeaderDef::HeaderDef()
 {
     this->PktCount = 0;
     this->Drive = true;
-    this->Status = false;
-    this->Sleep = false;
-    this->Ack = false;
+    this->Status = true;
+    this->Sleep = true;
+    this->Ack = true;
     this->Padding = 0;
     this->Length = sizeof(HeaderDef);
 }
