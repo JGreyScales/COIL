@@ -1,2 +1,3 @@
-﻿  COIL.cpp
-  COIL.vcxproj -> D:\Programming\COIL-CONESTOGA\COIL\x64\Debug\COIL.exe
+﻿  HeaderDef.cpp
+C:\Programming\COIL-CONESTOGA\COIL\HeaderDef.cpp(47,5): warning C4102: 'std': unreferenced label
+  COIL.vcxproj -> C:\Programming\COIL-CONESTOGA\COIL\x64\Debug\COIL.exe

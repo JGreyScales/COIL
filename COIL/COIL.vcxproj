@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="COIL.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
+    <ClCompile Include="TurnBodyDef.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderDef.h" />
+    <ClInclude Include="TurnBodyDef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
