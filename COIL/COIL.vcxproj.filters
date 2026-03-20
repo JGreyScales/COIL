@@ -21,9 +21,15 @@
     <ClCompile Include="HeaderDef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TurnBodyDef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TurnBodyDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
