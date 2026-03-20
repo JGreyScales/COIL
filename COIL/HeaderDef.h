@@ -12,12 +12,12 @@
 class HeaderDef {
 public:
     uint8_t PktCount    : 8;
-    
+
+    uint8_t Padding : 4;
+    uint8_t Ack : 1;
+    uint8_t Sleep : 1;
+    uint8_t Status : 1;
     uint8_t Drive      : 1;
-    uint8_t Status     : 1;
-    uint8_t Sleep      : 1;
-    uint8_t Ack        : 1;
-    uint8_t Padding : 4; 
     
     uint8_t Length      : 8;
 

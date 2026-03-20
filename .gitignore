@@ -40,3 +40,8 @@
 # debug information files
 *.dwo
 /COIL/.vs
+/COIL/COIL/x64
+*.idb
+*.tlog
+*.log
+*.testlog

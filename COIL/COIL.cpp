@@ -25,6 +25,8 @@ int main()
 
     delete myHeader;
 
+    std::cout << "\n\n\n\n\n" << std::endl;
+
     TurnBodyDef* turnbody = new TurnBodyDef();
 
     turnbody->display();
