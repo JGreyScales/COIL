@@ -97,11 +97,25 @@ TelemetryBodyDef TelemetryBodyDef::deserialize(const char* buffer)
 void TelemetryBodyDef::display() const
 {
     std::cout << "TelemetryBodyDef" << std::endl;
-    std::cout << "  LastPktCounter: " << LastPktCounter << std::endl;
-    std::cout << "  CurrentGrade : " << CurrentGrade << std::endl;
-    std::cout << "  HitCount     : " << HitCount << std::endl;
-    std::cout << "  Heading      : " << Heading << std::endl;
-    std::cout << "  LastCmd      : " << static_cast<int>(LastCmd) << std::endl;
-    std::cout << "  LastCmdValue : " << static_cast<int>(LastCmdValue) << std::endl;
-    std::cout << "  LastCmdPower : " << static_cast<int>(LastCmdPower) << std::endl;
+
+    std::cout << "  LastPktCounter: " << LastPktCounter
+        << "  (" << toBinary(LastPktCounter) << ")" << std::endl;
+
+    std::cout << "  CurrentGrade : " << CurrentGrade
+        << "  (" << toBinary(CurrentGrade) << ")" << std::endl;
+
+    std::cout << "  HitCount     : " << HitCount
+        << "  (" << toBinary(HitCount) << ")" << std::endl;
+
+    std::cout << "  Heading      : " << Heading
+        << "  (" << toBinary(Heading) << ")" << std::endl;
+
+    std::cout << "  LastCmd      : " << static_cast<int>(LastCmd)
+        << "  (" << toBinary(LastCmd) << ")" << std::endl;
+
+    std::cout << "  LastCmdValue : " << static_cast<int>(LastCmdValue)
+        << "  (" << toBinary(LastCmdValue) << ")" << std::endl;
+
+    std::cout << "  LastCmdPower : " << static_cast<int>(LastCmdPower)
+        << "  (" << toBinary(LastCmdPower) << ")" << std::endl;
 }

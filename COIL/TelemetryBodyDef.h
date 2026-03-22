@@ -1,6 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include <bitset>
+
+template <typename T>
+std::string toBinary(const T& value) {
+    constexpr size_t bits = sizeof(T) * 8;
+    return std::bitset<bits>(value).to_string();
+}
 
 struct TelemetryBodyDef
 {

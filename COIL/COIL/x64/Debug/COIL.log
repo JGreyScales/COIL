@@ -1,9 +1,2 @@
 ﻿  COIL.cpp
-  DriveBodyDef.cpp
-  HeaderDef.cpp
-C:\Users\umuli\COIL-CONESTOGA\COIL\HeaderDef.cpp(49,5): warning C4102: 'std': unreferenced label
-  TelemetryBodyDef.cpp
-  TurnBodyDef.cpp
-C:\Users\umuli\COIL-CONESTOGA\COIL\TurnBodyDef.cpp(37,5): warning C4102: 'std': unreferenced label
-  Generating Code...
   COIL.vcxproj -> C:\Users\umuli\COIL-CONESTOGA\COIL\x64\Debug\COIL.exe

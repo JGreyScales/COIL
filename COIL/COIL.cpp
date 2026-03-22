@@ -5,6 +5,7 @@
 #include "HeaderDef.h"
 #include "TurnBodyDef.h"
 #include "DriveBodyDef.h"
+#include "TelemetryBodyDef.h"
 
 int main()
 {
@@ -50,6 +51,31 @@ int main()
     myTurnBody->display();
 
     delete myTurnBody;
+
+    std::cout << "\n\n\nTelemetryBodyDef demo" << std::endl;
+
+    TelemetryBodyDef* telemetryBody = new TelemetryBodyDef(
+        25,   // LastPktCounter
+        12,   // CurrentGrade
+        3,    // HitCount
+        180,  // Heading
+        1,    // LastCmd
+        45,   // LastCmdValue
+        90    // LastCmdPower
+    );
+
+    std::cout << "\nOriginal TelemetryBodyDef:" << std::endl;
+    telemetryBody->display();
+
+    char* telemetryBuffer = telemetryBody->serialize();
+
+    TelemetryBodyDef deserializedTelemetry = TelemetryBodyDef::deserialize(telemetryBuffer);
+
+    std::cout << "\nDeserialized TelemetryBodyDef:" << std::endl;
+    deserializedTelemetry.display();
+
+    delete[] telemetryBuffer;
+    delete telemetryBody;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
