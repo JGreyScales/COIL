@@ -130,6 +130,7 @@
     <ClCompile Include="COIL.cpp" />
     <ClCompile Include="DriveBodyDef.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
+    <ClCompile Include="TelemetryBodyDef.cpp" />
     <ClCompile Include="TurnBodyDef.cpp" />
   </ItemGroup>
   <ItemGroup>
