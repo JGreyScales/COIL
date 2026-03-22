@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="HeaderDef.h" />
+    <ClInclude Include="TelemetryBodyDef.h" />
     <ClInclude Include="TurnBodyDef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
