@@ -56,24 +56,17 @@ namespace COILTEST
 		TEST_METHOD(HeaderBinaryOrder) {
 			HeaderDef* HeaderInstance = new HeaderDef();
 
-			HeaderInstance->PktCount = 10;
+			HeaderInstance->PktCount = 1;
 			HeaderInstance->Sleep = true;
+			HeaderInstance->Drive = true;
 			HeaderInstance->Length = 10;
 
-			// expected binary
-			// 00000001
-			// 01000000
-			// 00001010
-
-			uint32_t value = 0;
-			memcpy(&value, HeaderInstance, 3);
-			std::bitset<24> rawData(value);
-
-			Assert::IsTrue(rawData[7]);
-			Assert::IsTrue(rawData[9]);
-			Assert::IsTrue(rawData[20]);
-			Assert::IsTrue(rawData[22]);
-
+			char* value = HeaderInstance->serialize();
+			std::bitset<8> byte2(value[1]);
+			
+			Assert::AreEqual<uint8_t>(1, (uint8_t)value[0]);
+			Assert::AreEqual<uint8_t>(5, (uint8_t)value[1]);
+			Assert::AreEqual<uint8_t>(10, (uint8_t)value[2]);
 		}
 	};
 }

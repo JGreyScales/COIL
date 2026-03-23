@@ -1,17 +1,20 @@
 #include <iostream>
 #include <bitset>
 
+#include "Utils.h"
+
 
 class HeaderDef
 {
 public:
     uint8_t PktCount : 8;
-    uint8_t Padding : 4; // padding comes first when using compiler packing
-    // this is because bytes are built right to left
-    uint8_t Ack : 1;
-    uint8_t Sleep : 1;
-    uint8_t Status : 1;
+
+
     uint8_t Drive : 1;
+    uint8_t Status : 1;
+    uint8_t Sleep : 1;
+    uint8_t Ack : 1;
+    uint8_t Padding : 4;
 
     uint8_t Length : 8;
 
@@ -35,10 +38,12 @@ HeaderDef::HeaderDef()
     this->Length = sizeof(HeaderDef);
 }
 
-char* HeaderDef::serialize(){
-    // 8 for packet count + 4 for statuses + 4 to complete the byte + 8 for length
-    char* buffer = new char[sizeof(HeaderDef)];
+char* HeaderDef::serialize() {
+    size_t size = sizeof(HeaderDef);
+    char* buffer = new char[size];
+
     std::memcpy(buffer, this, sizeof(HeaderDef));
+    buffer[1] = BitUtils::ReverseByte(buffer[1]);
     return buffer;
 }
 
@@ -46,7 +51,8 @@ HeaderDef* HeaderDef::deserialize(char* data){
     HeaderDef* returnValue =  new HeaderDef();
 
     // because we know data order, and that this struct is packed we can just dump it into our class memory
-    std:memcpy(returnValue, data, sizeof(HeaderDef));
+    data[1] = BitUtils::ReverseByte(data[1]);
+    std::memcpy(returnValue, data, sizeof(HeaderDef));
 
     return returnValue;
 }

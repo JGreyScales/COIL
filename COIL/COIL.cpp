@@ -2,6 +2,10 @@
 //
 
 #include <iostream>
+#include <bitset>
+
+#include "Utils.h"
+
 #include "HeaderDef.h"
 #include "TurnBodyDef.h"
 #include "DriveBodyDef.h"
@@ -9,20 +13,11 @@
 
 int main()
 {
+	HeaderDef* header = new HeaderDef;
 
-    std::cout << "SPECIFIC VALUE IS BIG ENDIAN" << "RAW BYTES IS LITTLE ENDIAN FOR MULTI-BYTE DATA" << std::endl;
-    unsigned char rawBytes[] = { 0x00, 0x01, 0x03 };
 
-    char* buffer = reinterpret_cast<char*>(rawBytes);
-
-    AckBodyDef* ac = new AckBodyDef();
-    ac->setBody("testing body");
-    ac->display();
-    ac->serialize();
-
-    char d[] = "123456pppp";
-    AckBodyDef* cc = AckBodyDef::deserialize(d);
-    cc->display();
+    return 0;
+	
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
