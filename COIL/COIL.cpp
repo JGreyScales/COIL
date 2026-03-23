@@ -5,6 +5,7 @@
 #include "HeaderDef.h"
 #include "TurnBodyDef.h"
 #include "DriveBodyDef.h"
+#include "AckBodyDef.h"
 
 int main()
 {
@@ -14,42 +15,14 @@ int main()
 
     char* buffer = reinterpret_cast<char*>(rawBytes);
 
+    AckBodyDef* ac = new AckBodyDef();
+    ac->setBody("testing body");
+    ac->display();
+    ac->serialize();
 
-    DriveBodyDef* DriveBody = new DriveBodyDef();
-
-    DriveBody->display();
-
-    delete DriveBody;
-
-
-
-    HeaderDef* header = new HeaderDef();
-
-    header->display();
-
-    delete header;
-
-    HeaderDef* myHeader = HeaderDef::deserialize(buffer);
-
-    std::cout << "\n\n\ndeserialized data" << std::endl;
-    myHeader->display();
-
-    delete myHeader;
-
-    std::cout << "\n\n\n\n\n" << std::endl;
-
-    TurnBodyDef* turnbody = new TurnBodyDef();
-
-    turnbody->display();
-
-    delete turnbody;
-
-    TurnBodyDef* myTurnBody = TurnBodyDef::deserialize(buffer);
-
-    std::cout << "\n\n\ndeserialized data" << std::endl;
-    myTurnBody->display();
-
-    delete myTurnBody;
+    char d[] = "123456pppp";
+    AckBodyDef* cc = AckBodyDef::deserialize(d);
+    cc->display();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
