@@ -131,6 +131,7 @@
     <ClCompile Include="COIL.cpp" />
     <ClCompile Include="DriveBodyDef.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
+    <ClCompile Include="PktDef.cpp" />
     <ClCompile Include="TelemetryBodyDef.cpp" />
     <ClCompile Include="TurnBodyDef.cpp" />
   </ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="AckBodyDef.h" />
     <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="HeaderDef.h" />
+    <ClInclude Include="PktDef.h" />
     <ClInclude Include="TelemetryBodyDef.h" />
     <ClInclude Include="TurnBodyDef.h" />
     <ClInclude Include="Utils.h" />

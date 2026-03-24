@@ -1,24 +1,17 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Programming\\COIL-CONESTOGA\\COIL\\",
+  "WorkspaceRootPath": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AC27ED5F-C8EE-44E3-8241-B1B8D3370272}|..\\COIL-TEST\\COIL-TEST.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL-TEST\\COIL-TEST.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:PktDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:HeaderDef.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:PktDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:HeaderDef.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\Utils.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:Utils.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\COIL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{1B559F27-37BD-4DD3-876A-F9243DCBE449}|COIL.vcxproj|solutionrelative:COIL.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -29,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 270,
-          "SelectedChildIndex": 18,
+          "SelectedChildIndex": 14,
           "Children": [
             {
               "$type": "Bookmark",
@@ -89,64 +82,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "COIL.cpp",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp",
-              "RelativeDocumentMoniker": "COIL.cpp",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\COIL.cpp",
-              "RelativeToolTip": "COIL.cpp",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAAA8AAAATAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "PktDef.cpp",
+              "DocumentMoniker": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.cpp",
+              "RelativeDocumentMoniker": "PktDef.cpp",
+              "ToolTip": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.cpp",
+              "RelativeToolTip": "PktDef.cpp",
+              "ViewState": "AgIAAOwAAAAAAAAAAAAAAM4AAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-23T22:16:00.218Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Utils.h",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\Utils.h",
-              "RelativeDocumentMoniker": "Utils.h",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\Utils.h",
-              "RelativeToolTip": "Utils.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-23T22:10:31.707Z"
+              "WhenOpened": "2026-03-24T01:54:29.426Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "HeaderDef.cpp",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp",
-              "RelativeDocumentMoniker": "HeaderDef.cpp",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.cpp",
-              "RelativeToolTip": "HeaderDef.cpp",
-              "ViewState": "AgIAACUAAAAAAAAAAAAowDEAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-23T22:04:21.677Z",
+              "Title": "PktDef.h",
+              "DocumentMoniker": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.h",
+              "RelativeDocumentMoniker": "PktDef.h",
+              "ToolTip": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\PktDef.h",
+              "RelativeToolTip": "PktDef.h",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAACQAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-24T01:53:58.526Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "HeaderDef.h",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.h",
-              "RelativeDocumentMoniker": "HeaderDef.h",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL\\HeaderDef.h",
-              "RelativeToolTip": "HeaderDef.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-23T22:04:16.253Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "COIL-TEST.cpp",
-              "DocumentMoniker": "C:\\Programming\\COIL-CONESTOGA\\COIL-TEST\\COIL-TEST.cpp",
-              "RelativeDocumentMoniker": "..\\COIL-TEST\\COIL-TEST.cpp",
-              "ToolTip": "C:\\Programming\\COIL-CONESTOGA\\COIL-TEST\\COIL-TEST.cpp",
-              "RelativeToolTip": "..\\COIL-TEST\\COIL-TEST.cpp",
-              "ViewState": "AgIAADMAAAAAAAAAAAAzwEMAAAAdAAAAAAAAAA==",
+              "Title": "COIL.cpp",
+              "DocumentMoniker": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\COIL.cpp",
+              "RelativeDocumentMoniker": "COIL.cpp",
+              "ToolTip": "C:\\Users\\umuli\\COIL-CONESTOGA\\COIL\\COIL.cpp",
+              "RelativeToolTip": "COIL.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-23T21:35:02.066Z",
+              "WhenOpened": "2026-03-23T22:16:00.218Z",
               "EditorCaption": ""
             }
           ]
