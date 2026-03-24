@@ -2,21 +2,7 @@
 #include <bitset>
 #include <cstring>
 
-class AckBodyDef {
-public:
-    char* body;
-
-    AckBodyDef();
-    ~AckBodyDef();
-
-    
-    char* serialize();
-    static AckBodyDef* deserialize(char* data);
-    void display();
-
-    
-    void setBody(const char* newBody);
-};
+#include "AckBodyDef.h"
 
 AckBodyDef::AckBodyDef() {
     this->body = nullptr;
@@ -35,6 +21,15 @@ void AckBodyDef::setBody(const char* newBody) {
     }
     else {
         body = nullptr;
+    }
+}
+
+int AckBodyDef::getSize() {
+    if (this->body != nullptr) {
+        return static_cast<int>(strlen(this->body));
+    }
+    else {
+        return 0;
     }
 }
 

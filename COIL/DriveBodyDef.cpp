@@ -10,17 +10,28 @@ DriveBodyDef::DriveBodyDef() {
 
 DriveBodyDef::~DriveBodyDef() {}
 
+
+int DriveBodyDef::getSize() {
+    return DRIVE_BODY_SIZE;
+}
+
 char* DriveBodyDef::serialize() {
-    // Allocates a buffer of 3 bytes and copies the struct content
-    char* buffer = new char[sizeof(DriveBodyDef)];
-    std::memcpy(buffer, this, sizeof(DriveBodyDef));
+    char* buffer = new char[DriveBodyDef::DRIVE_BODY_SIZE];
+
+    buffer[0] = this->Direction;
+    buffer[1] = this->Duration;
+    buffer[2] = this->Power;
+
     return buffer;
 }
 
 DriveBodyDef* DriveBodyDef::deserialize(char* data) {
     DriveBodyDef* returnValue = new DriveBodyDef();
-    // Directly maps raw data into the object memory
-    std::memcpy(returnValue, data, sizeof(DriveBodyDef));
+    
+    returnValue->Direction = data[0];
+    returnValue->Duration = data[1];
+    returnValue->Power = data[2];
+
     return returnValue;
 }
  
