@@ -117,11 +117,21 @@ void PktDef::SetCmd(CmdType cmd)
 void PktDef::SetBodyData(BodyInterface* data)
 {
     this->Packet.body = data;
+    if (!data) {
+        // 0 is just to represent the 0 width body
+        this->Packet.Header->Length = HEADERSIZE + 0 + CRCSIZE;
+        return;
+    }
+    this->Packet.Header->Length = HEADERSIZE + data->getSize() + CRCSIZE;
 }
 
 
 void PktDef::SetPktCount(int value)
 {
+    if (0 > value) {
+        return;
+    }
+
     this->Packet.Header->PktCount = static_cast<uint8_t>(value);
 }
 //
@@ -165,7 +175,7 @@ unsigned char PktDef::countSetBits(const char* value, int sizeInBytes) const
     unsigned char totalBits = 0;
 
     for (size_t i = 0; i < sizeInBytes; ++i) {
-        unsigned char byte = static_cast<unsigned char>(value[i]);
+        unsigned char byte = value[i];
 
         while (byte != 0) {
             byte &= (byte - 1);
@@ -184,28 +194,29 @@ void PktDef::CalcCRC()
 
     delete this->RawBuffer;
     this->RawBuffer = new char[totalLength];
+    memset(RawBuffer, 0, totalLength);
 
-    if (totalLength < HEADERSIZE + CRCSIZE)
-    {
+    if (totalLength < HEADERSIZE + CRCSIZE) {
         Packet.CRC = 0;
         return;
     }
 
     int sizeWithoutCRC = totalLength - CRCSIZE;
-    int bodySize = Packet.body->getSize();
 
 
     char* serializedHeader = Packet.Header->serialize();
     std::memcpy(this->RawBuffer, serializedHeader, HEADERSIZE);
     delete[] serializedHeader;
 
+    if (Packet.body != nullptr) {
+        int bodySize = Packet.body->getSize();
 
-
-    if (bodySize > 0 && Packet.body != nullptr)
-    {
-        char* serializedBody = Packet.body->serialize();
-        std::memcpy(this->RawBuffer + HEADERSIZE, serializedBody, bodySize);
-        delete[] serializedBody;
+        if (bodySize > 0)
+        {
+            char* serializedBody = Packet.body->serialize();
+            std::memcpy(this->RawBuffer + HEADERSIZE, serializedBody, bodySize);
+            delete[] serializedBody;
+        }
     }
 
     Packet.CRC = this->countSetBits(RawBuffer, sizeWithoutCRC);
@@ -219,40 +230,58 @@ bool PktDef::CheckCRC(char* data, int size) const
     }
 
     unsigned char calculated = countSetBits(data, size - CRCSIZE);
-    unsigned char received = static_cast<unsigned char>(data[size - 1]);
+    unsigned char received = data[size - CRCSIZE];
 
     return calculated == received;
 }
 //
 char* PktDef::GenPacket()
 {
-    int totalLength = Packet.Header->Length;
-
-    if (totalLength < HEADERSIZE + CRCSIZE)
-    {
-        totalLength = HEADERSIZE + CRCSIZE;
-        Packet.Header->Length = totalLength;
+    unsigned int bodySize = 0;
+    if (Packet.body != nullptr) {
+        bodySize = Packet.body->getSize();
     }
+
+    // size ts so that the the compiler knows the range of the ints
+    const size_t totalLength = (size_t)HEADERSIZE + bodySize + (size_t)CRCSIZE;
+
+    // somebullshit to make the compiler stop throwing warnings
+    // it was complaining about a possible integer wrap
+    // if the int value is too large (it wont be though)
+    if (totalLength < (size_t)HEADERSIZE) {
+        return nullptr;
+    }
+
+    Packet.Header->Length = (int)totalLength;
+
 
     CalcCRC();
 
     delete[] this->RawBuffer;
     RawBuffer = new char[totalLength];
+    memset(RawBuffer, 0, totalLength);
 
     char* serializedHeader = Packet.Header->serialize();
-    std::memcpy(RawBuffer, serializedHeader, HEADERSIZE);
+
+    if (serializedHeader == nullptr) {
+        return nullptr;
+    }
+
+    std::memcpy(this->RawBuffer, serializedHeader, (size_t)HEADERSIZE);
     delete[] serializedHeader;
 
-    int bodySize = Packet.body->getSize();
 
-    if (bodySize > 0 && Packet.body != nullptr)
+    if (bodySize > 0)
     {
         char* serializedBody = Packet.body->serialize();
         std::memcpy(this->RawBuffer + HEADERSIZE, serializedBody, bodySize);
         delete[] serializedBody;
     }
+   
 
     RawBuffer[totalLength - 1] = Packet.CRC;
+    this->SetPktCount(this->GetPktCount() + 1);
+
 
     return RawBuffer;
 }

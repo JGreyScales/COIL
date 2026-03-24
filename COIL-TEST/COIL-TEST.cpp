@@ -198,7 +198,7 @@ namespace COILTEST
 		{
 			HeaderDef* HeaderInstance = new HeaderDef();
 
-			uint8_t pktCount = 10;
+			uint16_t pktCount = 10;
 			uint8_t padding = 2;
 			uint8_t ack = true;
 			uint8_t sleep = false;
@@ -232,7 +232,7 @@ namespace COILTEST
 
 		TEST_METHOD(headerBinaryLength) {
 			HeaderDef* HeaderInstance = new HeaderDef();
-			Assert::AreEqual(3, HeaderInstance->getSize());
+			Assert::AreEqual(4, HeaderInstance->getSize());
 			delete HeaderInstance;
 		}
 
@@ -246,15 +246,16 @@ namespace COILTEST
 
 			char* value = HeaderInstance->serialize();
 			
-			Assert::AreEqual<uint8_t>(1, (uint8_t)value[0]);
-			Assert::AreEqual<uint8_t>(5, (uint8_t)value[1]);
-			Assert::AreEqual<uint8_t>(10, (uint8_t)value[2]);
+			Assert::AreEqual<uint8_t>(0, (uint8_t)value[0]);
+			Assert::AreEqual<uint8_t>(1, (uint8_t)value[1]);
+			Assert::AreEqual<uint8_t>(160, (uint8_t)value[2]);
+			Assert::AreEqual<uint8_t>(10, (uint8_t)value[3]);
 		}
 
 		TEST_METHOD(deserializeNegative) {
 			HeaderDef* nulledDeserialized = HeaderDef::deserialize(nullptr);
 
-			Assert::AreEqual(0, (int)nulledDeserialized->PktCount);
+			Assert::AreEqual<uint16_t>(0, nulledDeserialized->PktCount);
 			Assert::IsFalse(nulledDeserialized->Drive);
 			Assert::IsFalse(nulledDeserialized->Status);
 			Assert::IsFalse(nulledDeserialized->Sleep);
@@ -344,7 +345,7 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(validate_CRC_and_HeaderSize) {
-			Assert::AreEqual(3, PktDef::HEADERSIZE);
+			Assert::AreEqual(4, PktDef::HEADERSIZE);
 			Assert::AreEqual(1, PktDef::CRCSIZE);
 		}
 
@@ -403,65 +404,240 @@ namespace COILTEST
 
 			// memory address in the pkt is the same as the drive instance
 			Assert::IsTrue(driveBodyInstance == pktInstance->getPacket().body);
+			// 6 for header size (4) + driveBodySize (3) + crcSize (1)
+			Assert::AreEqual(8, pktInstance->GetLength());
 
 			delete pktInstance;
 
 		}
 
 		TEST_METHOD(setBodyDataNegative) {
+			PktDef* pktInstrance = new PktDef();
+			pktInstrance->SetBodyData(nullptr);
 
+			Assert::IsNull(pktInstrance->getPacket().body);
+
+			delete pktInstrance;
 		}
 
 		TEST_METHOD(setPktCount) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->SetPktCount(50);
+
+			Assert::AreEqual(50, pktInstance->GetPktCount());
+			delete pktInstance;
 		}
 
 		TEST_METHOD(setPktCountNegative) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->SetPktCount(5);
+			pktInstance->SetPktCount(-24);
+
+			Assert::AreEqual(5, pktInstance->GetPktCount());
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(getCmd) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->SetCmd(PktDef::SLEEP);
+
+			Assert::AreEqual((int)PktDef::SLEEP, (int)pktInstance->GetCmd());
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(getAck) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->getPacket().Header->Ack = 1;
+
+			Assert::IsTrue(pktInstance->GetAck());
+				
+			delete pktInstance;
 		}
 
 		TEST_METHOD(getLength) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->getPacket().Header->Length = 50;
+
+			Assert::AreEqual(50, pktInstance->GetLength());
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(getBodyData) {
+			PktDef* pktInstance = new PktDef();
+			DriveBodyDef* driveInstance = new DriveBodyDef();
+			driveInstance->Direction = 5;
+			driveInstance->Duration = 4;
+			pktInstance->SetBodyData(driveInstance);
 
+			char* serialData = pktInstance->GetBodyData();
+			Assert::AreEqual(5, (int)serialData[0]);
+			Assert::AreEqual(4, (int)serialData[1]);
+			Assert::AreEqual(0, (int)serialData[2]);
+
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(getPktCount) {
+			PktDef* pktInstance = new PktDef();
+			
+			Assert::AreEqual(0, pktInstance->GetPktCount());
 
+			pktInstance->GenPacket();
+
+			Assert::AreEqual(1, pktInstance->GetPktCount());
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(checkCRC) {
+			PktDef* pktInstance = new PktDef();
 
+			char* data = pktInstance->GenPacket();
+			
+			// crc should be 0 since everything defaults to 0 for everything
+			Assert::IsTrue(pktInstance->CheckCRC(data, 5));
+
+			delete pktInstance;
 		}
 
-		TEST_METHOD(CheckCRCNegative) {
+		TEST_METHOD(CheckCRCInvalidData) {
+			PktDef* pktInstance = new PktDef();
 
+			Assert::IsFalse(pktInstance->CheckCRC(nullptr, 50));
+
+			delete pktInstance;
 		}
 
-		TEST_METHOD(calcCRC) {
+		TEST_METHOD(CheckCRCInvalidSize){
+			PktDef* pktInstance = new PktDef();
 
+			Assert::IsFalse(pktInstance->CheckCRC("", 4));
+
+			delete pktInstance;
 		}
 
-		TEST_METHOD(calcCRCNegative) {
+		TEST_METHOD(checkCRCInvalidCalculationVsRecieved) {
+			PktDef* pktInstance = new PktDef();
 
+			char* data = pktInstance->GenPacket();
+
+			// no body, so byte 4 is the crc byte
+			data[4] = 3;
+
+			Assert::IsFalse(pktInstance->CheckCRC(data, 5));
+
+			delete pktInstance;
 		}
 
-		TEST_METHOD(genPacket) {
+		TEST_METHOD(genPacketDrive) {
+			PktDef* pktInstance = new PktDef();
+			DriveBodyDef* driveBodyInstance = new DriveBodyDef();
+			driveBodyInstance->Direction = 2;
 
+			pktInstance->SetCmd(PktDef::DRIVE);
+			pktInstance->SetBodyData(driveBodyInstance);
+
+
+			// 8 bits
+			// 4 header
+			// 3 body
+			// 1 crc
+			char* data = pktInstance->GenPacket();
+
+			// header
+			Assert::AreEqual<uint8_t>(0, data[0]);
+			Assert::AreEqual<uint8_t>(0, data[1]);
+			Assert::AreEqual<uint8_t>(128, data[2]);
+			Assert::AreEqual<uint8_t>(8, data[3]);
+
+			// body
+			Assert::AreEqual<uint8_t>(2, data[4]);
+			Assert::AreEqual<uint8_t>(0, data[5]);
+			Assert::AreEqual<uint8_t>(0, data[6]);
+
+			// crc
+			Assert::AreEqual<uint8_t>(3, data[7]);
+
+			delete pktInstance;
+		}
+
+		TEST_METHOD(genPacketTurn) {
+			PktDef* pktInstance = new PktDef();
+			TurnBodyDef* driveBodyInstance = new TurnBodyDef();
+			driveBodyInstance->Duration = 5;
+
+			pktInstance->SetCmd(PktDef::DRIVE);
+			pktInstance->SetBodyData(driveBodyInstance);
+
+
+			// 8 bits
+			// 4 header
+			// 3 body
+			// 1 crc
+			char* data = pktInstance->GenPacket();
+			char byte5 = data[4];
+			char byte6 = data[5];
+			char byte7 = data[6];
+
+			// header
+			Assert::AreEqual<uint8_t>(0, data[0]);
+			Assert::AreEqual<uint8_t>(0, data[1]);
+			Assert::AreEqual<uint8_t>(128, data[2]);
+			Assert::AreEqual<uint8_t>(8, data[3]);
+
+			// body
+			Assert::AreEqual<uint8_t>(0, data[4]);
+			Assert::AreEqual<uint8_t>(0, data[5]);
+			Assert::AreEqual<uint8_t>(5, data[6]);
+
+			// crc
+			Assert::AreEqual<uint8_t>(4, data[7]);
+
+			delete pktInstance;
+		}
+
+		TEST_METHOD(genPacketSleep) {
+			PktDef* pktInstance = new PktDef();
+
+			pktInstance->SetCmd(PktDef::SLEEP);
+
+
+			// 5 bits
+			// 4 header
+			// 0 body
+			// 1 crc
+			char* data = pktInstance->GenPacket();
+
+			// header
+			Assert::AreEqual<uint8_t>(0, data[0]);
+			Assert::AreEqual<uint8_t>(0, data[1]);
+			Assert::AreEqual<uint8_t>(32, data[2]);
+			Assert::AreEqual<uint8_t>(5, data[3]);
+
+			// crc
+			Assert::AreEqual<uint8_t>(3, data[4]);
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(reset) {
+			PktDef* pktInstance = new PktDef();
 
+			pktInstance->SetCmd(PktDef::SLEEP);
+
+			pktInstance->Reset();
+			Assert::AreEqual((int)PktDef::UNDEFINED, (int)pktInstance->GetCmd());
+
+			delete pktInstance;
 		}
 	};
 }

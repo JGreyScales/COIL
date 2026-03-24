@@ -9,9 +9,9 @@
 
 class HeaderDef : public BodyInterface {
 public:
-    static const int HEADER_SIZE = 3;
+    static const int HEADER_SIZE = 4;
 
-    uint8_t PktCount    : 8;
+    uint16_t PktCount    : 16;
 
     uint8_t Padding : 4;
     uint8_t Ack : 1;

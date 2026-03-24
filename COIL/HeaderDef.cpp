@@ -23,17 +23,20 @@ char* HeaderDef::serialize() {
 
     char* buffer = new char[HeaderDef::HEADER_SIZE];
 
-    buffer[0] = this->PktCount;
+    buffer[0] = (this->PktCount >> 8);
+    buffer[1] = (this->PktCount);
 
     uint8_t flags = 0;
-    flags |= (this->Padding & 0x0F) << 4;
-    flags |= (this->Ack & 0x01) << 3; 
-    flags |= (this->Sleep & 0x01) << 2;
-    flags |= (this->Status & 0x01) << 1;
-    flags |= (this->Drive & 0x01) << 0;
-    buffer[1] = flags;
+    // low bits
+    flags |= (this->Padding & 0x0F) << 0;
+    flags |= (this->Ack & 0x01) << 4; 
+    flags |= (this->Sleep & 0x01) << 5;
+    flags |= (this->Status & 0x01) << 6;
+    flags |= (this->Drive & 0x01) << 7;
+    // high bits
+    buffer[2] = flags;
 
-    buffer[2] = this->Length;
+    buffer[3] = this->Length;
 
     return buffer;
 }
@@ -42,16 +45,16 @@ HeaderDef* HeaderDef::deserialize(char* data) {
     HeaderDef* res = new HeaderDef();
     if (!data) return res;
 
-    res->PktCount = data[0];
+    res->PktCount = ((uint8_t)data[0] << 8 | (uint8_t)data[1]);
 
-    uint8_t flags = data[1];
-    res->Padding = (flags >> 4) & 0x0F;
-    res->Ack = (flags >> 3) & 0x01;
-    res->Sleep = (flags >> 2) & 0x01;
-    res->Status = (flags >> 1) & 0x01;
-    res->Drive = (flags >> 0) & 0x01;
+    uint8_t flags = data[2];
+    res->Padding = (flags >> 0) & 0x0F;
+    res->Ack = (flags >> 4) & 0x01;
+    res->Sleep = (flags >> 5) & 0x01;
+    res->Status = (flags >> 6) & 0x01;
+    res->Drive = (flags >> 7) & 0x01;
 
-    res->Length = data[2];
+    res->Length = data[3];
 
     return res;
 }
