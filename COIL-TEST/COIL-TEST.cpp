@@ -62,7 +62,6 @@ namespace COILTEST
 			HeaderInstance->Length = 10;
 
 			char* value = HeaderInstance->serialize();
-			std::bitset<8> byte2(value[1]);
 			
 			Assert::AreEqual<uint8_t>(1, (uint8_t)value[0]);
 			Assert::AreEqual<uint8_t>(5, (uint8_t)value[1]);
