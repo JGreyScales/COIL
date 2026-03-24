@@ -4,6 +4,7 @@
 
 
 #include "HeaderDef.h"
+#include "TelemetryBodyDef.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -67,6 +68,68 @@ namespace COILTEST
 			Assert::AreEqual<uint8_t>(1, (uint8_t)value[0]);
 			Assert::AreEqual<uint8_t>(5, (uint8_t)value[1]);
 			Assert::AreEqual<uint8_t>(10, (uint8_t)value[2]);
+		}
+	};
+
+	TEST_CLASS(TelemetryBodyDefTests)
+	{
+	public:
+
+		TEST_METHOD(DefaultConstructor_SetsAllFieldsToZero)
+		{
+			TelemetryBodyDef body;
+
+			Assert::AreEqual((unsigned short)0, body.LastPktCounter);
+			Assert::AreEqual((unsigned short)0, body.CurrentGrade);
+			Assert::AreEqual((unsigned short)0, body.HitCount);
+			Assert::AreEqual((unsigned short)0, body.Heading);
+			Assert::AreEqual((unsigned char)0, body.LastCmd);
+			Assert::AreEqual((unsigned char)0, body.LastCmdValue);
+			Assert::AreEqual((unsigned char)0, body.LastCmdPower);
+		}
+
+		TEST_METHOD(ParameterizedConstructor_SetsAllFieldsCorrectly)
+		{
+			TelemetryBodyDef body(25, 92, 3, 180, 1, 7, 95);
+
+			Assert::AreEqual((unsigned short)25, body.LastPktCounter);
+			Assert::AreEqual((unsigned short)92, body.CurrentGrade);
+			Assert::AreEqual((unsigned short)3, body.HitCount);
+			Assert::AreEqual((unsigned short)180, body.Heading);
+			Assert::AreEqual((unsigned char)1, body.LastCmd);
+			Assert::AreEqual((unsigned char)7, body.LastCmdValue);
+			Assert::AreEqual((unsigned char)95, body.LastCmdPower);
+		}
+
+		TEST_METHOD(SerializeAndDeserialize_PreserveExactValues)
+		{
+			TelemetryBodyDef original(100, 88, 6, 270, 4, 5, 100);
+
+			char* raw = original.serialize();
+			TelemetryBodyDef restored = TelemetryBodyDef::deserialize(raw);
+
+			Assert::AreEqual(original.LastPktCounter, restored.LastPktCounter);
+			Assert::AreEqual(original.CurrentGrade, restored.CurrentGrade);
+			Assert::AreEqual(original.HitCount, restored.HitCount);
+			Assert::AreEqual(original.Heading, restored.Heading);
+			Assert::AreEqual(original.LastCmd, restored.LastCmd);
+			Assert::AreEqual(original.LastCmdValue, restored.LastCmdValue);
+			Assert::AreEqual(original.LastCmdPower, restored.LastCmdPower);
+
+			delete[] raw;
+		}
+
+		TEST_METHOD(Deserialize_WithNullBuffer_ThrowsInvalidArgument)
+		{
+			Assert::ExpectException<std::invalid_argument>([]()
+				{
+					TelemetryBodyDef::deserialize(nullptr);
+				});
+		}
+
+		TEST_METHOD(TelemetryBodySize_IsEleven)
+		{
+			Assert::AreEqual(11, TelemetryBodyDef::TELEMETRY_BODY_SIZE);
 		}
 	};
 }
