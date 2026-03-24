@@ -39,9 +39,8 @@ char* HeaderDef::serialize() {
 }
 
 HeaderDef* HeaderDef::deserialize(char* data) {
-    if (!data) return nullptr;
-
     HeaderDef* res = new HeaderDef();
+    if (!data) return res;
 
     res->PktCount = data[0];
 

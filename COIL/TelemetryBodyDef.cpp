@@ -66,12 +66,13 @@ char* TelemetryBodyDef::serialize()
 
 TelemetryBodyDef* TelemetryBodyDef::deserialize(const char* buffer)
 {
+    TelemetryBodyDef* body = new TelemetryBodyDef();
+
     if (buffer == nullptr)
     {
-        throw std::invalid_argument("deserialize() received a null buffer.");
+        return body;
     }
 
-    TelemetryBodyDef* body = new TelemetryBodyDef();
     int offset = 0;
 
     std::memcpy(&body->LastPktCounter, buffer + offset, sizeof(body->LastPktCounter));

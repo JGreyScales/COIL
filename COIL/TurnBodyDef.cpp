@@ -28,10 +28,13 @@ char* TurnBodyDef::serialize() {
 TurnBodyDef* TurnBodyDef::deserialize(char* data) {
     TurnBodyDef* returnValue = new TurnBodyDef();
 
-    returnValue->Direction = data[0];
-    // grab the high bits, and move them into the high bit position
-    // cast them into unsigned to prevent corruption
-    returnValue->Duration = (uint8_t)data[1] << 8 | (uint8_t)data[2];
+    if (data) {
+        returnValue->Direction = data[0];
+        // grab the high bits, and move them into the high bit position
+        // cast them into unsigned to prevent corruption
+        returnValue->Duration = (uint8_t)data[1] << 8 | (uint8_t)data[2];
+    }
+
 
     return returnValue;
 }

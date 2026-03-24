@@ -28,9 +28,11 @@ char* DriveBodyDef::serialize() {
 DriveBodyDef* DriveBodyDef::deserialize(char* data) {
     DriveBodyDef* returnValue = new DriveBodyDef();
     
-    returnValue->Direction = data[0];
-    returnValue->Duration = data[1];
-    returnValue->Power = data[2];
+    if (data) {
+        returnValue->Direction = data[0];
+        returnValue->Duration = data[1];
+        returnValue->Power = data[2];
+    }
 
     return returnValue;
 }
