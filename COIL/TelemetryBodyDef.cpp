@@ -31,7 +31,11 @@ TelemetryBodyDef::TelemetryBodyDef(unsigned short int lastPktCounter,
 {
 }
 
-char* TelemetryBodyDef::serialize() const
+int TelemetryBodyDef::getSize() {
+    return TELEMETRY_BODY_SIZE;
+}
+
+char* TelemetryBodyDef::serialize()
 {
     char* buffer = new char[TELEMETRY_BODY_SIZE];
     int offset = 0;
@@ -60,36 +64,36 @@ char* TelemetryBodyDef::serialize() const
     return buffer;
 }
 
-TelemetryBodyDef TelemetryBodyDef::deserialize(const char* buffer)
+TelemetryBodyDef* TelemetryBodyDef::deserialize(const char* buffer)
 {
     if (buffer == nullptr)
     {
         throw std::invalid_argument("deserialize() received a null buffer.");
     }
 
-    TelemetryBodyDef body;
+    TelemetryBodyDef* body = new TelemetryBodyDef();
     int offset = 0;
 
-    std::memcpy(&body.LastPktCounter, buffer + offset, sizeof(body.LastPktCounter));
-    offset += sizeof(body.LastPktCounter);
+    std::memcpy(&body->LastPktCounter, buffer + offset, sizeof(body->LastPktCounter));
+    offset += sizeof(body->LastPktCounter);
 
-    std::memcpy(&body.CurrentGrade, buffer + offset, sizeof(body.CurrentGrade));
-    offset += sizeof(body.CurrentGrade);
+    std::memcpy(&body->CurrentGrade, buffer + offset, sizeof(body->CurrentGrade));
+    offset += sizeof(body->CurrentGrade);
 
-    std::memcpy(&body.HitCount, buffer + offset, sizeof(body.HitCount));
-    offset += sizeof(body.HitCount);
+    std::memcpy(&body->HitCount, buffer + offset, sizeof(body->HitCount));
+    offset += sizeof(body->HitCount);
 
-    std::memcpy(&body.Heading, buffer + offset, sizeof(body.Heading));
-    offset += sizeof(body.Heading);
+    std::memcpy(&body->Heading, buffer + offset, sizeof(body->Heading));
+    offset += sizeof(body->Heading);
 
-    std::memcpy(&body.LastCmd, buffer + offset, sizeof(body.LastCmd));
-    offset += sizeof(body.LastCmd);
+    std::memcpy(&body->LastCmd, buffer + offset, sizeof(body->LastCmd));
+    offset += sizeof(body->LastCmd);
 
-    std::memcpy(&body.LastCmdValue, buffer + offset, sizeof(body.LastCmdValue));
-    offset += sizeof(body.LastCmdValue);
+    std::memcpy(&body->LastCmdValue, buffer + offset, sizeof(body->LastCmdValue));
+    offset += sizeof(body->LastCmdValue);
 
-    std::memcpy(&body.LastCmdPower, buffer + offset, sizeof(body.LastCmdPower));
-    offset += sizeof(body.LastCmdPower);
+    std::memcpy(&body->LastCmdPower, buffer + offset, sizeof(body->LastCmdPower));
+    offset += sizeof(body->LastCmdPower);
 
     return body;
 }

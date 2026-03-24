@@ -2,30 +2,7 @@
 #include <bitset>
 
 #include "Utils.h"
-
-
-class HeaderDef
-{
-public:
-    uint8_t PktCount : 8;
-
-
-    uint8_t Drive : 1;
-    uint8_t Status : 1;
-    uint8_t Sleep : 1;
-    uint8_t Ack : 1;
-    uint8_t Padding : 4;
-
-    uint8_t Length : 8;
-
-    HeaderDef();
-
-    char* serialize();
-    static HeaderDef* deserialize(char* data);
-    void display();
-
-    ~HeaderDef();
-};
+#include "HeaderDef.h"
 
 HeaderDef::HeaderDef()
 {
@@ -35,26 +12,49 @@ HeaderDef::HeaderDef()
     this->Sleep = false;
     this->Ack = false;
     this->Padding = 0;
-    this->Length = sizeof(HeaderDef);
+    this->Length = 0;
+}
+
+int HeaderDef::getSize() {
+    return HEADER_SIZE;
 }
 
 char* HeaderDef::serialize() {
-    size_t size = sizeof(HeaderDef);
-    char* buffer = new char[size];
 
-    std::memcpy(buffer, this, sizeof(HeaderDef));
-    buffer[1] = BitUtils::ReverseByte(buffer[1]);
+    char* buffer = new char[HeaderDef::HEADER_SIZE];
+
+    buffer[0] = this->PktCount;
+
+    uint8_t flags = 0;
+    flags |= (this->Padding & 0x0F) << 4;
+    flags |= (this->Ack & 0x01) << 3; 
+    flags |= (this->Sleep & 0x01) << 2;
+    flags |= (this->Status & 0x01) << 1;
+    flags |= (this->Drive & 0x01) << 0;
+    buffer[1] = flags;
+
+    buffer[2] = this->Length;
+
     return buffer;
 }
 
-HeaderDef* HeaderDef::deserialize(char* data){
-    HeaderDef* returnValue =  new HeaderDef();
+HeaderDef* HeaderDef::deserialize(char* data) {
+    if (!data) return nullptr;
 
-    // because we know data order, and that this struct is packed we can just dump it into our class memory
-    data[1] = BitUtils::ReverseByte(data[1]);
-    std::memcpy(returnValue, data, sizeof(HeaderDef));
+    HeaderDef* res = new HeaderDef();
 
-    return returnValue;
+    res->PktCount = data[0];
+
+    uint8_t flags = data[1];
+    res->Padding = (flags >> 4) & 0x0F;
+    res->Ack = (flags >> 3) & 0x01;
+    res->Sleep = (flags >> 2) & 0x01;
+    res->Status = (flags >> 1) & 0x01;
+    res->Drive = (flags >> 0) & 0x01;
+
+    res->Length = data[2];
+
+    return res;
 }
 
 

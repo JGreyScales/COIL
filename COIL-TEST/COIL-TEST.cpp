@@ -51,7 +51,7 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(headerBinaryLength) {
-			Assert::AreEqual((size_t)3, sizeof(HeaderDef));
+			Assert::AreEqual(3, HeaderDef::HEADER_SIZE);
 		}
 
 		TEST_METHOD(HeaderBinaryOrder) {
@@ -106,17 +106,18 @@ namespace COILTEST
 			TelemetryBodyDef original(100, 88, 6, 270, 4, 5, 100);
 
 			char* raw = original.serialize();
-			TelemetryBodyDef restored = TelemetryBodyDef::deserialize(raw);
+			TelemetryBodyDef* restored = TelemetryBodyDef::deserialize(raw);
 
-			Assert::AreEqual(original.LastPktCounter, restored.LastPktCounter);
-			Assert::AreEqual(original.CurrentGrade, restored.CurrentGrade);
-			Assert::AreEqual(original.HitCount, restored.HitCount);
-			Assert::AreEqual(original.Heading, restored.Heading);
-			Assert::AreEqual(original.LastCmd, restored.LastCmd);
-			Assert::AreEqual(original.LastCmdValue, restored.LastCmdValue);
-			Assert::AreEqual(original.LastCmdPower, restored.LastCmdPower);
+			Assert::AreEqual(original.LastPktCounter, restored->LastPktCounter);
+			Assert::AreEqual(original.CurrentGrade, restored->CurrentGrade);
+			Assert::AreEqual(original.HitCount, restored->HitCount);
+			Assert::AreEqual(original.Heading, restored->Heading);
+			Assert::AreEqual(original.LastCmd, restored->LastCmd);
+			Assert::AreEqual(original.LastCmdValue, restored->LastCmdValue);
+			Assert::AreEqual(original.LastCmdPower, restored->LastCmdPower);
 
 			delete[] raw;
+			delete restored;
 		}
 
 		TEST_METHOD(Deserialize_WithNullBuffer_ThrowsInvalidArgument)

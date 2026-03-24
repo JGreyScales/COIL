@@ -1,17 +1,20 @@
 #ifndef ACK_BODY_DEF_H
 #define ACK_BODY_DEF_H
 
+#include "BodyInterface.h"
 #include <iostream>
 #include <cstring>
 
-class AckBodyDef {
+class AckBodyDef : public BodyInterface {
 public:
     char* body;
 
     AckBodyDef();
     ~AckBodyDef();
 
-    char* serialize();
+    int getSize() override;
+
+    char* serialize() override;
 
     static AckBodyDef* deserialize(char* data);
 

@@ -1,21 +1,7 @@
 #include <iostream>
 #include <bitset>
 
-#pragma pack(push, 1)
-class TurnBodyDef
-{
-public:
-    uint8_t Direction : 8;
-    uint16_t Duration : 16;
-
-    TurnBodyDef();
-
-    char* serialize();
-    static TurnBodyDef* deserialize(char* data);
-    void display();
-
-    ~TurnBodyDef();
-};
+#include "TurnBodyDef.h"
 
 TurnBodyDef::TurnBodyDef()
 {
@@ -23,16 +9,29 @@ TurnBodyDef::TurnBodyDef()
     this->Duration = 0;
 }
 
+int TurnBodyDef::getSize() {
+    return TURN_BODY_SIZE;
+}
+
 char* TurnBodyDef::serialize() {
-    char* buffer = new char[sizeof(TurnBodyDef)];
-    std::memcpy(buffer, this, sizeof(TurnBodyDef));
+    char* buffer = new char[TurnBodyDef::TURN_BODY_SIZE];
+    
+    buffer[0] = Direction;
+    // high bits
+    buffer[1] = (Duration >> 8);
+    // low bits
+    buffer[2] = Duration;
+
     return buffer;
 }
 
 TurnBodyDef* TurnBodyDef::deserialize(char* data) {
     TurnBodyDef* returnValue = new TurnBodyDef();
 
-    std::memcpy(returnValue, data, sizeof(TurnBodyDef));
+    returnValue->Direction = data[0];
+    // grab the high bits, and move them into the high bit position
+    // cast them into unsigned to prevent corruption
+    returnValue->Duration = (uint8_t)data[1] << 8 | (uint8_t)data[2];
 
     return returnValue;
 }

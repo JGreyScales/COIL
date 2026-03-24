@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <bitset>
+#include "BodyInterface.h"
 
 template <typename T>
 std::string toBinary(const T& value) {
@@ -9,7 +10,7 @@ std::string toBinary(const T& value) {
     return std::bitset<bits>(value).to_string();
 }
 
-struct TelemetryBodyDef
+struct TelemetryBodyDef : public BodyInterface
 {
 public:
     unsigned short int LastPktCounter;
@@ -32,9 +33,11 @@ public:
         unsigned char lastCmdValue,
         unsigned char lastCmdPower);
 
-    char* serialize() const;
+    int getSize() override;
+    
+    char* serialize() override;
 
-    static TelemetryBodyDef deserialize(const char* buffer);
+    static TelemetryBodyDef* deserialize(const char* buffer);
 
     void display() const;
 };

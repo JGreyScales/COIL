@@ -1,49 +1,61 @@
 #pragma once
 
+#include <cstring>
+
+
 #include "HeaderDef.h"
 #include "DriveBodyDef.h"
 #include "TurnBodyDef.h"
 #include "TelemetryBodyDef.h"
+#include "AckBodyDef.h"
+#include "BodyInterface.h"
 
 class PktDef
 {
 public:
     enum CmdType
     {
-        DRIVE = 0,
-        SLEEP = 1,
-        RESPONSE = 2
+        DRIVE,
+        SLEEP,
+        ACK,
+        TELE,
+        TURN,
+        UNDEFINED
     };
 
-    static const int FORWARD = 1;
-    static const int BACKWARD = 2;
-    static const int RIGHT = 3;
-    static const int LEFT = 4;
+    enum Direction {
+        FORWARD = 1,
+        BACKWARD = 2,
+        RIGHT = 3,
+        LEFT = 4,
+        UNDEFINED_DIRECTION = 5,
+    };
 
-    static const int HEADERSIZE = 3;   // 1 byte PktCount + 1 byte flags/padding + 1 byte Length
+
+    static const int HEADERSIZE = HeaderDef::HEADER_SIZE; // 3 bytes, breakdown is in the headerdef files
     static const int CRCSIZE = 1;
 
 private:
     struct CmdPacket
     {
-        HeaderDef Header;
-        char* Data;
+        HeaderDef* Header;
+        BodyInterface* body;
         char CRC;
     };
 
     CmdPacket Packet;
+    CmdType cmd;
+
     char* RawBuffer;
-
-    unsigned char countSetBits(unsigned char value) const;
-    unsigned char calculateCRCFromBuffer(const char* buffer, int sizeWithoutCRC) const;
-
 public:
+    unsigned char countSetBits(const char* value, int size) const;
+
     PktDef();
     PktDef(char* rawData);
     ~PktDef();
 
     void SetCmd(CmdType cmd);
-    void SetBodyData(char* data, int size);
+    void SetBodyData(BodyInterface* data);
     void SetPktCount(int value);
 
     CmdType GetCmd() const;

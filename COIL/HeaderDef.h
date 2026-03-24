@@ -1,16 +1,16 @@
 #ifndef HEADER_DEF_H
 #define HEADER_DEF_H
 
+#include "BodyInterface.h"
+
 #include <iostream>
 #include <cstdint>
 #include <cstring>
 
-// no padding between memory allocation in the compiler
-// it lets us just dump the whole struct into a raw buffer already serialized
-#pragma pack(push, 1)
-
-class HeaderDef {
+class HeaderDef : public BodyInterface {
 public:
+    static const int HEADER_SIZE = 3;
+
     uint8_t PktCount    : 8;
 
     uint8_t Padding : 4;
@@ -24,12 +24,11 @@ public:
     HeaderDef();
     ~HeaderDef();
 
-    char* serialize();
+    int getSize() override;
+    char* serialize() override;
     static HeaderDef* deserialize(char* data);
 
     void display();
 };
-
-#pragma pack(pop)
 
 #endif

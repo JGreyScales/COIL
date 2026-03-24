@@ -5,24 +5,24 @@
 #include <cstdint>
 #include <cstring>
 
-// no padding between memory allocation in the compiler
-// it lets us just dump the whole struct into a raw buffer already serialized
-#pragma pack(push, 1)
+#include "BodyInterface.h"
 
-class TurnBodyDef
+class TurnBodyDef : public BodyInterface
 {
 public:
+    static const int TURN_BODY_SIZE = 3;
+
     uint8_t Direction : 8;
     uint16_t Duration : 16;
 
     TurnBodyDef();
 
-    char* serialize();
+    int getSize() override;
+    char* serialize() override;
     static TurnBodyDef* deserialize(char* data);
     void display();
 
     ~TurnBodyDef();
 };
-#pragma pack(pop)
 
 #endif

@@ -2,106 +2,110 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <cstring>
 
 PktDef::PktDef()
 {
-    Packet.Header.PktCount = 0;
-    Packet.Header.Drive = 0;
-    Packet.Header.Status = 0;
-    Packet.Header.Sleep = 0;
-    Packet.Header.Ack = 0;
-    Packet.Header.Padding = 0;
-    Packet.Header.Length = 0;
+    Packet.Header = new HeaderDef();
 
-    Packet.Data = nullptr;
+    Packet.body = nullptr;
+
     Packet.CRC = 0;
     RawBuffer = nullptr;
+
+    cmd = CmdType::UNDEFINED;
 }
 
 PktDef::PktDef(char* rawData)
 {
-    Packet.Data = nullptr;
-    RawBuffer = nullptr;
-    Packet.CRC = 0;
-
+    this->RawBuffer = nullptr;
     if (rawData == nullptr)
     {
-        Packet.Header.PktCount = 0;
-        Packet.Header.Drive = 0;
-        Packet.Header.Status = 0;
-        Packet.Header.Sleep = 0;
-        Packet.Header.Ack = 0;
-        Packet.Header.Padding = 0;
-        Packet.Header.Length = 0;
+        this->Packet.CRC = 0;
+        this->cmd = CmdType::UNDEFINED;
         return;
     }
 
+
     HeaderDef* header = HeaderDef::deserialize(rawData);
+    Packet.Header = header;
 
-    Packet.Header = *header;
-    delete header;
+    int bodySize = Packet.Header->Length - HEADERSIZE - CRCSIZE;
 
-    int bodySize = Packet.Header.Length - HEADERSIZE - CRCSIZE;
+    if (Packet.Header->Status) {
+        this->cmd = CmdType::TELE;
+    } else if (Packet.Header->Ack) {
+        this->cmd = CmdType::ACK;
+    } else if (Packet.Header->Drive) {
+        this->cmd = CmdType::DRIVE;
+    } else if (Packet.Header->Sleep) {
+        this->cmd = CmdType::SLEEP;
+    }
+    else {
+        this->cmd = CmdType::UNDEFINED;
+    }
+
 
     if (bodySize > 0)
     {
-        Packet.Data = new char[bodySize];
-        std::memcpy(Packet.Data, rawData + HEADERSIZE, bodySize);
-    }
-    else
-    {
-        Packet.Data = nullptr;
+        char* bodyBuffer = new char[bodySize];
+        std::memcpy(bodyBuffer, rawData + HEADERSIZE, bodySize);
+        switch (this->cmd)
+        {
+        case (CmdType::ACK):
+            this->Packet.body = AckBodyDef::deserialize(bodyBuffer);
+            break;
+        case (CmdType::DRIVE):
+            this->Packet.body = DriveBodyDef::deserialize(bodyBuffer);
+            break;
+        case (CmdType::TELE):
+            this->Packet.body = TelemetryBodyDef::deserialize(bodyBuffer);
+            break;
+        default:
+            break;
+        }
+        delete[] bodyBuffer;
     }
 
-    Packet.CRC = rawData[Packet.Header.Length - 1];
+    Packet.CRC = rawData[Packet.Header->Length - 1];
 }
 
 PktDef::~PktDef()
 {
-    delete[] Packet.Data;
-    Packet.Data = nullptr;
-
-    delete[] RawBuffer;
-    RawBuffer = nullptr;
+    delete this->Packet.Header;
+    delete this->Packet.body;    
+    if (this->RawBuffer != nullptr) {
+        delete this->RawBuffer;
+    }
 }
 
 void PktDef::Reset()
 {
-    delete[] Packet.Data;
-    Packet.Data = nullptr;
-
-    delete[] RawBuffer;
-    RawBuffer = nullptr;
-
-    Packet.Header.PktCount = 0;
-    Packet.Header.Drive = 0;
-    Packet.Header.Status = 0;
-    Packet.Header.Sleep = 0;
-    Packet.Header.Ack = 0;
-    Packet.Header.Padding = 0;
-    Packet.Header.Length = 0;
-
-    Packet.CRC = 0;
+    // call deconstructor, and then rebuild a new instance ontop of old memory
+    // body is not built by default, so the variable memory will be fine
+    this->~PktDef();
+    new (this) PktDef();
 }
 
 void PktDef::SetCmd(CmdType cmd)
 {
-    Packet.Header.Drive = 0;
-    Packet.Header.Sleep = 0;
-    Packet.Header.Status = 0;
+    Packet.Header->Drive = 0;
+    Packet.Header->Sleep = 0;
+    Packet.Header->Status = 0;
 
     switch (cmd)
     {
     case DRIVE:
-        Packet.Header.Drive = 1;
+    case TURN:
+        Packet.Header->Drive = 1;
         break;
 
     case SLEEP:
-        Packet.Header.Sleep = 1;
+        Packet.Header->Sleep = 1;
         break;
 
-    case RESPONSE:
-        Packet.Header.Status = 1;
+    case ACK:
+        Packet.Header->Status = 1;
         break;
 
     default:
@@ -109,91 +113,69 @@ void PktDef::SetCmd(CmdType cmd)
     }
 }
 
-void PktDef::SetBodyData(char* data, int size)
+void PktDef::SetBodyData(BodyInterface* data)
 {
-    delete[] Packet.Data;
-    Packet.Data = nullptr;
-
-    if (data != nullptr && size > 0)
-    {
-        Packet.Data = new char[size];
-        std::memcpy(Packet.Data, data, size);
-        Packet.Header.Length = HEADERSIZE + size + CRCSIZE;
-    }
-    else
-    {
-        Packet.Header.Length = HEADERSIZE + CRCSIZE;
-    }
+    this->Packet.body = data;
 }
+
 
 void PktDef::SetPktCount(int value)
 {
-    Packet.Header.PktCount = static_cast<uint8_t>(value);
+    this->Packet.Header->PktCount = static_cast<uint8_t>(value);
 }
-
+//
 PktDef::CmdType PktDef::GetCmd() const
 {
-    if (Packet.Header.Drive)
-    {
-        return DRIVE;
-    }
-
-    if (Packet.Header.Sleep)
-    {
-        return SLEEP;
-    }
-
-    return RESPONSE;
+    return this->cmd;
 }
-
+//
 bool PktDef::GetAck() const
 {
-    return Packet.Header.Ack != 0;
+    return Packet.Header->Ack != 0;
 }
-
+//
 int PktDef::GetLength() const
 {
-    return Packet.Header.Length;
+    return Packet.Header->Length;
 }
-
+//
 char* PktDef::GetBodyData() const
 {
-    return Packet.Data;
+    return Packet.body->serialize();
 }
-
+//
 int PktDef::GetPktCount() const
 {
-    return Packet.Header.PktCount;
+    return Packet.Header->PktCount;
 }
 
-unsigned char PktDef::countSetBits(unsigned char value) const
-{
-    unsigned char count = 0;
 
-    while (value > 0)
-    {
-        count += (value & 1);
-        value >>= 1;
+// https://stackoverflow.com/questions/12380478/bits-counting-algorithm-brian-kernighan-in-an-integer-time-complexity
+unsigned char PktDef::countSetBits(const char* value, int size) const
+{
+    if (value == nullptr) return 0;
+    unsigned char totalBits = 0;
+
+    for (size_t i = 0; i < size; ++i) {
+        unsigned char n = static_cast<unsigned char>(value[i]);
+
+        while (n != 0) {
+            n &= (n - 1);
+            totalBits++;
+        }
     }
 
-    return count;
+    return totalBits;
 }
 
-unsigned char PktDef::calculateCRCFromBuffer(const char* buffer, int sizeWithoutCRC) const
-{
-    unsigned char crc = 0;
-
-    for (int i = 0; i < sizeWithoutCRC; i++)
-    {
-        crc += countSetBits(static_cast<unsigned char>(buffer[i]));
-    }
-
-    return crc;
-}
-
+//
 void PktDef::CalcCRC()
 {
-    int totalLength = Packet.Header.Length;
+
+    int totalLength = Packet.Header->Length;
+
+    delete this->RawBuffer;
+    this->RawBuffer = new char[totalLength];
 
     if (totalLength < HEADERSIZE + CRCSIZE)
     {
@@ -202,24 +184,25 @@ void PktDef::CalcCRC()
     }
 
     int sizeWithoutCRC = totalLength - CRCSIZE;
-    int bodySize = totalLength - HEADERSIZE - CRCSIZE;
+    int bodySize = Packet.body->getSize();
 
-    char* tempBuffer = new char[sizeWithoutCRC];
 
-    char* serializedHeader = Packet.Header.serialize();
-    std::memcpy(tempBuffer, serializedHeader, HEADERSIZE);
+    char* serializedHeader = Packet.Header->serialize();
+    std::memcpy(this->RawBuffer, serializedHeader, HEADERSIZE);
     delete[] serializedHeader;
 
-    if (bodySize > 0 && Packet.Data != nullptr)
+
+
+    if (bodySize > 0 && Packet.body != nullptr)
     {
-        std::memcpy(tempBuffer + HEADERSIZE, Packet.Data, bodySize);
+        char* serializedBody = Packet.body->serialize();
+        std::memcpy(this->RawBuffer + HEADERSIZE, serializedBody, bodySize);
+        delete[] serializedBody;
     }
 
-    Packet.CRC = static_cast<char>(calculateCRCFromBuffer(tempBuffer, sizeWithoutCRC));
-
-    delete[] tempBuffer;
+    Packet.CRC = this->countSetBits(RawBuffer, sizeWithoutCRC);
 }
-
+//
 bool PktDef::CheckCRC(char* data, int size) const
 {
     if (data == nullptr || size < HEADERSIZE + CRCSIZE)
@@ -227,38 +210,38 @@ bool PktDef::CheckCRC(char* data, int size) const
         return false;
     }
 
-    unsigned char calculated = calculateCRCFromBuffer(data, size - CRCSIZE);
+    unsigned char calculated = countSetBits(data, size - CRCSIZE);
     unsigned char received = static_cast<unsigned char>(data[size - 1]);
 
     return calculated == received;
 }
-
+//
 char* PktDef::GenPacket()
 {
-    delete[] RawBuffer;
-    RawBuffer = nullptr;
-
-    int totalLength = Packet.Header.Length;
+    int totalLength = Packet.Header->Length;
 
     if (totalLength < HEADERSIZE + CRCSIZE)
     {
         totalLength = HEADERSIZE + CRCSIZE;
-        Packet.Header.Length = totalLength;
+        Packet.Header->Length = totalLength;
     }
 
     CalcCRC();
 
+    delete[] this->RawBuffer;
     RawBuffer = new char[totalLength];
 
-    char* serializedHeader = Packet.Header.serialize();
+    char* serializedHeader = Packet.Header->serialize();
     std::memcpy(RawBuffer, serializedHeader, HEADERSIZE);
     delete[] serializedHeader;
 
-    int bodySize = totalLength - HEADERSIZE - CRCSIZE;
+    int bodySize = Packet.body->getSize();
 
-    if (bodySize > 0 && Packet.Data != nullptr)
+    if (bodySize > 0 && Packet.body != nullptr)
     {
-        std::memcpy(RawBuffer + HEADERSIZE, Packet.Data, bodySize);
+        char* serializedBody = Packet.body->serialize();
+        std::memcpy(this->RawBuffer + HEADERSIZE, serializedBody, bodySize);
+        delete[] serializedBody;
     }
 
     RawBuffer[totalLength - 1] = Packet.CRC;
