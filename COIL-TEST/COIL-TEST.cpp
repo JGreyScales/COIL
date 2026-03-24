@@ -334,4 +334,98 @@ namespace COILTEST
 			delete nulledDeserialized;
 		}
 	};
+
+	TEST_CLASS(PktDefTests) {
+		TEST_METHOD(validate_Direction_enum) {
+
+		}
+
+		TEST_METHOD(validate_CRC_and_HeaderSize) {
+
+		}
+
+		TEST_METHOD(default_instance_state) {
+
+		}
+
+		TEST_METHOD(countSetBits) {
+
+		}
+
+		TEST_METHOD(countSetBitsNegative) {
+
+		}
+
+		TEST_METHOD(serializeFromRawData) {
+
+		}
+
+		TEST_METHOD(setCommand) {
+
+		}
+
+		TEST_METHOD(SetCommandNegative) {
+
+		}
+
+		TEST_METHOD(setBodyData) {
+
+		}
+
+		TEST_METHOD(setBodyDataNegative) {
+
+		}
+
+		TEST_METHOD(setPktCount) {
+
+		}
+
+		TEST_METHOD(setPktCountNegative) {
+
+		}
+
+		TEST_METHOD(getCmd) {
+
+		}
+
+		TEST_METHOD(getAck) {
+
+		}
+
+		TEST_METHOD(getLength) {
+
+		}
+
+		TEST_METHOD(getBodyData) {
+
+		}
+
+		TEST_METHOD(getPktCount) {
+
+		}
+
+		TEST_METHOD(checkCRC) {
+
+		}
+
+		TEST_METHOD(CheckCRCNegative) {
+
+		}
+
+		TEST_METHOD(calcCRC) {
+
+		}
+
+		TEST_METHOD(calcCRCNegative) {
+
+		}
+
+		TEST_METHOD(genPacket) {
+
+		}
+
+		TEST_METHOD(reset) {
+
+		}
+	};
 }
