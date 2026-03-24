@@ -89,6 +89,7 @@ void PktDef::Reset()
 
 void PktDef::SetCmd(CmdType cmd)
 {
+    this->cmd = cmd;
     Packet.Header->Drive = 0;
     Packet.Header->Sleep = 0;
     Packet.Header->Status = 0;
@@ -149,18 +150,25 @@ int PktDef::GetPktCount() const
     return Packet.Header->PktCount;
 }
 
+PktDef::CmdPacket PktDef::getPacket() const
+{
+    return this->Packet;
+}
+
+
+
 
 // https://stackoverflow.com/questions/12380478/bits-counting-algorithm-brian-kernighan-in-an-integer-time-complexity
-unsigned char PktDef::countSetBits(const char* value, int size) const
+unsigned char PktDef::countSetBits(const char* value, int sizeInBytes) const
 {
     if (value == nullptr) return 0;
     unsigned char totalBits = 0;
 
-    for (size_t i = 0; i < size; ++i) {
-        unsigned char n = static_cast<unsigned char>(value[i]);
+    for (size_t i = 0; i < sizeInBytes; ++i) {
+        unsigned char byte = static_cast<unsigned char>(value[i]);
 
-        while (n != 0) {
-            n &= (n - 1);
+        while (byte != 0) {
+            byte &= (byte - 1);
             totalBits++;
         }
     }

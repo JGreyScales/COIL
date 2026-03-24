@@ -337,23 +337,46 @@ namespace COILTEST
 
 	TEST_CLASS(PktDefTests) {
 		TEST_METHOD(validate_Direction_enum) {
-
+			Assert::AreEqual(1, (int)PktDef::FORWARD);
+			Assert::AreEqual(2, (int)PktDef::BACKWARD);
+			Assert::AreEqual(3, (int)PktDef::RIGHT);
+			Assert::AreEqual(4, (int)PktDef::LEFT);
 		}
 
 		TEST_METHOD(validate_CRC_and_HeaderSize) {
-
-		}
-
-		TEST_METHOD(default_instance_state) {
-
+			Assert::AreEqual(3, PktDef::HEADERSIZE);
+			Assert::AreEqual(1, PktDef::CRCSIZE);
 		}
 
 		TEST_METHOD(countSetBits) {
 
+			PktDef* pktInstance = new PktDef();
+
+			// written letter is the amount of 1's in the byte to represent
+			// the number
+			uint8_t eight = 255;
+			uint8_t four = 147;
+			uint8_t two = 3;
+
+			uint8_t numbers[3] = { eight, four, two };
+
+			for (size_t i = 0; i < sizeof(numbers); i++)
+			{
+				// floor divide with type casting
+				int expected = (int)(8 / (1 + i));
+				int result = pktInstance->countSetBits((char*)&numbers[i], 1);
+				Assert::AreEqual(expected, result);
+			}
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(countSetBitsNegative) {
+			PktDef* pktInstance = new PktDef();
 
+			Assert::AreEqual<unsigned char>(0, pktInstance->countSetBits(nullptr, 99999));
+
+			delete pktInstance;
 		}
 
 		TEST_METHOD(serializeFromRawData) {
@@ -361,14 +384,27 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(setCommand) {
+			PktDef* pktInstance = new PktDef();
 
-		}
+			Assert::AreEqual((int)PktDef::UNDEFINED, (int)pktInstance->GetCmd());
 
-		TEST_METHOD(SetCommandNegative) {
+			pktInstance->SetCmd(PktDef::DRIVE);
 
+			Assert::AreEqual((int)PktDef::DRIVE, (int)pktInstance->GetCmd());
+			Assert::IsTrue(pktInstance->getPacket().Header->Drive);
+			delete pktInstance;
 		}
 
 		TEST_METHOD(setBodyData) {
+			DriveBodyDef* driveBodyInstance = new DriveBodyDef();
+
+			PktDef* pktInstance = new PktDef();
+			pktInstance->SetBodyData(driveBodyInstance);
+
+			// memory address in the pkt is the same as the drive instance
+			Assert::IsTrue(driveBodyInstance == pktInstance->getPacket().body);
+
+			delete pktInstance;
 
 		}
 

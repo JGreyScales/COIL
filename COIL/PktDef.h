@@ -44,10 +44,11 @@ private:
     };
 
     CmdPacket Packet;
-    CmdType cmd;
 
     char* RawBuffer;
 public:
+    CmdType cmd;
+
     unsigned char countSetBits(const char* value, int size) const;
 
     PktDef();
@@ -63,6 +64,7 @@ public:
     int GetLength() const;
     char* GetBodyData() const;
     int GetPktCount() const;
+    CmdPacket getPacket() const;
 
     bool CheckCRC(char* data, int size) const;
     void CalcCRC();
