@@ -6,6 +6,7 @@
 #include "TurnBodyDef.h"
 #include "DriveBodyDef.h"
 #include "TelemetryBodyDef.h"
+#include "AckBodyDef.h"
 
 int main()
 {
@@ -15,6 +16,10 @@ int main()
 
     char* buffer = reinterpret_cast<char*>(rawBytes);
 
+    AckBodyDef* ac = new AckBodyDef();
+    ac->setBody("testing body");
+    ac->display();
+    ac->serialize();
 
     DriveBodyDef* DriveBody = new DriveBodyDef();
 

@@ -24,7 +24,6 @@ TurnBodyDef::TurnBodyDef()
 }
 
 char* TurnBodyDef::serialize() {
-    // 8 for direction + 16 for duration
     char* buffer = new char[sizeof(TurnBodyDef)];
     std::memcpy(buffer, this, sizeof(TurnBodyDef));
     return buffer;
@@ -33,8 +32,7 @@ char* TurnBodyDef::serialize() {
 TurnBodyDef* TurnBodyDef::deserialize(char* data) {
     TurnBodyDef* returnValue = new TurnBodyDef();
 
-    // because we know data order, and that this struct is packed we can just dump it into our class memory
-    std:memcpy(returnValue, data, sizeof(TurnBodyDef));
+    std::memcpy(returnValue, data, sizeof(TurnBodyDef));
 
     return returnValue;
 }
