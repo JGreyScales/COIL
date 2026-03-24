@@ -9,7 +9,9 @@ AckBodyDef::AckBodyDef() {
 }
 
 AckBodyDef::~AckBodyDef() {
-    delete[] body;
+    if (this->body != nullptr) {
+        delete[] body;
+    }
 }
 
 void AckBodyDef::setBody(const char* newBody) {
@@ -26,16 +28,24 @@ void AckBodyDef::setBody(const char* newBody) {
 
 int AckBodyDef::getSize() {
     if (this->body != nullptr) {
-        return static_cast<int>(strlen(this->body));
+        // +1 to account for the terminator
+        return 1 + static_cast<int>(strlen(this->body));
     }
     else {
         return 0;
     }
 }
 
+// ai generated
+// this will literally never be used
+// only useful for test cases
 char* AckBodyDef::serialize() {
-    std::cout << "Not implimented for this class" << std::endl;
-    return nullptr;
+    if (this->body == nullptr) return nullptr;
+
+    int size = getSize();
+    char* buffer = new char[size];
+    strcpy_s(buffer, size, this->body);
+    return buffer;
 }
 
  AckBodyDef* AckBodyDef::deserialize(char* data) {

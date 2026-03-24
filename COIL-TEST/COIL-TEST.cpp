@@ -3,13 +3,66 @@
 #include <bitset>
 
 
-#include "HeaderDef.h"
-#include "TelemetryBodyDef.h"
+#include "PktDef.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace COILTEST
 {
+	TEST_CLASS(AckBodyTests) {
+		TEST_METHOD(sanityInstanceCreation) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+			
+			Assert::IsNull(ackInstance->body);
+			delete ackInstance;
+		}
+
+		TEST_METHOD(getSizeSanityTest) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+			ackInstance->setBody("someString");
+
+			Assert::AreEqual(11, ackInstance->getSize());
+			delete ackInstance;
+		}
+
+		TEST_METHOD(getSizeNegativeTest) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+
+			Assert::AreEqual(0, ackInstance->getSize());
+			delete ackInstance;
+		}
+
+		TEST_METHOD(setBodySanityCheck) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+			ackInstance->setBody("Xx");
+
+			Assert::AreEqual(0, strcmp("Xx", ackInstance->body));
+
+			delete ackInstance;
+		}
+
+		TEST_METHOD(setBodyEmptyString) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+			ackInstance->setBody(nullptr);
+
+			Assert::IsNull(ackInstance->body);
+
+			delete ackInstance;
+		}
+
+		TEST_METHOD(deserializeSanityCheck) {
+			AckBodyDef* ackInstance = new AckBodyDef();
+			ackInstance->setBody("someString");
+
+			char* serializedData = ackInstance->serialize();
+			AckBodyDef* deserializedData = AckBodyDef::deserialize(serializedData);
+
+			Assert::AreEqual(0, strcmp("someString", deserializedData->body));
+			delete ackInstance;
+			delete deserializedData;
+		}
+	};
+
 	TEST_CLASS(HeaderDefTests)
 	{
 	public:
@@ -51,7 +104,9 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(headerBinaryLength) {
-			Assert::AreEqual(3, HeaderDef::HEADER_SIZE);
+			HeaderDef* HeaderInstance = new HeaderDef();
+			Assert::AreEqual(3, HeaderInstance->getSize());
+			delete HeaderInstance;
 		}
 
 		TEST_METHOD(HeaderBinaryOrder) {
@@ -129,7 +184,9 @@ namespace COILTEST
 
 		TEST_METHOD(TelemetryBodySize_IsEleven)
 		{
-			Assert::AreEqual(11, TelemetryBodyDef::TELEMETRY_BODY_SIZE);
+			TelemetryBodyDef* TeleInstance = new TelemetryBodyDef();
+			Assert::AreEqual(11, TeleInstance->getSize());
+			delete TeleInstance;
 		}
 	};
 }
