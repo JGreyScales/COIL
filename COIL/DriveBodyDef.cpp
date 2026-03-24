@@ -45,7 +45,7 @@ void DriveBodyDef::display() {
 
     uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
     std::cout << "\n--- Raw Memory Layout (Bytes) ---" << std::endl;
-    for (size_t i = 0; i < sizeof(DriveBodyDef); ++i) {
+    for (size_t i = 0; i < DRIVE_BODY_SIZE; ++i) {
         std::cout << "Byte " << i << ": " << std::bitset<8>(rawData[i]) << std::endl;
     }
     std::cout << "----------------------" << std::endl;

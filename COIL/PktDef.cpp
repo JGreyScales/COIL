@@ -285,3 +285,11 @@ char* PktDef::GenPacket()
 
     return RawBuffer;
 }
+
+void PktDef::display() {
+    this->Packet.Header->display();
+    if (this->Packet.body) {
+        this->Packet.body->display();
+    }
+    std::cout << "CRC: " << this->Packet.CRC << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
+}

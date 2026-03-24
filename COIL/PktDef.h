@@ -71,4 +71,5 @@ public:
     char* GenPacket();
 
     void Reset();
+    void display();
 };

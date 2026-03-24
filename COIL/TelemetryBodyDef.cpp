@@ -99,7 +99,7 @@ TelemetryBodyDef* TelemetryBodyDef::deserialize(const char* buffer)
     return body;
 }
 
-void TelemetryBodyDef::display() const
+void TelemetryBodyDef::display()
 {
     std::cout << "TelemetryBodyDef" << std::endl;
 

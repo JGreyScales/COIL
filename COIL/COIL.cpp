@@ -6,15 +6,18 @@
 
 #include "Utils.h"
 
-#include "HeaderDef.h"
-#include "TurnBodyDef.h"
-#include "DriveBodyDef.h"
-#include "TelemetryBodyDef.h"
-#include "AckBodyDef.h"
+#include "PktDef.h"
 
 int main()
 {
+	PktDef* pktInstance = new PktDef();
+	TurnBodyDef* driveBodyInstance = new TurnBodyDef();
+	driveBodyInstance->Duration = 5;
 
+	pktInstance->SetCmd(PktDef::DRIVE);
+	pktInstance->SetBodyData(driveBodyInstance);
+
+	pktInstance->display();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

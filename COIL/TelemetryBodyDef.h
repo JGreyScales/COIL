@@ -39,5 +39,5 @@ public:
 
     static TelemetryBodyDef* deserialize(const char* buffer);
 
-    void display() const;
+    void display();
 };
