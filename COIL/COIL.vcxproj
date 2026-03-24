@@ -131,12 +131,14 @@
     <ClCompile Include="COIL.cpp" />
     <ClCompile Include="DriveBodyDef.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
+    <ClCompile Include="TelemetryBodyDef.cpp" />
     <ClCompile Include="TurnBodyDef.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AckBodyDef.h" />
     <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="HeaderDef.h" />
+    <ClInclude Include="TelemetryBodyDef.h" />
     <ClInclude Include="TurnBodyDef.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>

@@ -45,3 +45,5 @@
 *.tlog
 *.log
 *.testlog
+/COIL/.vs/COIL/v18
+/COIL/.vs/COIL
