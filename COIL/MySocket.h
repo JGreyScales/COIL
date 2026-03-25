@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <socketapi.h>
+#include <string>
 
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include <iostream>
 
 // Link the Winsock library
@@ -25,31 +26,32 @@ public:
 		UDP
 	};
 
-	static const uint8_t DEFAULT_SIZE = 255;
+	static const unsigned int DEFAULT_SIZE = 255;
+
+private:
 	char* Buffer;
 	SOCKET WelcomeSocket;
 	SOCKET ConnectionSocket;
 	sockaddr_in SvrAddr;
+	SocketType mySocket;
 	std::string IPAddr;
 	int port;
 	ConnectionType connectionType;
 	bool bTCPConnect;
-	int maxSize;
+	unsigned int maxSize;
 
-	//
-
-	MySocket(SocketType, unsigned int, ConnectionType);
+public:
+	MySocket(SocketType, std::string, unsigned int, ConnectionType, unsigned int);
 	~MySocket();
-	void connectTCP();
-	void connectUDP();
-	void DisconnectionTCP();
+	void ConnectTCP();
+	void DisconnectTCP();
 	void SendData(char*, int);
-	int getData(char*);
-	std::string getIPAddr();
-	void setIPAddr(std::string);
-	void setPort();
-	int getPort();
-	SocketType GetSocketType();
-	void SetSocketType(SocketType);
+	int GetData(char*);
+	std::string GetIPAddr();
+	void SetIPAddr(std::string);
+	void SetPort(int);
+	int GetPort();
+	SocketType GetType();
+	void SetType(SocketType);
 };
 
