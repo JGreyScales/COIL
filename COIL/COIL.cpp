@@ -7,17 +7,11 @@
 #include "Utils.h"
 
 #include "PktDef.h"
+#include "Robot.h"
 
 int main()
 {
-	PktDef* pktInstance = new PktDef();
-	TurnBodyDef* driveBodyInstance = new TurnBodyDef();
-	driveBodyInstance->Duration = 5;
-
-	pktInstance->SetCmd(PktDef::DRIVE);
-	pktInstance->SetBodyData(driveBodyInstance);
-
-	pktInstance->display();
+	Robot* robots[2] = {new Robot(), new Robot()}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

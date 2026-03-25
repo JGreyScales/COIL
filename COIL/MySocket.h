@@ -41,6 +41,7 @@ public:
 	MySocket(SocketType, unsigned int, ConnectionType);
 	~MySocket();
 	void connectTCP();
+	void connectUDP();
 	void DisconnectionTCP();
 	void SendData(char*, int);
 	int getData(char*);
