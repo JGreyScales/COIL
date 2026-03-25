@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <limits>
+#include <iostream>
 
 namespace BitUtils {
     /**
@@ -16,19 +18,25 @@ namespace BitUtils {
 
 namespace ConsoleUtils {
     inline int getUserInt(int lower, int max) {
-        int input = NULL;
+        int input;
 
-        while (input == NULL) {
-            std::cout << "Type a number between: " << lower << " and " << max << std::endl;
-            std::cin >> input;
-            
-            if (input > max || input < lower) {
-                input = NULL;
-                std::cout << "Invalid choice" << std::endl;
+        while (true) {
+            std::cout << "Type a number between " << lower << " and " << max << ": ";
+
+            if (std::cin >> input) {
+                if (input >= lower && input <= max) {
+                    return input;
+                }
+                std::cout << "Out of range. ";
             }
-        }
+            else {
+                std::cout << "That's not a number! ";
+                std::cin.clear();
+                std::cin.ignore(9999999999, '\n');
+            }
 
-        return input;
+            std::cout << "Please try again.\n" << std::endl;
+        }
     }
 
     inline std::string getUserString() {

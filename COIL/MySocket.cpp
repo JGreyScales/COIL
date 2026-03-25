@@ -106,6 +106,23 @@ MySocket::~MySocket()
 	delete[] Buffer;
 }
 
+void MySocket::ConnectTCP()
+{
+}
+
+void MySocket::DisconnectTCP()
+{
+}
+
+void MySocket::SendData(char*, int)
+{
+}
+
+int MySocket::GetData(char*)
+{
+	return 0;
+}
+
 std::string MySocket::GetIPAddr()
 {
 	return IPAddr;
