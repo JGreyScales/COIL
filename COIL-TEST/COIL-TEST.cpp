@@ -381,7 +381,27 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(serializeFromRawData) {
+			PktDef* pktInstance = new PktDef();
 
+			TelemetryBodyDef* teleInstance = new TelemetryBodyDef();
+			teleInstance->Heading = 3;
+			teleInstance->LastCmdPower = 5;
+
+			pktInstance->SetCmd(PktDef::DRIVE);
+			pktInstance->SetBodyData(teleInstance);
+
+			char* serialData = pktInstance->GenPacket();
+
+			PktDef* deserializedInstance = new PktDef(serialData);
+
+			char* deserializedSerializedData = deserializedInstance->GenPacket();
+
+			int result = memcmp(serialData, deserializedSerializedData, pktInstance->GetLength());
+
+			Assert::AreEqual(0, result);
+
+			delete pktInstance;
+			delete deserializedInstance;
 		}
 
 		TEST_METHOD(setCommand) {
