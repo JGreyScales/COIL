@@ -1,13 +1,15 @@
 #pragma once
 
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#include <cstdint>
+#include <string>
 #include <Windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <cstdint>
 #include <iostream>
 #include "PktDef.h"
 
@@ -27,31 +29,31 @@ public:
 		UDP = 2
 	};
 
-	static const uint8_t DEFAULT_SIZE = 255;
+	static const unsigned int DEFAULT_SIZE = 255;
+
+private:
 	char* Buffer;
 	SOCKET WelcomeSocket;
 	SOCKET ConnectionSocket;
 	sockaddr_in SvrAddr;
+	SocketType mySocket;
 	std::string IPAddr;
 	int port;
 	ConnectionType connectionType;
 	bool bTCPConnect;
-	int maxSize;
-
-	//
-
+	unsigned int maxSize;
+public:
 	MySocket(SocketType, std::string ip, unsigned int port , ConnectionType, unsigned int bufferSize);
 	~MySocket();
-	void connectTCP();
-	void connectUDP();
-	void DisconnectionTCP();
+	void ConnectTCP();
+	void DisconnectTCP();
 	void SendData(char*, int);
-	int getData(char*);
-	std::string getIPAddr();
-	void setIPAddr(std::string);
-	void setPort();
-	int getPort();
-	SocketType GetSocketType();
-	void SetSocketType(SocketType);
+	int GetData(char*);
+	std::string GetIPAddr();
+	void SetIPAddr(std::string);
+	void SetPort(int);
+	int GetPort();
+	SocketType GetType();
+	void SetType(SocketType);
 };
 

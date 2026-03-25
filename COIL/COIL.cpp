@@ -5,12 +5,23 @@
 #include <bitset>
 #include <limits>
 
+#include <winsock2.h>
+#pragma comment(lib, "Ws2_32.lib")
+
 #include "Utils.h"
 
 #include "Robot.h"
 
 int main()
 {
+  
+  WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		std::cerr << "WSAStartup failed." << std::endl;
+		return 1;
+	}
+  
 	Robot* robots[2] = { new Robot(0), new Robot(1) };
 	bool interfaceWithUser = true;
 	
@@ -20,6 +31,7 @@ int main()
         // 2 because we subtract one for user ease on the display
         if (chosenInput == 2) {
             interfaceWithUser = false;
+            continue;
         }
         Robot* chosenRobot = robots[chosenInput];
 
@@ -27,8 +39,13 @@ int main()
         // cast the int into the connection type
         MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
 
+        std::cout << "Enter IP: ";
         std::string IP = ConsoleUtils::getUserString();
+        std::cout << std::endl;
+
+        std::cout << "Enter Port: ";
         unsigned int port = ConsoleUtils::getUserInt(0, INT_MAX);
+        std::cout << std::endl;
 
         chosenRobot->socket = new MySocket(MySocket::SERVER, IP, port, connectionType, MySocket::DEFAULT_SIZE);
         bool robotInterfacing = true;
@@ -125,6 +142,7 @@ int main()
 
 	delete robots[0];
 	delete robots[1];
+  WSACleanup();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
