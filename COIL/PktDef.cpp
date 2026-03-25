@@ -146,7 +146,13 @@ int PktDef::GetLength() const
 //
 char* PktDef::GetBodyData() const
 {
-    return Packet.body->serialize();
+    if (Packet.body) {
+        return Packet.body->serialize();
+    }
+    else {
+        return nullptr;
+    }
+    
 }
 //
 int PktDef::GetPktCount() const
