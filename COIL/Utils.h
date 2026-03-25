@@ -13,3 +13,28 @@ namespace BitUtils {
         return b;
     }
 }
+
+namespace ConsoleUtils {
+    inline int getUserInt(int lower, int max) {
+        int input = NULL;
+
+        while (input == NULL) {
+            std::cout << "Type a number between: " << lower << " and " << max << std::endl;
+            std::cin >> input;
+            
+            if (input > max || input < lower) {
+                input = NULL;
+                std::cout << "Invalid choice" << std::endl;
+            }
+        }
+
+        return input;
+    }
+
+    inline std::string getUserString() {
+        std::string input = "";
+        std::cin >> input;
+
+        return input;
+    }
+}
