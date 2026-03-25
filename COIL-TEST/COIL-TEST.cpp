@@ -381,7 +381,41 @@ namespace COILTEST
 		}
 
 		TEST_METHOD(serializeFromRawData) {
+			PktDef* pktInstance = new PktDef();
 
+			TelemetryBodyDef* teleInstance = new TelemetryBodyDef();
+			teleInstance->Heading = 3;
+			teleInstance->LastCmdPower = 5;
+
+			pktInstance->SetCmd(PktDef::DRIVE);
+			pktInstance->SetBodyData(teleInstance);
+
+			char* serialData = pktInstance->GenPacket();
+
+			PktDef* deserializedInstance = new PktDef(serialData);
+
+			char* deserializedSerializedData = deserializedInstance->GenPacket();
+
+			int result = memcmp(serialData, deserializedSerializedData, pktInstance->GetLength());
+
+			Assert::AreEqual(0, result);
+
+			delete pktInstance;
+			delete deserializedInstance;
+		}
+
+		TEST_METHOD(serializeNonResponseTypeGivesNullPtr) {
+			PktDef* pktInstance = new PktDef();
+			pktInstance->SetCmd(PktDef::DRIVE);
+
+			char* serial = pktInstance->GenPacket();
+
+			PktDef* deserialized = new PktDef(serial);
+
+			Assert::IsNull(deserialized->GetBodyData());
+
+			delete deserialized;
+			delete pktInstance;
 		}
 
 		TEST_METHOD(setCommand) {
@@ -556,7 +590,7 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(128, data[2]);
+			Assert::AreEqual<uint8_t>(192, data[2]);
 			Assert::AreEqual<uint8_t>(8, data[3]);
 
 			// body
@@ -565,7 +599,7 @@ namespace COILTEST
 			Assert::AreEqual<uint8_t>(0, data[6]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(3, data[7]);
+			Assert::AreEqual<uint8_t>(4, data[7]);
 
 			delete pktInstance;
 		}
@@ -591,7 +625,7 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(128, data[2]);
+			Assert::AreEqual<uint8_t>(192, data[2]);
 			Assert::AreEqual<uint8_t>(8, data[3]);
 
 			// body
@@ -600,7 +634,7 @@ namespace COILTEST
 			Assert::AreEqual<uint8_t>(5, data[6]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(4, data[7]);
+			Assert::AreEqual<uint8_t>(5, data[7]);
 
 			delete pktInstance;
 		}
@@ -620,11 +654,11 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(32, data[2]);
+			Assert::AreEqual<uint8_t>(96, data[2]);
 			Assert::AreEqual<uint8_t>(5, data[3]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(3, data[4]);
+			Assert::AreEqual<uint8_t>(4, data[4]);
 
 			delete pktInstance;
 		}

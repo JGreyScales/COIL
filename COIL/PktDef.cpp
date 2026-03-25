@@ -19,26 +19,23 @@ PktDef::PktDef()
 PktDef::PktDef(char* rawData)
 {
     this->RawBuffer = nullptr;
-    if (rawData == nullptr)
-    {
-        this->Packet.CRC = 0;
-        this->cmd = CmdType::UNDEFINED;
-        return;
-    }
+    this->Packet.Header = nullptr;
+    this->Packet.body = nullptr;
+    this->Packet.CRC = 0;
+    this->cmd = CmdType::UNDEFINED;
 
+    if (rawData == nullptr) return;
 
-    HeaderDef* header = HeaderDef::deserialize(rawData);
-    Packet.Header = header;
+    this->Packet.Header = HeaderDef::deserialize(rawData);
 
-    int bodySize = Packet.Header->Length - HEADERSIZE - CRCSIZE;
+    if (this->Packet.Header == nullptr) return;
 
-    if (Packet.Header->Status) {
-        this->cmd = CmdType::TELE;
-    } else if (Packet.Header->Ack) {
-        this->cmd = CmdType::ACK;
-    } else if (Packet.Header->Drive) {
+    if (this->Packet.Header->Status || this->Packet.Header->Ack) {
+        this->cmd = CmdType::RESPONSE;
+    } else if (this->Packet.Header->Drive) {
         this->cmd = CmdType::DRIVE;
-    } else if (Packet.Header->Sleep) {
+    }
+    else if (this->Packet.Header->Sleep) {
         this->cmd = CmdType::SLEEP;
     }
     else {
@@ -46,30 +43,32 @@ PktDef::PktDef(char* rawData)
     }
 
 
+    int bodySize = this->Packet.Header->Length - HEADERSIZE - CRCSIZE;
+
     if (bodySize > 0)
     {
         char* bodyBuffer = new char[bodySize];
         std::memcpy(bodyBuffer, rawData + HEADERSIZE, bodySize);
-        switch (this->cmd)
-        {
-        case (CmdType::ACK):
-            this->Packet.body = AckBodyDef::deserialize(bodyBuffer);
-            break;
-        case (CmdType::DRIVE):
-            this->Packet.body = DriveBodyDef::deserialize(bodyBuffer);
-            break;
-        case (CmdType::TELE):
-            this->Packet.body = TelemetryBodyDef::deserialize(bodyBuffer);
-            break;
-        default:
-            break;
+
+        // we will only recieve acks or tele responses
+        if (this->cmd == CmdType::RESPONSE) {
+            if (this->Packet.Header->Status) {
+                this->Packet.body = TelemetryBodyDef::deserialize(bodyBuffer);
+            }
+            else {
+                this->Packet.body = AckBodyDef::deserialize(bodyBuffer);
+            }
         }
+        else {
+            this->Packet.body = nullptr;
+        }
+
+
         delete[] bodyBuffer;
     }
 
-    Packet.CRC = rawData[Packet.Header->Length - 1];
+    this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length - 1]);
 }
-
 PktDef::~PktDef()
 {
     delete this->Packet.Header;
@@ -92,21 +91,16 @@ void PktDef::SetCmd(CmdType cmd)
     this->cmd = cmd;
     Packet.Header->Drive = 0;
     Packet.Header->Sleep = 0;
-    Packet.Header->Status = 0;
+    Packet.Header->Status = 1; // just always request telementry data from endpoint
 
     switch (cmd)
     {
     case DRIVE:
-    case TURN:
         Packet.Header->Drive = 1;
         break;
 
     case SLEEP:
         Packet.Header->Sleep = 1;
-        break;
-
-    case ACK:
-        Packet.Header->Status = 1;
         break;
 
     default:
@@ -152,7 +146,13 @@ int PktDef::GetLength() const
 //
 char* PktDef::GetBodyData() const
 {
-    return Packet.body->serialize();
+    if (Packet.body) {
+        return Packet.body->serialize();
+    }
+    else {
+        return nullptr;
+    }
+    
 }
 //
 int PktDef::GetPktCount() const
