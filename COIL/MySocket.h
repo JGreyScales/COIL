@@ -21,8 +21,8 @@ public:
 
 	enum ConnectionType
 	{
-		TCP,
-		UDP
+		TCP = 1,
+		UDP = 2
 	};
 
 	static const uint8_t DEFAULT_SIZE = 255;
@@ -38,7 +38,7 @@ public:
 
 	//
 
-	MySocket(SocketType, unsigned int, ConnectionType);
+	MySocket(SocketType, std::string ip, unsigned int port , ConnectionType, unsigned int bufferSize);
 	~MySocket();
 	void connectTCP();
 	void connectUDP();
