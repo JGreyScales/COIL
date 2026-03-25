@@ -19,14 +19,6 @@ MySocket::MySocket(SocketType socketType, std::string ipAddr, unsigned int portN
 	WelcomeSocket = INVALID_SOCKET;
 	ConnectionSocket = INVALID_SOCKET;
 
-	// Initialize Winsock
-	WSADATA wsaData;
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-	{
-		std::cerr << "WSAStartup failed." << std::endl;
-		return;
-	}
-
 	// Configure address structure
 	memset(&SvrAddr, 0, sizeof(SvrAddr));
 	SvrAddr.sin_family = AF_INET;
@@ -111,7 +103,6 @@ MySocket::~MySocket()
 		closesocket(ConnectionSocket);
 	if (WelcomeSocket != INVALID_SOCKET)
 		closesocket(WelcomeSocket);
-	WSACleanup();
 	delete[] Buffer;
 }
 

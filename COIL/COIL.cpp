@@ -4,6 +4,8 @@
 #include <iostream>
 #include <bitset>
 
+#include <winsock2.h>
+
 #include "Utils.h"
 
 #include "PktDef.h"
@@ -11,7 +13,16 @@
 
 int main()
 {
-	Robot* robots[2] = {new Robot(), new Robot()}
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		std::cerr << "WSAStartup failed." << std::endl;
+		return 1;
+	}
+
+	Robot* robots[2] = {new Robot(), new Robot()};
+	
+	WSACleanup();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
