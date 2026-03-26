@@ -5,6 +5,13 @@
 #include <iostream>
 #include <cstring>
 
+#ifndef _WIN32
+
+#define strcpy_s(dest, size, src) strncpy(dest, src, size)
+#define strcat_s(dest, size, src) strncat(dest, src, size)
+
+#endif
+
 class AckBodyDef : public BodyInterface {
 public:
     char* body;
