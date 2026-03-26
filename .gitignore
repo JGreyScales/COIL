@@ -65,3 +65,4 @@ COIL-TEST/COIL-TEST.vcxproj.user
 COIL-TEST/COIL-TEST.vcxproj.filters
 COIL-TEST/COIL-TEST.vcxproj
 /COIL-TEST/x64
+/build/CMakeFiles
