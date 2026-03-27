@@ -108,19 +108,198 @@ MySocket::~MySocket()
 
 void MySocket::ConnectTCP()
 {
+	if (connectionType != TCP)
+	{
+		std::cerr << "Error: ConnectTCP can only be used with TCP sockets." << std::endl;
+		return;
+	}
+
+	if (bTCPConnect)
+	{
+		std::cerr << "TCP connection is already established." << std::endl;
+		return;
+	}
+
+	if (mySocket == CLIENT)
+	{
+		if (ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: Invalid client socket." << std::endl;
+			return;
+		}
+
+		if (connect(ConnectionSocket, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR)
+		{
+			std::cerr << "Error: TCP client failed to connect." << std::endl;
+			return;
+		}
+
+		bTCPConnect = true;
+	}
+	else // SERVER
+	{
+		if (WelcomeSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: Invalid welcome socket." << std::endl;
+			return;
+		}
+
+		ConnectionSocket = accept(WelcomeSocket, NULL, NULL);
+		if (ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: TCP server failed to accept connection." << std::endl;
+			return;
+		}
+
+		bTCPConnect = true;
+	}
 }
 
 void MySocket::DisconnectTCP()
 {
+	if (connectionType != TCP)
+	{
+		std::cerr << "Error: DisconnectTCP can only be used with TCP sockets." << std::endl;
+		return;
+	}
+
+	if (ConnectionSocket != INVALID_SOCKET)
+	{
+		closesocket(ConnectionSocket);
+		ConnectionSocket = INVALID_SOCKET;
+	}
+
+	bTCPConnect = false;
+
+	// Recreate client TCP socket if needed so it can reconnect later
+	if (mySocket == CLIENT)
+	{
+		ConnectionSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error recreating TCP client socket." << std::endl;
+		}
+	}
 }
 
-void MySocket::SendData(char*, int)
+void MySocket::SendData(char* data, int dataSize)
 {
+	if (data == nullptr || dataSize <= 0)
+	{
+		std::cerr << "Error: Invalid data to send." << std::endl;
+		return;
+	}
+
+	if ((unsigned int)dataSize > maxSize)
+	{
+		std::cerr << "Error: Data size exceeds socket buffer size." << std::endl;
+		return;
+	}
+
+	if (connectionType == TCP)
+	{
+		if (!bTCPConnect || ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: TCP socket is not connected." << std::endl;
+			return;
+		}
+
+		int totalSent = 0;
+		while (totalSent < dataSize)
+		{
+			int sentBytes = send(ConnectionSocket, data + totalSent, dataSize - totalSent, 0);
+			if (sentBytes == SOCKET_ERROR || sentBytes == 0)
+			{
+				std::cerr << "Error sending TCP data." << std::endl;
+				return;
+			}
+			totalSent += sentBytes;
+		}
+	}
+	else // UDP
+	{
+		if (ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: Invalid UDP socket." << std::endl;
+			return;
+		}
+
+		int sentBytes = sendto(
+			ConnectionSocket,
+			data,
+			dataSize,
+			0,
+			(struct sockaddr*)&SvrAddr,
+			sizeof(SvrAddr)
+		);
+
+		if (sentBytes == SOCKET_ERROR)
+		{
+			std::cerr << "Error sending UDP data." << std::endl;
+			return;
+		}
+	}
 }
 
-int MySocket::GetData(char*)
+int MySocket::GetData(char* data)
 {
-	return 0;
+	if (data == nullptr)
+	{
+		std::cerr << "Error: Output buffer is null." << std::endl;
+		return -1;
+	}
+
+	memset(data, 0, maxSize);
+
+	if (connectionType == TCP)
+	{
+		if (!bTCPConnect || ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: TCP socket is not connected." << std::endl;
+			return -1;
+		}
+
+		int receivedBytes = recv(ConnectionSocket, data, maxSize - 1, 0);
+		if (receivedBytes == SOCKET_ERROR)
+		{
+			std::cerr << "Error receiving TCP data." << std::endl;
+			return -1;
+		}
+
+		if (receivedBytes >= 0 && (unsigned int)receivedBytes < maxSize)
+			data[receivedBytes] = '\0';
+
+		return receivedBytes;
+	}
+	else // UDP
+	{
+		if (ConnectionSocket == INVALID_SOCKET)
+		{
+			std::cerr << "Error: Invalid UDP socket." << std::endl;
+			return -1;
+		}
+
+		socklen_t addrLen = sizeof(SvrAddr);
+		int receivedBytes = recvfrom(
+			ConnectionSocket,
+			data,
+			maxSize - 1,
+			0,
+			(struct sockaddr*)&SvrAddr,
+			&addrLen
+		);
+
+		if (receivedBytes == SOCKET_ERROR)
+		{
+			std::cerr << "Error receiving UDP data." << std::endl;
+			return -1;
+		}
+
+		if (receivedBytes >= 0 && (unsigned int)receivedBytes < maxSize)
+			data[receivedBytes] = '\0';
+
+		return receivedBytes;
+	}
 }
 
 std::string MySocket::GetIPAddr()
