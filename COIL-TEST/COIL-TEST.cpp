@@ -393,7 +393,7 @@ namespace COILTEST
 			char* serialData = pktInstance->GenPacket();
 
 			PktDef* deserializedInstance = new PktDef(serialData);
-			deserializedInstance->SetPktCount(0);
+			deserializedInstance->SetPktCount(1);
 
 			char* deserializedSerializedData = deserializedInstance->GenPacket();
 
@@ -569,7 +569,7 @@ namespace COILTEST
 			// no body, so byte 4 is the crc byte
 			data[4] = 3;
 
-			Assert::IsFalse(pktInstance->CheckCRC(data, 5));
+			Assert::IsFalse(pktInstance->CheckCRC(data, 6));
 
 			delete pktInstance;
 		}
