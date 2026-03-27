@@ -23,8 +23,8 @@ char* HeaderDef::serialize() {
     char* buffer = new char[HEADER_SIZE];
 
     // Byte 0 & 1: Packet Count (Big Endian)
-    buffer[0] = static_cast<char>((PktCount >> 8) & 0xFF);
-    buffer[1] = static_cast<char>(PktCount & 0xFF);
+    buffer[1] = static_cast<char>((PktCount >> 8) & 0xFF);
+    buffer[0] = static_cast<char>(PktCount & 0xFF);
 
     // Byte 2: Flags and Padding
     uint8_t flags = 0;
@@ -46,7 +46,7 @@ HeaderDef* HeaderDef::deserialize(char* data) {
     if (!data) return res;
 
     // Byte 0 & 1: Reconstruct PktCount
-    res->PktCount = (static_cast<uint8_t>(data[0]) << 8) | static_cast<uint8_t>(data[1]);
+    res->PktCount = (static_cast<uint8_t>(data[1]) << 8) | static_cast<uint8_t>(data[0]);
 
     // Byte 2: Extract Flags
     uint8_t flags = static_cast<uint8_t>(data[2]);

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <limits>
 #include <iostream>
+#include <iomanip>
 
 namespace BitUtils {
     /**
@@ -13,6 +14,57 @@ namespace BitUtils {
         b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
         b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
         return b;
+    }
+
+    inline void displayChar(int size, char* data) {
+        if (size <= 0 || data == nullptr) {
+            std::cout << "Buffer is empty or null." << std::endl;
+            return;
+        }
+
+        // Set formatting for the entire sequence
+        std::cout << std::hex << std::uppercase;
+
+        for (int i = 0; i < size; ++i) {
+            // Cast to unsigned char to avoid sign extension (e.g., 0xFF appearing as 0xFFFFFFFF)
+            unsigned char byte = static_cast<unsigned char>(data[i]);
+
+            // Print hex value with leading zero if needed
+            std::cout << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << " ";
+
+            // Standard 8 or 16 byte wrap for readability
+            if ((i + 1) % 8 == 0) {
+                std::cout << "\n";
+            }
+        }
+
+        // Reset stream to decimal and lowercase to avoid side effects elsewhere
+        std::cout << std::dec << std::nouppercase << std::endl;
+    }
+
+    inline void displayBin (int size, char* data) {
+        if (size <= 0 || data == nullptr) {
+            std::cout << "Buffer is empty or null." << std::endl;
+            return;
+        }
+
+        for (int i = 0; i < size; ++i) {
+            // Cast to unsigned to handle values 128-255 correctly
+            unsigned char byte = static_cast<unsigned char>(data[i]);
+
+            for (int j = 7; j >= 0; --j) {
+                std::cout << (char)((byte >> j) & 1);
+            }
+
+            // Add a space between bytes for readability
+            std::cout << " ";
+
+            // Optional: Add a newline every 8 bytes to keep the console clean
+            if ((i + 1) % 8 == 0) {
+                std::cout << "\n";
+            }
+        }
+        std::cout << std::endl;
     }
 }
 

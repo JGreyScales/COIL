@@ -209,6 +209,8 @@ void MySocket::SendData(char* data, int dataSize)
 		}
 
 		int totalSent = 0;
+		std::cout << "Sending: ";
+		BitUtils::displayChar(dataSize, data);
 		while (totalSent < dataSize)
 		{
 			int sentBytes = send(ConnectionSocket, data + totalSent, dataSize - totalSent, 0);

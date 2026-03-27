@@ -387,18 +387,20 @@ namespace COILTEST
 			teleInstance->Heading = 3;
 			teleInstance->LastCmdPower = 5;
 
-			pktInstance->SetCmd(PktDef::DRIVE);
+			pktInstance->SetCmd(PktDef::RESPONSE);
 			pktInstance->SetBodyData(teleInstance);
 
 			char* serialData = pktInstance->GenPacket();
 
 			PktDef* deserializedInstance = new PktDef(serialData);
+			deserializedInstance->SetPktCount(0);
 
 			char* deserializedSerializedData = deserializedInstance->GenPacket();
 
-			int result = memcmp(serialData, deserializedSerializedData, pktInstance->GetLength());
-
-			Assert::AreEqual(0, result);
+			for (int i = 0; i < pktInstance->GetLength(); ++i) {
+				std::wstring msg = L"Error at index " + std::to_wstring(i);
+				Assert::AreEqual((int)serialData[i], (int)deserializedSerializedData[i], msg.c_str());
+			}
 
 			delete pktInstance;
 			delete deserializedInstance;
@@ -590,7 +592,7 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(192, data[2]);
+			Assert::AreEqual<uint8_t>(128, data[2]);
 			Assert::AreEqual<uint8_t>(8, data[3]);
 
 			// body
@@ -599,7 +601,7 @@ namespace COILTEST
 			Assert::AreEqual<uint8_t>(0, data[6]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(4, data[7]);
+			Assert::AreEqual<uint8_t>(3, data[7]);
 
 			delete pktInstance;
 		}
@@ -625,7 +627,7 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(192, data[2]);
+			Assert::AreEqual<uint8_t>(128, data[2]);
 			Assert::AreEqual<uint8_t>(8, data[3]);
 
 			// body
@@ -634,7 +636,7 @@ namespace COILTEST
 			Assert::AreEqual<uint8_t>(5, data[6]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(5, data[7]);
+			Assert::AreEqual<uint8_t>(4, data[7]);
 
 			delete pktInstance;
 		}
@@ -654,11 +656,11 @@ namespace COILTEST
 			// header
 			Assert::AreEqual<uint8_t>(0, data[0]);
 			Assert::AreEqual<uint8_t>(0, data[1]);
-			Assert::AreEqual<uint8_t>(96, data[2]);
+			Assert::AreEqual<uint8_t>(32, data[2]);
 			Assert::AreEqual<uint8_t>(5, data[3]);
 
 			// crc
-			Assert::AreEqual<uint8_t>(4, data[4]);
+			Assert::AreEqual<uint8_t>(3, data[4]);
 
 			delete pktInstance;
 		}

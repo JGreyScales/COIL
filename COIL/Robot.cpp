@@ -3,6 +3,7 @@
 Robot::Robot(int id)
 {
 	this->id = id;
+	this->socket = nullptr;
 }
 
 Robot::~Robot()

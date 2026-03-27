@@ -2,7 +2,9 @@
 #include <cstdint>
 #include <string>
 #include <iostream>
-#include <cstring> // Necessary for memset
+#include <cstring> 
+
+#include "Utils.h"
 
 // --- Cross-Platform Compatibility Layer ---
 #ifdef _WIN32

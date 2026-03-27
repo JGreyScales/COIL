@@ -10,6 +10,8 @@
 #include "AckBodyDef.h"
 #include "BodyInterface.h"
 
+#include "Utils.h"
+
 class PktDef
 {
 public:

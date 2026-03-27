@@ -26,6 +26,11 @@ PktDef::PktDef(char* rawData)
 
     if (rawData == nullptr) return;
 
+    // isolate the header data
+    std::cout << "Isolated Header Bytes: " ;
+    BitUtils::displayChar(4, rawData);
+    std::cout << std::endl;
+
     this->Packet.Header = HeaderDef::deserialize(rawData);
 
     if (this->Packet.Header == nullptr) return;
@@ -44,6 +49,10 @@ PktDef::PktDef(char* rawData)
 
 
     int bodySize = this->Packet.Header->Length - HEADERSIZE - CRCSIZE;
+
+    std::cout << "Isolated Body Bytes: ";
+    BitUtils::displayChar(bodySize, rawData + HEADERSIZE);
+    std::cout << std::endl;
 
     if (bodySize > 0)
     {
@@ -67,6 +76,9 @@ PktDef::PktDef(char* rawData)
         delete[] bodyBuffer;
     }
 
+    std::cout << "Isolated CRC Byte: ";
+    BitUtils::displayChar(1, &rawData[this->Packet.Header->Length - 1]);
+    std::cout << std::endl;
     this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length - 1]);
 }
 PktDef::~PktDef()
@@ -91,7 +103,7 @@ void PktDef::SetCmd(CmdType cmd)
     this->cmd = cmd;
     Packet.Header->Drive = 0;
     Packet.Header->Sleep = 0;
-    Packet.Header->Status = 1; // just always request telementry data from endpoint
+    Packet.Header->Status = 0; // just always request telementry data from endpoint
 
     switch (cmd)
     {
@@ -102,7 +114,9 @@ void PktDef::SetCmd(CmdType cmd)
     case SLEEP:
         Packet.Header->Sleep = 1;
         break;
-
+    case RESPONSE:
+        Packet.Header->Status = 1;
+        Packet.Header->Ack = 1;
     default:
         break;
     }
@@ -291,5 +305,5 @@ void PktDef::display() {
     if (this->Packet.body) {
         this->Packet.body->display();
     }
-    std::cout << "CRC: " << this->Packet.CRC << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
+    std::cout << "CRC: " << (int)(this->Packet.CRC) << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
 }

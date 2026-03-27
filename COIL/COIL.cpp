@@ -100,13 +100,16 @@ int main()
                 }
 
                 char* packetData = pktInstance->GenPacket();
-                // Safety check: ensure socket was created successfully
-                if (chosenRobot->socket) {
-                    chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
-                }
+                BitUtils::displayChar(pktInstance->GetLength(), packetData);
+                std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
+                chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
+                 
 
                 // wait for ack reply
                 int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                std::cout << bytesWritten << " Bytes written" << std::endl;
+
+                BitUtils::displayChar(bytesWritten, recieveBuffer);
                 if (bytesWritten > 0) {
                     PktDef* ackPacket = new PktDef(recieveBuffer);
                     ackPacket->display();
@@ -115,6 +118,9 @@ int main()
                 std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
                 // wait for tele reply
                 bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                std::cout << bytesWritten << " Bytes written" << std::endl;
+                BitUtils::displayChar(bytesWritten, recieveBuffer);
+
                 if (bytesWritten > 0) {
                     PktDef* telePacket = new PktDef(recieveBuffer);
                     telePacket->display();
@@ -132,6 +138,7 @@ int main()
 
                 char* packetData = pktInstance->GenPacket();
                 if (chosenRobot->socket) {
+                    std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
                     chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
                 }
 
@@ -139,6 +146,7 @@ int main()
                 // I guess so.....
 
                 int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                std::cout << bytesWritten << " Bytes written" << std::endl;
                 if (bytesWritten > 0) {
                     PktDef* ackPacket = new PktDef(recieveBuffer);
                     ackPacket->display();
