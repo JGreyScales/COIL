@@ -20,6 +20,8 @@ int main()
 
     Robot* robots[2] = { new Robot(0), new Robot(1) };
     bool interfaceWithUser = true;
+    char recieveBuffer[MySocket::DEFAULT_SIZE];
+
 
     while (interfaceWithUser) {
         std::cout << "Select robot, or 3 for exit" << std::endl;
@@ -82,6 +84,24 @@ int main()
                     chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
                 }
 
+
+                // wait for ack reply
+                int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                if (bytesWritten > 0) {
+                    PktDef* ackPacket = new PktDef(recieveBuffer);
+                    ackPacket->display();
+                }
+
+                std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
+                // wait for tele reply
+                bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                if (bytesWritten > 0) {
+                    PktDef* telePacket = new PktDef(recieveBuffer);
+                    telePacket->display();
+                }
+                std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
+
+
                 delete pktInstance;
                 break;
             }
@@ -94,6 +114,17 @@ int main()
                 if (chosenRobot->socket) {
                     chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
                 }
+
+                // do we care about the ack here?
+                // I guess so.....
+
+                int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                if (bytesWritten > 0) {
+                    PktDef* ackPacket = new PktDef(recieveBuffer);
+                    ackPacket->display();
+                }
+                std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
+
 
                 delete pktInstance;
                 break;
