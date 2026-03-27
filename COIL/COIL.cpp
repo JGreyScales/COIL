@@ -6,8 +6,26 @@
 #include "PktDef.h"
 #include "Robot.h"
 
+
+void test() {
+    PktDef* pktInstance = new PktDef();
+    pktInstance->SetCmd(PktDef::DRIVE);
+
+    DriveBodyDef* driveInstance = new DriveBodyDef();
+    driveInstance->Duration = 20;
+    driveInstance->Power = 50;
+    driveInstance->Direction = 40;
+
+    pktInstance->SetBodyData(driveInstance);
+    pktInstance->GenPacket();
+    pktInstance->display();
+
+    delete pktInstance;
+}
+
 int main()
 {
+    test();
     // --- Windows Socket Startup ---
 #ifdef _WIN32
     WSADATA wsaData;

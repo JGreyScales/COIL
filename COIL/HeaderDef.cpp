@@ -81,15 +81,12 @@ void HeaderDef::display() {
     std::cout << "Length:       " << (int)Length
         << " [Binary: " << std::bitset<8>(Length) << "]" << std::endl;
 
-    // FIX: Access the raw memory of the struct to see the packing
-    // We cast 'this' to a unsigned char pointer to look at the raw bytes.
-    uint8_t* rawData = reinterpret_cast<uint8_t*>(this);
+    char* serializedData = this->serialize();
 
-    std::cout << "\n--- Raw Memory Layout (Bytes) ---" << std::endl;
-    for (size_t i = 0; i < HEADER_SIZE; ++i) {
-        std::cout << "Byte " << i << ": " << std::bitset<8>(rawData[i]) << std::endl;
+    std::cout << "\n--- Actual Serialized Layout (Bytes) ---" << std::endl;
+    for (int i = 0; i < HEADER_SIZE; ++i) {
+        std::cout << "Byte " << i << ": " << std::bitset<8>(static_cast<uint8_t>(serializedData[i])) << std::endl;
     }
-
     std::cout << "-------------------" << std::endl;
 }
 
