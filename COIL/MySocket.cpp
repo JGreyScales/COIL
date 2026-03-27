@@ -128,13 +128,17 @@ void MySocket::ConnectTCP()
 			return;
 		}
 
+
+
 		if (connect(ConnectionSocket, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR)
 		{
 			std::cerr << "Error: TCP client failed to connect." << std::endl;
 			return;
 		}
-
-		bTCPConnect = true;
+		else {
+			bTCPConnect = true;
+			std::cerr << "Success: Client connected successfuly." << std::endl; 
+		}
 	}
 	else // SERVER
 	{
