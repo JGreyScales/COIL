@@ -11,9 +11,9 @@ public:
     static const int DRIVE_BODY_SIZE = 3;
 
     // Standard uint8_t members (no bitfields)
-    uint8_t Direction; // 1-byte: FORWARD(1) or BACKWARD(2) 
-    uint8_t Duration;  // 1-byte in seconds 
-    uint8_t Power;     // 1-byte 80-100% 
+    int Direction; // 1-byte: FORWARD(1) or BACKWARD(2) 
+    int Duration;  // 1-byte in seconds 
+    int Power;     // 1-byte 80-100% 
 
     DriveBodyDef();
     virtual ~DriveBodyDef();

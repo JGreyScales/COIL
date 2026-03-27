@@ -28,11 +28,11 @@ char* HeaderDef::serialize() {
 
     // Byte 2: Flags and Padding
     uint8_t flags = 0;
-    flags |= (Padding & 0x0F);       // Bits 0-3
-    flags |= (Ack & 0x01) << 4;  // Bit 4
-    flags |= (Sleep & 0x01) << 5;  // Bit 5
-    flags |= (Status & 0x01) << 6;  // Bit 6
-    flags |= (Drive & 0x01) << 7;  // Bit 7
+    flags |= (Drive & 0x01);           // Bit 0
+    flags |= (Status & 0x01) << 1;     // Bit 1
+    flags |= (Sleep & 0x01) << 2;     // Bit 2
+    flags |= (Ack & 0x01) << 3;     // Bit 3
+    flags |= (Padding & 0x0F) << 4;    // Bits 4-7
     buffer[2] = static_cast<char>(flags);
 
     // Byte 3: Length
@@ -49,12 +49,14 @@ HeaderDef* HeaderDef::deserialize(char* data) {
     res->PktCount = (static_cast<uint8_t>(data[1]) << 8) | static_cast<uint8_t>(data[0]);
 
     // Byte 2: Extract Flags
+
     uint8_t flags = static_cast<uint8_t>(data[2]);
-    res->Padding = (flags & 0x0F);        // Extract bits 0-3
-    res->Ack = (flags >> 4) & 0x01;   // Extract bit 4
-    res->Sleep = (flags >> 5) & 0x01;   // Extract bit 5
-    res->Status = (flags >> 6) & 0x01;   // Extract bit 6
-    res->Drive = (flags >> 7) & 0x01;   // Extract bit 7
+
+    res->Drive = (flags & 0x01);          // Extract bit 0 (previously bit 7)
+    res->Status = (flags >> 1) & 0x01;     // Extract bit 1 (previously bit 6)
+    res->Sleep = (flags >> 2) & 0x01;     // Extract bit 2 (previously bit 5)
+    res->Ack = (flags >> 3) & 0x01;     // Extract bit 3 (previously bit 4)
+    res->Padding = (flags >> 4) & 0x0F;     // Extract bits 4-7 (previously bits 0-3)
 
     // Byte 3: Length
     res->Length = static_cast<uint8_t>(data[3]);

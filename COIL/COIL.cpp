@@ -87,8 +87,8 @@ int main()
                     driveInstance->Direction = moveInput;
                     std::cout << "Duration(s): 1-100" << std::endl;
                     driveInstance->Duration = ConsoleUtils::getUserInt(1, 100);
-                    std::cout << "Power: 1-100" << std::endl;
-                    driveInstance->Power = ConsoleUtils::getUserInt(1, 100);
+                    std::cout << "Power: 80-100" << std::endl;
+                    driveInstance->Power = ConsoleUtils::getUserInt(80, 100);
                     pktInstance->SetBodyData(driveInstance);
                 }
                 else {
