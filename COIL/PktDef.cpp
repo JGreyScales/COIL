@@ -243,8 +243,8 @@ bool PktDef::CheckCRC(char* data, int size) const
         return false;
     }
 
-    unsigned char calculated = countSetBits(data, size - CRCSIZE);
-    unsigned char received = data[size - CRCSIZE];
+    unsigned int calculated = (unsigned char ) countSetBits(data, size - CRCSIZE);
+    unsigned int received = (unsigned char) data[size - CRCSIZE];
 
     return calculated == received;
 }
