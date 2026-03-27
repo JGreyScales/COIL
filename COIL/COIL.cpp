@@ -41,7 +41,7 @@ int main()
         unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
 
         // Create the socket
-        chosenRobot->socket = new MySocket(MySocket::SERVER, IP, port, connectionType, MySocket::DEFAULT_SIZE);
+        chosenRobot->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
 
         bool robotInterfacing = true;
 
