@@ -20,23 +20,23 @@ int HeaderDef::getSize() {
 }
 
 char* HeaderDef::serialize() {
+    char* buffer = new char[HEADER_SIZE];
 
-    char* buffer = new char[HeaderDef::HEADER_SIZE];
+    // Byte 0 & 1: Packet Count (Big Endian)
+    buffer[0] = static_cast<char>((PktCount >> 8) & 0xFF);
+    buffer[1] = static_cast<char>(PktCount & 0xFF);
 
-    buffer[0] = (this->PktCount >> 8);
-    buffer[1] = (this->PktCount);
-
+    // Byte 2: Flags and Padding
     uint8_t flags = 0;
-    // low bits
-    flags |= (this->Padding & 0x0F) << 0;
-    flags |= (this->Ack & 0x01) << 4; 
-    flags |= (this->Sleep & 0x01) << 5;
-    flags |= (this->Status & 0x01) << 6;
-    flags |= (this->Drive & 0x01) << 7;
-    // high bits
-    buffer[2] = flags;
+    flags |= (Padding & 0x0F);       // Bits 0-3
+    flags |= (Ack & 0x01) << 4;  // Bit 4
+    flags |= (Sleep & 0x01) << 5;  // Bit 5
+    flags |= (Status & 0x01) << 6;  // Bit 6
+    flags |= (Drive & 0x01) << 7;  // Bit 7
+    buffer[2] = static_cast<char>(flags);
 
-    buffer[3] = this->Length;
+    // Byte 3: Length
+    buffer[3] = static_cast<char>(Length);
 
     return buffer;
 }
@@ -45,16 +45,19 @@ HeaderDef* HeaderDef::deserialize(char* data) {
     HeaderDef* res = new HeaderDef();
     if (!data) return res;
 
-    res->PktCount = ((uint8_t)data[0] << 8 | (uint8_t)data[1]);
+    // Byte 0 & 1: Reconstruct PktCount
+    res->PktCount = (static_cast<uint8_t>(data[0]) << 8) | static_cast<uint8_t>(data[1]);
 
-    uint8_t flags = data[2];
-    res->Padding = (flags >> 0) & 0x0F;
-    res->Ack = (flags >> 4) & 0x01;
-    res->Sleep = (flags >> 5) & 0x01;
-    res->Status = (flags >> 6) & 0x01;
-    res->Drive = (flags >> 7) & 0x01;
+    // Byte 2: Extract Flags
+    uint8_t flags = static_cast<uint8_t>(data[2]);
+    res->Padding = (flags & 0x0F);        // Extract bits 0-3
+    res->Ack = (flags >> 4) & 0x01;   // Extract bit 4
+    res->Sleep = (flags >> 5) & 0x01;   // Extract bit 5
+    res->Status = (flags >> 6) & 0x01;   // Extract bit 6
+    res->Drive = (flags >> 7) & 0x01;   // Extract bit 7
 
-    res->Length = data[3];
+    // Byte 3: Length
+    res->Length = static_cast<uint8_t>(data[3]);
 
     return res;
 }
@@ -66,7 +69,7 @@ void HeaderDef::display() {
     std::cout << "--- Header Data ---" << std::endl;
 
     std::cout << "Packet count: " << (int)PktCount
-        << " [Binary: " << std::bitset<8>(PktCount) << "]" << std::endl;
+        << " [Binary: " << std::bitset<16>(PktCount) << "]" << std::endl;
 
     std::cout << "Drive Status: " << (int)Drive << " [Bit: " << (int)Drive << "]" << std::endl;
     std::cout << "Status:       " << (int)Status << " [Bit: " << (int)Status << "]" << std::endl;

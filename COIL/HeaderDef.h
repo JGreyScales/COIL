@@ -11,15 +11,15 @@ class HeaderDef : public BodyInterface {
 public:
     static const int HEADER_SIZE = 4;
 
-    uint16_t PktCount    : 16;
+    uint16_t PktCount;
 
-    uint8_t Padding : 4;
-    uint8_t Ack : 1;
-    uint8_t Sleep : 1;
-    uint8_t Status : 1;
-    uint8_t Drive      : 1;
-    
-    uint8_t Length      : 8;
+    uint8_t Padding; // We will treat this as 4 bits in logic
+    uint8_t Ack;     // We will treat this as 1 bit in logic
+    uint8_t Sleep;
+    uint8_t Status;
+    uint8_t Drive;
+
+    uint8_t Length;
 
     HeaderDef();
     ~HeaderDef();
