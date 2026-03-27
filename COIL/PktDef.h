@@ -33,7 +33,7 @@ public:
 
 
     static const int HEADERSIZE = HeaderDef::HEADER_SIZE; // 3 bytes, breakdown is in the headerdef files
-    static const int CRCSIZE = 1;
+    static const unsigned int CRCSIZE = 1;
 
 private:
     struct CmdPacket
