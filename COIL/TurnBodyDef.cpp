@@ -15,14 +15,11 @@ int TurnBodyDef::getSize() {
 char* TurnBodyDef::serialize() {
     char* buffer = new char[TURN_BODY_SIZE];
 
-    // Byte 0: Direction
     buffer[0] = static_cast<char>(Direction);
 
-    // Byte 1: High bits of Duration (Shift right by 8)
-    buffer[1] = static_cast<char>((Duration >> 8) & 0xFF);
+    buffer[2] = static_cast<char>((Duration >> 8) & 0xFF);
 
-    // Byte 2: Low bits of Duration
-    buffer[2] = static_cast<char>(Duration & 0xFF);
+    buffer[1] = static_cast<char>(Duration & 0xFF);
 
     return buffer;
 }
@@ -35,8 +32,8 @@ TurnBodyDef* TurnBodyDef::deserialize(char* data) {
 
         // Reconstruct Duration: 
         // Cast to uint8_t first to avoid sign extension, then shift and OR
-        uint8_t highByte = static_cast<uint8_t>(data[1]);
-        uint8_t lowByte = static_cast<uint8_t>(data[2]);
+        uint8_t highByte = static_cast<uint8_t>(data[2]);
+        uint8_t lowByte = static_cast<uint8_t>(data[1]);
 
         returnValue->Duration = (static_cast<uint16_t>(highByte) << 8) | lowByte;
     }
