@@ -44,6 +44,9 @@ int main()
 
         // Create the socket
         chosenRobot->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
+        if (connectionType == MySocket::ConnectionType::TCP) {
+            chosenRobot->socket->ConnectTCP(); 
+        }
 
         bool robotInterfacing = true;
 
@@ -83,7 +86,6 @@ int main()
                 if (chosenRobot->socket) {
                     chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
                 }
-
 
                 // wait for ack reply
                 int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
