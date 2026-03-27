@@ -6,7 +6,7 @@
 
 HeaderDef::HeaderDef()
 {
-    this->PktCount = 0;
+    this->PktCount = 1;
     this->Drive = false;
     this->Status = false;
     this->Sleep = false;

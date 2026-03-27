@@ -11,7 +11,7 @@ class HeaderDef : public BodyInterface {
 public:
     static const int HEADER_SIZE = 4;
 
-    uint16_t PktCount;
+    unsigned short int PktCount;
 
     uint8_t Padding; // We will treat this as 4 bits in logic
     uint8_t Ack;     // We will treat this as 1 bit in logic
