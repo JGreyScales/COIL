@@ -3,6 +3,8 @@
 #include <limits>
 #include "Utils.h"
 
+#include "fileFetcher.h"
+
 #include "PktDef.h"
 #include "Robot.h"
 

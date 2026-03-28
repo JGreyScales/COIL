@@ -59,6 +59,9 @@
       <Filter>SocketProtocol</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="fileFetcher.h">
+      <Filter>WebServer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="PacketProtocol">
@@ -66,6 +69,9 @@
     </Filter>
     <Filter Include="SocketProtocol">
       <UniqueIdentifier>{a37112b7-4ad6-43fe-89e5-cc7b0be0db6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebServer">
+      <UniqueIdentifier>{6cdb477f-859c-4225-9a6c-767e310fc1a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
