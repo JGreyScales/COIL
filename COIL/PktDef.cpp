@@ -103,7 +103,7 @@ void PktDef::SetCmd(CmdType cmd)
     this->cmd = cmd;
     Packet.Header->Drive = 0;
     Packet.Header->Sleep = 0;
-    Packet.Header->Status = 0; // just always request telementry data from endpoint
+    Packet.Header->Status = 0;
 
     switch (cmd)
     {

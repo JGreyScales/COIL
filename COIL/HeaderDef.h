@@ -13,8 +13,8 @@ public:
 
     unsigned short int PktCount;
 
-    uint8_t Padding; // We will treat this as 4 bits in logic
-    uint8_t Ack;     // We will treat this as 1 bit in logic
+    uint8_t Padding; 
+    uint8_t Ack;     
     uint8_t Sleep;
     uint8_t Status;
     uint8_t Drive;

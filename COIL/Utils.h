@@ -4,6 +4,9 @@
 #include <iostream>
 #include <iomanip>
 
+// this file is almost fully AI generated helper functions
+// expect slop within here
+
 namespace BitUtils {
     /**
      * Reverses the bits in an 8-bit byte.
@@ -68,6 +71,7 @@ namespace BitUtils {
     }
 }
 
+// this part is like half human half ai :)
 namespace ConsoleUtils {
     inline int getUserInt(int lower, int max) {
         int input;

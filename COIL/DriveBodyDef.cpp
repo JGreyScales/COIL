@@ -2,9 +2,7 @@
 #include <iostream>
 #include <bitset>
 
-DriveBodyDef::DriveBodyDef() : Direction(0), Duration(0), Power(0) {
-    // Using an initializer list is slightly more idiomatic C++
-}
+DriveBodyDef::DriveBodyDef() : Direction(0), Duration(0), Power(0) {}
 
 DriveBodyDef::~DriveBodyDef() {}
 
@@ -15,7 +13,6 @@ int DriveBodyDef::getSize() {
 char* DriveBodyDef::serialize() {
     char* buffer = new char[DRIVE_BODY_SIZE];
 
-    // Explicitly casting to ensure correct byte assignment
     buffer[0] = static_cast<char>(this->Direction);
     buffer[1] = static_cast<char>(this->Duration);
     buffer[2] = static_cast<char>(this->Power);
@@ -45,11 +42,10 @@ void DriveBodyDef::display() {
 
     std::cout << "\n--- Actual Serialized Layout (Bytes) ---" << std::endl;
     for (int i = 0; i < DRIVE_BODY_SIZE; ++i) {
-        // Cast to uint8_t before bitset to avoid sign extension issues with char
         uint8_t byteVal = static_cast<uint8_t>(serializedData[i]);
         std::cout << "Byte " << i << ": " << std::bitset<8>(byteVal) << std::endl;
     }
 
-    delete[] serializedData; // Clean up the buffer allocated in serialize()
+    delete[] serializedData;
     std::cout << "-------------------" << std::endl;
 }

@@ -10,7 +10,6 @@ class DriveBodyDef : public BodyInterface {
 public:
     static const int DRIVE_BODY_SIZE = 3;
 
-    // Standard uint8_t members (no bitfields)
     int Direction; // 1-byte: FORWARD(1) or BACKWARD(2) 
     int Duration;  // 1-byte in seconds 
     int Power;     // 1-byte 80-100% 

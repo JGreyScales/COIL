@@ -27,8 +27,6 @@ void test() {
 
 int main()
 {
-    test();
-    // --- Windows Socket Startup ---
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -62,7 +60,6 @@ int main()
         std::cout << "Enter Port: ";
         unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
 
-        // Create the socket
         chosenRobot->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
         if (connectionType == MySocket::ConnectionType::TCP) {
             chosenRobot->socket->ConnectTCP(); 
@@ -107,7 +104,7 @@ int main()
                 chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
                  
 
-                // wait for ack reply
+                
                 int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
                 std::cout << bytesWritten << " Bytes written" << std::endl;
 
@@ -171,7 +168,6 @@ int main()
     delete robots[0];
     delete robots[1];
 
-    // --- Windows Socket Cleanup ---
 #ifdef _WIN32
     WSACleanup();
 #endif

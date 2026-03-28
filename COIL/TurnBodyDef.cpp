@@ -30,8 +30,6 @@ TurnBodyDef* TurnBodyDef::deserialize(char* data) {
     if (data) {
         returnValue->Direction = static_cast<uint8_t>(data[0]);
 
-        // Reconstruct Duration: 
-        // Cast to uint8_t first to avoid sign extension, then shift and OR
         uint8_t highByte = static_cast<uint8_t>(data[2]);
         uint8_t lowByte = static_cast<uint8_t>(data[1]);
 
@@ -54,6 +52,6 @@ void TurnBodyDef::display() {
         std::cout << "Byte " << i << ": " << std::bitset<8>(byteVal) << std::endl;
     }
 
-    delete[] serializedData; // Important: Clean up the buffer
+    delete[] serializedData;
     std::cout << "-------------------" << std::endl;
 }

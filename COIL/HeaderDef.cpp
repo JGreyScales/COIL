@@ -52,11 +52,11 @@ HeaderDef* HeaderDef::deserialize(char* data) {
 
     uint8_t flags = static_cast<uint8_t>(data[2]);
 
-    res->Drive = (flags & 0x01);          // Extract bit 0 (previously bit 7)
-    res->Status = (flags >> 1) & 0x01;     // Extract bit 1 (previously bit 6)
-    res->Sleep = (flags >> 2) & 0x01;     // Extract bit 2 (previously bit 5)
-    res->Ack = (flags >> 3) & 0x01;     // Extract bit 3 (previously bit 4)
-    res->Padding = (flags >> 4) & 0x0F;     // Extract bits 4-7 (previously bits 0-3)
+    res->Drive = (flags & 0x01);          // Extract bit 0 
+    res->Status = (flags >> 1) & 0x01;     // Extract bit 1
+    res->Sleep = (flags >> 2) & 0x01;     // Extract bit 2 
+    res->Ack = (flags >> 3) & 0x01;     // Extract bit 3 
+    res->Padding = (flags >> 4) & 0x0F;     // Extract bits 4-7 
 
     // Byte 3: Length
     res->Length = static_cast<uint8_t>(data[3]);
