@@ -1,14 +1,12 @@
 #include <iostream>
 #include <bitset>
 #include <limits>
-#include "Utils.h"
-
-#include "fileFetcher.h"
-
-#include "PktDef.h"
-#include "Robot.h"
 
 
+#include "App.h"
+
+
+// old stuff, wouldnt be included in release
 void test() {
     PktDef* pktInstance = new PktDef();
     pktInstance->SetCmd(PktDef::DRIVE);
@@ -25,17 +23,8 @@ void test() {
     delete pktInstance;
 }
 
-int main()
-{
-#ifdef _WIN32
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-    {
-        std::cerr << "WSAStartup failed." << std::endl;
-        return 1;
-    }
-#endif
-
+// old stuff, wouldnt be included in release
+void manualInputMode() {
     Robot* robots[2] = { new Robot(0), new Robot(1) };
     bool interfaceWithUser = true;
     char recieveBuffer[MySocket::DEFAULT_SIZE];
@@ -62,7 +51,7 @@ int main()
 
         chosenRobot->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
         if (connectionType == MySocket::ConnectionType::TCP) {
-            chosenRobot->socket->ConnectTCP(); 
+            chosenRobot->socket->ConnectTCP();
         }
 
         bool robotInterfacing = true;
@@ -102,9 +91,9 @@ int main()
                 BitUtils::displayChar(pktInstance->GetLength(), packetData);
                 std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
                 chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
-                 
 
-                
+
+
                 int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
                 std::cout << bytesWritten << " Bytes written" << std::endl;
 
@@ -167,6 +156,22 @@ int main()
 
     delete robots[0];
     delete robots[1];
+}
+
+
+
+int main()
+{
+#ifdef _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        std::cerr << "WSAStartup failed." << std::endl;
+        return 1;
+    }
+#endif
+
+    manualInputMode();
 
 #ifdef _WIN32
     WSACleanup();
