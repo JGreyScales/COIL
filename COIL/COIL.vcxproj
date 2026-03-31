@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AckBodyDef.cpp" />
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="BodyInterface.cpp" />
     <ClCompile Include="COIL.cpp" />
     <ClCompile Include="DriveBodyDef.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AckBodyDef.h" />
+    <ClInclude Include="App.h" />
     <ClInclude Include="BodyInterface.h" />
     <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="fileFetcher.h" />

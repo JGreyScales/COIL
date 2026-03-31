@@ -29,6 +29,9 @@
     <ClCompile Include="Robot.cpp">
       <Filter>SocketProtocol</Filter>
     </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>TCP/UDP daisy chainer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AckBodyDef.h">
@@ -62,6 +65,9 @@
     <ClInclude Include="fileFetcher.h">
       <Filter>WebServer</Filter>
     </ClInclude>
+    <ClInclude Include="App.h">
+      <Filter>TCP/UDP daisy chainer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="PacketProtocol">
@@ -72,6 +78,9 @@
     </Filter>
     <Filter Include="WebServer">
       <UniqueIdentifier>{6cdb477f-859c-4225-9a6c-767e310fc1a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TCP/UDP daisy chainer">
+      <UniqueIdentifier>{13b61c85-d1e0-4916-8077-4de904c5c5cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
