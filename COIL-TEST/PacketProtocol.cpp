@@ -7,7 +7,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace COILTEST
+namespace PACKET_TESTS
 {
 	TEST_CLASS(TurnBodyTests) {
 		TEST_METHOD(DeserializeNegative) {
