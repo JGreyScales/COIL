@@ -1,6 +1,7 @@
 #pragma once
 
 
+// must be defined in all places that import crow_all.h
 #define ASIO_STANDALONE
 
 #include "crow_all.h"
