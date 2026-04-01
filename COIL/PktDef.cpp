@@ -85,7 +85,7 @@ PktDef::~PktDef()
 {
     delete this->Packet.Header;
     delete this->Packet.body;    
-    if (this->RawBuffer != nullptr) {
+    if (this->RawBuffer != nullptr && this->deleteBuffer) {
         delete this->RawBuffer;
     }
 }

@@ -27,14 +27,14 @@ public:
 
 	App();
 
-    void attachRobotID(int, char*);
-    int detachRobotID(char*);
+    void static attachRobotID(int, char*);
+    int static detachRobotID(char*);
     
 
     PktDef* sendData(char*, bool);
-    char * awaitReturn(MySocket*);
+    char * awaitReturn(MySocket*, char*);
     char * forwardToNextHop(char*);
-    char * sendToRobot(Robot*);
+    char * sendToRobot(Robot*, char*);
 
     bool openListeners();
 

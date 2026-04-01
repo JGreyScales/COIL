@@ -90,7 +90,9 @@ void manualInputMode() {
                 char* packetData = pktInstance->GenPacket();
                 BitUtils::displayChar(pktInstance->GetLength(), packetData);
                 std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
-                chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
+                
+                App::attachRobotID(0, packetData);
+                chosenRobot->socket->SendData(packetData, pktInstance->GetLength() + 1);
 
 
 
@@ -105,6 +107,7 @@ void manualInputMode() {
 
                 std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
 
+                pktInstance->deleteBuffer = false;
                 delete pktInstance;
                 break;
             }

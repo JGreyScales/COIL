@@ -88,6 +88,8 @@ App::App() {
 void App::attachRobotID(int ID, char* data)
 {
 	PktDef* pktInstance = new PktDef(data);
+	pktInstance->deleteBuffer = false;
+
 	size_t length = pktInstance->GetLength();
 
 	data[length + 1] = ID;
@@ -98,6 +100,8 @@ void App::attachRobotID(int ID, char* data)
 int App::detachRobotID(char* data)
 {
 	PktDef* pktInstance = new PktDef(data);
+	pktInstance->deleteBuffer = false;
+
 	size_t length = pktInstance->GetLength();
 
 	int ID = data[length + 1];
@@ -107,15 +111,19 @@ int App::detachRobotID(char* data)
 	return ID;
 }
 
-char* App::awaitReturn(MySocket* socket)
+char* App::awaitReturn(MySocket* socket, char* buffer)
 {
-	
-	return nullptr;
+	std::cout << "awaiting response" << std::endl;
+	int bytes = socket->GetData(buffer);
+
+	std::cout << "Recieved: " << bytes << " bytes" << std::endl;
+	return buffer;
 }
 
 char * App::forwardToNextHop(char* buffer)
 {
 	PktDef* pktInstance = new PktDef(buffer);
+	pktInstance->deleteBuffer = false;
 
 	// + 1 to account for the robot ID
 	this->nexthop->SendData(buffer, pktInstance->GetLength() + 1);
@@ -123,12 +131,21 @@ char * App::forwardToNextHop(char* buffer)
 	delete pktInstance;
 
 
-	return this->awaitReturn(this->nexthop);
+	return this->awaitReturn(this->nexthop, buffer);
 }
 
-char * App::sendToRobot(Robot* robot)
+char * App::sendToRobot(Robot* robot, char* buffer)
 {
-	return this->awaitReturn(robot->socket);
+	PktDef* pktInstance = new PktDef(buffer);
+	pktInstance->deleteBuffer = false;
+
+	std::cout << "sending data to robot" << std::endl;
+
+	robot->socket->SendData(buffer, pktInstance->GetLength());
+
+	delete pktInstance;
+
+	return this->awaitReturn(robot->socket, buffer);
 }
 
 // attachRobotID must have been called previous to this function call
@@ -149,16 +166,19 @@ PktDef* App::sendData(char* buffer, bool respond) {
 
 	// move down the daisy chain
 	if (this->mode == appMode::Primary) {
+		std::cout << "sending to server" << std::endl;
 		int robotID = this->detachRobotID(buffer);
-		returnData = this->sendToRobot(this->robots[robotID]);
+		returnData = this->sendToRobot(this->robots[robotID], buffer);
 	}
 	else {
+		std::cout << "sending to next hop" << std::endl;
 		returnData = this->forwardToNextHop(buffer);
 	}
 
 	PktDef* pktInstance = new PktDef(returnData);
 
 	if (respond) {
+		std::cout << "responding on socket" << std::endl;
 		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
 	}
 
@@ -166,7 +186,7 @@ PktDef* App::sendData(char* buffer, bool respond) {
 }
 
 // checks for 100 milliseconds if there is data waiting to be read
-bool App::openListeners()
+bool App::openListeners()	
 {
 	char buffer[1024];
 	if (this->curSoc->HasData(100)) {

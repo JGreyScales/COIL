@@ -153,6 +153,30 @@ COIL/AckBodyDef.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/AckBodyDef.cpp.s
 .PHONY : COIL/AckBodyDef.cpp.s
 
+COIL/App.o: COIL/App.cpp.o
+.PHONY : COIL/App.o
+
+# target to build an object file
+COIL/App.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/App.cpp.o
+.PHONY : COIL/App.cpp.o
+
+COIL/App.i: COIL/App.cpp.i
+.PHONY : COIL/App.i
+
+# target to preprocess a source file
+COIL/App.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/App.cpp.i
+.PHONY : COIL/App.cpp.i
+
+COIL/App.s: COIL/App.cpp.s
+.PHONY : COIL/App.s
+
+# target to generate assembly for a file
+COIL/App.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/App.cpp.s
+.PHONY : COIL/App.cpp.s
+
 COIL/BodyInterface.o: COIL/BodyInterface.cpp.o
 .PHONY : COIL/BodyInterface.o
 
@@ -381,6 +405,9 @@ help:
 	@echo "... COIL/AckBodyDef.o"
 	@echo "... COIL/AckBodyDef.i"
 	@echo "... COIL/AckBodyDef.s"
+	@echo "... COIL/App.o"
+	@echo "... COIL/App.i"
+	@echo "... COIL/App.s"
 	@echo "... COIL/BodyInterface.o"
 	@echo "... COIL/BodyInterface.i"
 	@echo "... COIL/BodyInterface.s"
