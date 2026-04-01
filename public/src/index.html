@@ -147,6 +147,15 @@
 <body>
     <h1>COIL Robot Controller</h1>
 
+    <!-- Robot Selector -->
+    <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
+        <label for="robot-select" style="font-size:0.9rem; color:#aaa;">Robot #:</label>
+        <select id="robot-select" style="padding:0.5rem; border:1px solid #333; border-radius:6px; background:#0f3460; color:#eee; font-size:1rem;">
+            <option value="0">Robot 0</option>
+            <option value="1">Robot 1</option>
+        </select>
+    </div>
+
     <div class="controls-container">
         <!-- Packet Log (left) -->
         <div class="panel log-panel">
@@ -204,6 +213,21 @@
             logOutput.textContent = msg + "\n" + logOutput.textContent;
         }
 
+        function getRobotId() {
+            return parseInt(document.getElementById("robot-select").value, 10);
+        }
+
+        // ---- VALIDATION ----
+        function validatePower(value) {
+            var n = parseInt(value, 10);
+            return !isNaN(n) && n >= 80 && n <= 100;
+        }
+
+        function validateDuration(value) {
+            var n = parseInt(value, 10);
+            return !isNaN(n) && n >= 1 && n <= 100;
+        }
+
         // ---- DIRECTION BUTTONS ----
         function showParams(command, fields) {
             selectedCommand = command;
@@ -234,7 +258,17 @@
         document.getElementById("btn-sleep").addEventListener("click", function() {
             selectedCommand = "Sleep";
             paramsPanel.className = "panel params-panel";
-            log("Sleep command selected");
+
+            var robotId = getRobotId();
+            log("Sending Sleep to Robot " + robotId + "...");
+            fetch("/telecommand/", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ command: "SLEEP", robotId: robotId })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) { log("Sleep response: " + JSON.stringify(data)); })
+            .catch(function(err) { log("ERROR: " + err.message); });
         });
 
         // ---- SEND COMMAND ----
@@ -242,21 +276,68 @@
             if (!selectedCommand || selectedCommand === "Sleep") return;
 
             var duration = document.getElementById("duration").value;
-            var msg = selectedCommand;
 
-            if (selectedCommand === "Forward" || selectedCommand === "Backward") {
-                var power = document.getElementById("power").value;
-                msg += " | Power: " + power + " | Duration: " + duration + "s";
-            } else {
-                msg += " | Duration: " + duration + "s";
+            // Validate duration
+            if (!validateDuration(duration)) {
+                log("ERROR: Duration must be 1-100 seconds");
+                return;
             }
 
-            log(msg);
+            var robotId = getRobotId();
+            var body = {
+                command: "DRIVE",
+                direction: selectedCommand.toUpperCase(),
+                duration: parseInt(duration, 10),
+                robotId: robotId
+            };
+
+            // Validate power for Forward/Backward
+            if (selectedCommand === "Forward" || selectedCommand === "Backward") {
+                var power = document.getElementById("power").value;
+                if (!validatePower(power)) {
+                    log("ERROR: Power must be 80-100%");
+                    return;
+                }
+                body.power = parseInt(power, 10);
+            }
+
+            var msg = "Robot " + robotId + " | " + selectedCommand;
+            if (body.power) {
+                msg += " | Power: " + body.power + " | Duration: " + body.duration + "s";
+            } else {
+                msg += " | Duration: " + body.duration + "s";
+            }
+            log("Sending: " + msg);
+
+            fetch("/telecommand/", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) { log("Response: " + JSON.stringify(data)); })
+            .catch(function(err) { log("ERROR: " + err.message); });
         });
 
         // ---- TELEMETRY REQUEST ----
         document.getElementById("btn-telemetry").addEventListener("click", function() {
-            log("Telemetry requested");
+            var robotId = getRobotId();
+            log("Requesting telemetry for Robot " + robotId + "...");
+            fetch("/telementry_request/?robotId=" + robotId)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var output = document.getElementById("telemetry-output");
+                    output.textContent =
+                        "Last Pkt Counter: " + (data.LastPktCounter || "N/A") + "\n" +
+                        "Current Grade:    " + (data.CurrentGrade || "N/A") + "\n" +
+                        "Hit Count:        " + (data.HitCount || "N/A") + "\n" +
+                        "Heading:          " + (data.Heading || "N/A") + "\n" +
+                        "Last Command:     " + (data.LastCmd || "N/A") + "\n" +
+                        "Last Cmd Value:   " + (data.LastCmdValue || "N/A") + "\n" +
+                        "Last Cmd Power:   " + (data.LastCmdPower || "N/A");
+                    log("Telemetry received");
+                })
+                .catch(function(err) { log("ERROR: " + err.message); });
         });
     </script>
 </body>
