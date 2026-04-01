@@ -21,9 +21,6 @@ class App
     static inline bool networkLock = false;
 
 public:
-    static const int RAW_BUFFER_SIZE = 256;
-    static inline char rawBuffer[RAW_BUFFER_SIZE] = { 0 };
-    static inline int rawBufferLength = 0;
 
     bool hasDataToSend = false;
     char* dataBuffer;
