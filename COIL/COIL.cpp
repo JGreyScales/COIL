@@ -171,22 +171,31 @@ int main()
     }
 #endif
 
-    App* app = new App();
-    std::cout << "app is running";
+    std::cout << "Manual input(1) or webserver(2)" << std::endl;
+    int input = ConsoleUtils::getUserInt(1, 2);
 
-    while (true) {
-        // should hold for 100ms per cycle to check for inbound data
-        // if inbound data it will daisy chain it and process it all before returning
-        // if not inbound data, it will return and proceed with the code
-        app->openListeners();
+    if (input == 1) {
+        manualInputMode();
+    }
+    else {
 
-        if (app->hasDataToSend) {
-            PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+        App* app = new App();
+        std::cout << "app is running" << std::endl;
 
-            // put logic in here to get it back into the rest route
-            pktInstance->display();
+        while (true) {
+            // should hold for 100ms per cycle to check for inbound data
+            // if inbound data it will daisy chain it and process it all before returning
+            // if not inbound data, it will return and proceed with the code
+            app->openListeners();
 
-            delete pktInstance;
+            if (app->hasDataToSend) {
+                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+
+                // put logic in here to get it back into the rest route
+                pktInstance->display();
+
+                delete pktInstance;
+            }
         }
     }
 
