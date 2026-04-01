@@ -58,6 +58,7 @@ private:
     char* RawBuffer;
 public:
     CmdType cmd;
+    bool deleteBuffer = true;
 
     unsigned char countSetBits(const char* value, int size) const;
 

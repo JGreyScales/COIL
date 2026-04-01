@@ -28,7 +28,6 @@ namespace SOCKET_TESTS
 			Assert::AreEqual(0, socketInstance->GetIPAddr().compare("192.168.0.1"));
 			Assert::AreEqual(1500, socketInstance->GetPort());
 			Assert::AreEqual((int)MySocket::SERVER, (int)socketInstance->GetType());
-
 		}
 	};
 }

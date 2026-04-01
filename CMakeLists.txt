@@ -26,6 +26,7 @@ set(SOURCE_FILES
     COIL/Robot.cpp
     COIL/TelemetryBodyDef.cpp
     COIL/TurnBodyDef.cpp
+    COIL/App.cpp
 )
 
 # Create the executable

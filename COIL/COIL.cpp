@@ -90,7 +90,9 @@ void manualInputMode() {
                 char* packetData = pktInstance->GenPacket();
                 BitUtils::displayChar(pktInstance->GetLength(), packetData);
                 std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
-                chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
+                
+                App::attachRobotID(0, packetData);
+                chosenRobot->socket->SendData(packetData, pktInstance->GetLength() + 1);
 
 
 
@@ -105,6 +107,7 @@ void manualInputMode() {
 
                 std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
 
+                pktInstance->deleteBuffer = false;
                 delete pktInstance;
                 break;
             }
@@ -171,7 +174,33 @@ int main()
     }
 #endif
 
-    manualInputMode();
+    std::cout << "Manual input(1) or webserver(2)" << std::endl;
+    int input = ConsoleUtils::getUserInt(1, 2);
+
+    if (input == 1) {
+        manualInputMode();
+    }
+    else {
+
+        App* app = new App();
+        std::cout << "app is running" << std::endl;
+
+        while (true) {
+            // should hold for 100ms per cycle to check for inbound data
+            // if inbound data it will daisy chain it and process it all before returning
+            // if not inbound data, it will return and proceed with the code
+            app->openListeners();
+
+            if (app->hasDataToSend) {
+                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+
+                // put logic in here to get it back into the rest route
+                pktInstance->display();
+
+                delete pktInstance;
+            }
+        }
+    }
 
 #ifdef _WIN32
     WSACleanup();

@@ -81,6 +81,7 @@ namespace ConsoleUtils {
 
             if (std::cin >> input) {
                 if (input >= lower && input <= max) {
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     return input;
                 }
                 std::cout << "Out of range. ";
@@ -88,7 +89,7 @@ namespace ConsoleUtils {
             else {
                 std::cout << "That's not a number! ";
                 std::cin.clear();
-                std::cin.ignore(9999999999, '\n');
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             }
 
             std::cout << "Please try again.\n" << std::endl;
@@ -96,9 +97,12 @@ namespace ConsoleUtils {
     }
 
     inline std::string getUserString() {
-        std::string input = "";
-        std::cin >> input;
+        std::string input;
+        if (!(std::cin >> input)) {
+            std::cin.clear();
+        }
 
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return input;
     }
 }

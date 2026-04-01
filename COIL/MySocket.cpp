@@ -247,6 +247,29 @@ void MySocket::SendData(char* data, int dataSize)
 	}
 }
 
+
+// ai generated
+bool MySocket::HasData(int timeoutMS)
+{
+	if (ConnectionSocket == INVALID_SOCKET)
+		return false;
+
+	fd_set readSet;
+	FD_ZERO(&readSet);
+	FD_SET(ConnectionSocket, &readSet);
+
+	timeval timeout;
+	timeout.tv_sec = timeoutMS / 1000;
+	timeout.tv_usec = (timeoutMS % 1000) * 1000;
+
+	// select(nfds, readfds, writefds, exceptfds, timeout)
+	// On Windows, the first parameter (nfds) is ignored, but on Linux it matters.
+	int result = select((int)ConnectionSocket + 1, &readSet, NULL, NULL, &timeout);
+
+	// result > 0 means there is data waiting to be read
+	return result > 0;
+}
+
 int MySocket::GetData(char* data)
 {
 	if (data == nullptr)
