@@ -55,6 +55,7 @@ public:
     void SendData(char*, int);
     int GetData(char*);
     bool HasData(int);
+    void BindLocalIP(std::string);
 
     std::string GetIPAddr();
     void SetIPAddr(std::string ip);

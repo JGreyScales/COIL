@@ -18,6 +18,9 @@ App::App() {
 		this->robots[1] = new Robot(1);
 		this->nexthop = nullptr;
 
+		std::cout << "What is my ethernet binding IP" << std::endl;
+		std::string ethernetIP = ConsoleUtils::getUserString();
+
 		for (size_t i = 0; i < 2; i++)
 		{
 			std::cout << "Enter TCP (1) / UDP (2)" << std::endl;
@@ -32,6 +35,7 @@ App::App() {
 
 			this->robots[i]->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
 			if (connectionType == MySocket::ConnectionType::TCP) {
+				this->robots[i]->socket->BindLocalIP(ethernetIP);
 				this->robots[i]->socket->ConnectTCP();
 			}
 		}
@@ -71,6 +75,8 @@ App::App() {
 		return;
 	}
 
+	std::cout << "What is my wifiIP" << std::endl;
+	std::string wifiIP = ConsoleUtils::getUserString();
 
 	std::cout << "What is my tunnel port" << std::endl;
 	const int port = ConsoleUtils::getUserInt(0, 65535);
@@ -80,7 +86,7 @@ App::App() {
 	}
 
 	// inbound
-	this->curSoc = new MySocket(MySocket::SERVER, "0.0.0.0", port, this->connectionType, 1024);
+	this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 }
 
 
