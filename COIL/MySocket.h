@@ -54,6 +54,7 @@ public:
     void DisconnectTCP();
     void SendData(char*, int);
     int GetData(char*);
+    bool HasData(int);
 
     std::string GetIPAddr();
     void SetIPAddr(std::string ip);

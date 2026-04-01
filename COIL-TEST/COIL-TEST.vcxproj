@@ -100,7 +100,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)COIL\x64\Debug\COIL;$(SolutionDir)COIL\x64\Debug\AckBodyDef;$(SolutionDir)COIL\x64\Debug\DriveBodyDef;$(SolutionDir)COIL\x64\Debug\HeaderDef;$(SolutionDir)COIL\x64\Debug\TurnBodyDef;$(SolutionDir)COIL\x64\Debug\TelemetryBodyDef;$(SolutionDir)COIL\x64\Debug\BodyInterface;$(SolutionDir)COIL\x64\Debug\PktDef;%(AdditionalDependencies);$(SolutionDir)COIL\x64\Debug\MySocket;$(SolutionDir)COIL\x64\Debug\Robot</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)COIL\x64\Debug\COIL;$(SolutionDir)COIL\x64\Debug\AckBodyDef;$(SolutionDir)COIL\x64\Debug\DriveBodyDef;$(SolutionDir)COIL\x64\Debug\HeaderDef;$(SolutionDir)COIL\x64\Debug\TurnBodyDef;$(SolutionDir)COIL\x64\Debug\TelemetryBodyDef;$(SolutionDir)COIL\x64\Debug\BodyInterface;$(SolutionDir)COIL\x64\Debug\PktDef;$(SolutionDir)COIL\x64\Debug\App;%(AdditionalDependencies);$(SolutionDir)COIL\x64\Debug\MySocket;$(SolutionDir)COIL\x64\Debug\Robot</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

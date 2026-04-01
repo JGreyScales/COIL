@@ -2,6 +2,9 @@
 #include "Robot.h"
 #include "PktDef.h"
 
+#include <thread>
+#include <chrono>
+
 enum appMode
 {
     Primary,
@@ -10,20 +13,33 @@ enum appMode
 
 class App
 {
-    Robot* robots[2] = { new Robot(0), new Robot(1) };
-    MySocket* curSoc;
+    Robot* robots[2] = { nullptr, nullptr };
+    MySocket* curSoc; // inbound
+    MySocket* nexthop; // outbound
     appMode mode;
+    MySocket::ConnectionType connectionType;
+    static inline bool networkLock = false;
+
+public:
+
+    bool hasDataToSend = false;
+    char* dataBuffer;
 
 	App();
 
     void attachRobotID(int, char*);
     int detachRobotID(char*);
     
-    char * awaitReturn();
-    void forwardToNextHop();
-    void sendToRobot();
+
+    PktDef* sendData(char*, bool);
+    char * awaitReturn(MySocket*);
+    char * forwardToNextHop(char*);
+    char * sendToRobot(Robot*);
 
     bool openListeners();
+
+    void lock(int);
+    void unlock();
 
     ~App();
 };

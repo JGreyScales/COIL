@@ -171,7 +171,21 @@ int main()
     }
 #endif
 
-    manualInputMode();
+    App* app = new App();
+    std::cout << "app is running";
+
+    while (true) {
+        app->openListeners();
+
+        if (app->hasDataToSend) {
+            PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+
+            // put logic in here to get it back into the rest route
+            pktInstance->display();
+
+            delete pktInstance;
+        }
+    }
 
 #ifdef _WIN32
     WSACleanup();

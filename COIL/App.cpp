@@ -1,8 +1,86 @@
 #include "App.h"
 
+// how to use
+// create your app using new App
+// setup your connections
+// put open Listners into a while true loop, it will try to read data blocking progress for 100 milliseconds on every call
+// put a flag that if there is data to send that it will 
+//	attach robot ID to the buffer
+//	use sendData
+
 
 App::App() {
+	std::cout << "Primary(1) or Secondary Mode(2)" << std::endl;
+	int chosenInput = ConsoleUtils::getUserInt(1, 2);
+	if (chosenInput == 1) {
+		this->mode = appMode::Primary;
+		this->robots[0] = new Robot(0);
+		this->robots[1] = new Robot(1);
+		this->nexthop = nullptr;
 
+		for (size_t i = 0; i < 2; i++)
+		{
+			std::cout << "Enter TCP (1) / UDP (2)" << std::endl;
+			MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
+
+			std::cout << "Enter IP: ";
+			std::string IP = ConsoleUtils::getUserString();
+			
+			std::cout << "Enter Port: ";
+			unsigned int port = ConsoleUtils::getUserInt(0, 65535);
+
+
+			this->robots[i]->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
+			if (connectionType == MySocket::ConnectionType::TCP) {
+				this->robots[i]->socket->ConnectTCP();
+			}
+		}
+
+	}
+	else {
+		this->mode = appMode::Secondary;
+
+		std::cout << "What is my next hops IP:";
+		std::string IP = ConsoleUtils::getUserString();
+
+		std::cout << "What is my next hops tunnel port" << std::endl;
+		int Port = ConsoleUtils::getUserInt(0, 65535);
+
+		std::cout << "What is my next hop using TCP (1) / UDP (2)" << std::endl;
+		MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
+
+		// outbound
+		this->nexthop = new MySocket(MySocket::CLIENT, IP, Port, connectionType, 1024);
+		if (connectionType == MySocket::ConnectionType::TCP) {
+			this->nexthop->ConnectTCP();
+		}
+
+	}
+
+	std::cout << "Am I TCP(1) or UDP(2) or end(3)" << std::endl;
+	const int input = ConsoleUtils::getUserInt(1, 3);
+		
+	if (input == 1) {
+		this->connectionType = MySocket::TCP;
+	}
+	else if (input == 2){
+		this->connectionType = MySocket::UDP;
+	}
+	else {
+		this->curSoc = nullptr;
+		return;
+	}
+
+
+	std::cout << "What is my tunnel port" << std::endl;
+	const int port = ConsoleUtils::getUserInt(0, 65535);
+
+	if (this->connectionType == MySocket::TCP) {
+		std::cout << "Waiting for client to connect..." << std::endl;
+	}
+
+	// inbound
+	this->curSoc = new MySocket(MySocket::SERVER, "0.0.0.0", port, this->connectionType, 1024);
 }
 
 
@@ -29,28 +107,112 @@ int App::detachRobotID(char* data)
 	return ID;
 }
 
-char* App::awaitReturn()
+char* App::awaitReturn(MySocket* socket)
 {
+	
 	return nullptr;
 }
 
-void App::forwardToNextHop()
+char * App::forwardToNextHop(char* buffer)
 {
+	PktDef* pktInstance = new PktDef(buffer);
+
+	// + 1 to account for the robot ID
+	this->nexthop->SendData(buffer, pktInstance->GetLength() + 1);
+
+	delete pktInstance;
+
+
+	return this->awaitReturn(this->nexthop);
 }
 
-void App::sendToRobot()
+char * App::sendToRobot(Robot* robot)
 {
+	return this->awaitReturn(robot->socket);
 }
 
+// attachRobotID must have been called previous to this function call
+// or this will not work as intended
+
+// respond is for if a response on the server socket should be sent
+// if the request came from this server, it shouldnt be responding
+// it should take the PktDef* and convert it over to rest to respond to the webserver
+PktDef* App::sendData(char* buffer, bool respond) {
+	if (this->networkLock) {
+		// if a request is currently being proccessed, dont process the request
+		return NULL;
+	}
+
+	this->lock(30);
+
+	char* returnData;
+
+	// move down the daisy chain
+	if (this->mode == appMode::Primary) {
+		int robotID = this->detachRobotID(buffer);
+		returnData = this->sendToRobot(this->robots[robotID]);
+	}
+	else {
+		returnData = this->forwardToNextHop(buffer);
+	}
+
+	PktDef* pktInstance = new PktDef(returnData);
+
+	if (respond) {
+		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
+	}
+
+	return pktInstance;
+}
+
+// checks for 100 milliseconds if there is data waiting to be read
 bool App::openListeners()
 {
-	return false;
+	char buffer[1024];
+	if (this->curSoc->HasData(100)) {
+		int bytes = this->curSoc->GetData(buffer);
+		PktDef* pktInstance = this->sendData(buffer, true);
+		if (pktInstance != NULL) {
+			delete pktInstance; // we dont need to hold onto the packet
+		}
+	}
+
+	return true;
+}
+
+void App::lock(int duration)
+{
+	this->networkLock = true;
+
+	std::thread([this, duration]() {
+		// Put the background thread to sleep
+		std::this_thread::sleep_for(std::chrono::seconds(duration));
+
+		// Unlock after the timer expires
+		this->unlock();
+		}).detach();
+}
+
+void App::unlock()
+{
+	this->networkLock = false;
 }
 
 App::~App()
 {
-	delete this->robots[0];
-	delete this->robots[0];
+	if (this->robots[0]) {
+		delete this->robots[0];
+	}
+	
+	if (this->robots[1]) {
+		delete this->robots[1];
+	}
+	
+	if (this->curSoc) {
+		delete this->curSoc;
+	}
 
-	delete this->curSoc;
+	if (this->nexthop) {
+		delete this->nexthop;
+	}
 }
