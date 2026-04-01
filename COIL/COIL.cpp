@@ -198,6 +198,7 @@ int main()
                 pktInstance->display();
 
                 delete pktInstance;
+                app->hasDataToSend = false;
             }
         }
     }
