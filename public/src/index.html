@@ -220,14 +220,11 @@
 
     <script>
         var logOutput = document.getElementById("log-output");
-        var telemetryOutput = document.getElementById("telemetry-output");
-        var connStatus = document.getElementById("conn-status");
         var paramsPanel = document.getElementById("params-panel");
         var paramsTitle = document.getElementById("params-title");
         var groupPower = document.getElementById("group-power");
         var groupDuration = document.getElementById("group-duration");
         var selectedCommand = null;
-        var selectedDirection = null;
 
         function log(msg) {
             logOutput.textContent = msg + "\n" + logOutput.textContent;
@@ -237,29 +234,15 @@
         document.getElementById("btn-connect").addEventListener("click", function() {
             var ip = document.getElementById("robotIP").value;
             var port = document.getElementById("robotPort").value;
-
-            log("[CONNECT] " + ip + ":" + port);
-
-            fetch("/connect/" + ip + "/" + port, { method: "POST" })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                connStatus.textContent = "Connected to " + data.ip + ":" + data.port;
-                connStatus.className = "connection-status connected";
-                log("[CONNECT] OK: " + data.ip + ":" + data.port);
-            })
-            .catch(function(err) {
-                connStatus.textContent = "Connection Failed";
-                connStatus.className = "connection-status disconnected";
-                log("[CONNECT] Error: " + err);
-            });
+            var connStatus = document.getElementById("conn-status");
+            connStatus.textContent = "Connected to " + ip + ":" + port;
+            connStatus.className = "connection-status connected";
+            log("Connected to " + ip + ":" + port);
         });
 
         // ---- DIRECTION BUTTONS ----
-        var directionMap = { "Forward": 1, "Backward": 2, "Right": 3, "Left": 4 };
-
         function showParams(command, fields) {
             selectedCommand = command;
-            selectedDirection = directionMap[command] || 0;
             paramsTitle.textContent = command + " Parameters";
 
             groupPower.className = "param-group" + (fields.includes("power") ? " visible" : "");
@@ -286,95 +269,30 @@
 
         document.getElementById("btn-sleep").addEventListener("click", function() {
             selectedCommand = "Sleep";
-            selectedDirection = 0;
             paramsPanel.className = "panel params-panel";
-
-            log("[TX] Sending SLEEP...");
-
-            fetch("/telecommand/", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ command: "SLEEP" })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                log("[TX] SLEEP | Sent: " + data.txLength + " bytes");
-                log("[TX] Hex: " + data.txHex);
-                log("[RX] " + data.ack + (data.rxLength ? " | " + data.rxLength + " bytes" : ""));
-                if (data.rxHex) log("[RX] Hex: " + data.rxHex);
-                log("---");
-            })
-            .catch(function(err) { log("[ERROR] " + err); });
+            log("Sleep command selected");
         });
 
-        // ---- SEND COMMAND (Drive/Turn) ----
+        // ---- SEND COMMAND ----
         document.getElementById("btn-send").addEventListener("click", function() {
             if (!selectedCommand || selectedCommand === "Sleep") return;
 
-            var duration = parseInt(document.getElementById("duration").value);
-            var payload = {
-                command: "DRIVE",
-                direction: selectedDirection,
-                duration: duration
-            };
+            var duration = document.getElementById("duration").value;
+            var msg = selectedCommand;
 
             if (selectedCommand === "Forward" || selectedCommand === "Backward") {
-                payload.power = parseInt(document.getElementById("power").value);
+                var power = document.getElementById("power").value;
+                msg += " | Power: " + power + " | Duration: " + duration + "s";
             } else {
-                payload.power = 0;
+                msg += " | Duration: " + duration + "s";
             }
 
-            log("[TX] Sending " + selectedCommand + "...");
-            log("[TX] Dir: " + selectedDirection + " | Dur: " + duration +
-                (payload.power ? " | Pwr: " + payload.power : ""));
-
-            fetch("/telecommand/", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                log("[TX] " + data.command + " | Sent: " + data.txLength + " bytes");
-                log("[TX] Hex: " + data.txHex);
-                log("[RX] " + data.ack + (data.rxLength ? " | " + data.rxLength + " bytes" : ""));
-                if (data.rxHex) log("[RX] Hex: " + data.rxHex);
-                log("---");
-            })
-            .catch(function(err) { log("[ERROR] " + err); });
+            log(msg);
         });
 
         // ---- TELEMETRY REQUEST ----
         document.getElementById("btn-telemetry").addEventListener("click", function() {
-            log("[TX] Requesting Telemetry...");
-
-            fetch("/telementry_request/", { method: "GET" })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                log("[TX] TELEMETRY_REQUEST | Sent: " + data.txLength + " bytes");
-                log("[TX] Hex: " + data.txHex);
-
-                if (data.rxLength) {
-                    log("[RX] Telemetry | " + data.rxLength + " bytes");
-                    log("[RX] Hex: " + data.rxHex);
-                }
-
-                var telStr = "";
-                if (data.currentGrade !== undefined) {
-                    telStr += "Last Pkt Counter: " + data.lastPktCounter + "\n";
-                    telStr += "Current Grade:    " + data.currentGrade + "\n";
-                    telStr += "Hit Count:        " + data.hitCount + "\n";
-                    telStr += "Heading:          " + data.heading + "\n";
-                    telStr += "Last Cmd:         " + data.lastCmd + "\n";
-                    telStr += "Last Cmd Value:   " + data.lastCmdValue + "\n";
-                    telStr += "Last Cmd Power:   " + data.lastCmdPower;
-                } else {
-                    telStr = data.ack || "No telemetry data";
-                }
-                telemetryOutput.textContent = telStr;
-                log("---");
-            })
-            .catch(function(err) { log("[ERROR] " + err); });
+            log("Telemetry requested");
         });
     </script>
 </body>
