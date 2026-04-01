@@ -28,3 +28,5 @@ Primary Docker: 127.0.0.1:5000
 docker run -ti --name primary -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 5000:5000 -p 29000:29000 webserver_dev_linux:latest 
 
 Simulator: 10.172.41.150:29000
+
+command to get an ip of a docker container: docker inspect -f "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}" <containerName>

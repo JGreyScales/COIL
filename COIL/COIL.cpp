@@ -193,6 +193,7 @@ int main()
 
             if (app->hasDataToSend) {
                 PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+                
 
                 // put logic in here to get it back into the rest route
                 pktInstance->display();
