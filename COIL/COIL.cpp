@@ -175,6 +175,9 @@ int main()
     std::cout << "app is running";
 
     while (true) {
+        // should hold for 100ms per cycle to check for inbound data
+        // if inbound data it will daisy chain it and process it all before returning
+        // if not inbound data, it will return and proceed with the code
         app->openListeners();
 
         if (app->hasDataToSend) {
