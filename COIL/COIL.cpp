@@ -2,7 +2,9 @@
 #include <bitset>
 #include <limits>
 
-
+#define ASIO_STANDALONE
+#include "crow_all.h"
+#include "fileFetcher.h"
 #include "App.h"
 
 
@@ -182,24 +184,255 @@ int main()
     }
     else {
 
-        App* app = new App();
-        std::cout << "app is running" << std::endl;
+        crow::SimpleApp crowApp;
+        fileFetcher fetcher;
 
-        while (true) {
-            // should hold for 100ms per cycle to check for inbound data
-            // if inbound data it will daisy chain it and process it all before returning
-            // if not inbound data, it will return and proceed with the code
-            app->openListeners();
+        // Robot connection state
+        static MySocket* robotSocket = nullptr;
+        static std::string robotIP;
+        static int robotPort = 0;
 
-            if (app->hasDataToSend) {
-                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
-
-                // put logic in here to get it back into the rest route
-                pktInstance->display();
-
-                delete pktInstance;
+        // Helper: build hex string from buffer
+        auto toHex = [](const char* buf, int len) {
+            std::string hex;
+            for (int i = 0; i < len; i++) {
+                char h[4];
+                snprintf(h, sizeof(h), "%02X ", (unsigned char)buf[i]);
+                hex += h;
             }
-        }
+            return hex;
+        };
+
+        // GET / - serve the main GUI
+        CROW_ROUTE(crowApp, "/")([
+            &fetcher]() {
+                return fetcher.sendFile("index.html", "src");
+            });
+
+        // Serve static files
+        CROW_ROUTE(crowApp, "/styles/<string>")([
+            &fetcher](std::string filename) {
+                return fetcher.sendFile(filename, "styles");
+            });
+
+        CROW_ROUTE(crowApp, "/scripts/<string>")([
+            &fetcher](std::string filename) {
+                return fetcher.sendFile(filename, "scripts");
+            });
+
+        // POST /connect/<string>/<int> - set robot IP and port for UDP comms
+        CROW_ROUTE(crowApp, "/connect/<string>/<int>").methods("POST"_method)([
+            &toHex](std::string ip, int port) {
+                robotIP = ip;
+                robotPort = port;
+
+                // Clean up existing socket
+                if (robotSocket) {
+                    delete robotSocket;
+                    robotSocket = nullptr;
+                }
+
+                robotSocket = new MySocket(MySocket::CLIENT, ip, port, MySocket::UDP, MySocket::DEFAULT_SIZE);
+
+                std::cout << "[CONNECT] Robot IP: " << ip << " Port: " << port << std::endl;
+
+                crow::json::wvalue resp;
+                resp["status"] = "ok";
+                resp["ip"] = ip;
+                resp["port"] = port;
+                return crow::response(200, resp);
+            });
+
+        // PUT /telecommand/ - send Drive or Sleep command
+        CROW_ROUTE(crowApp, "/telecommand/").methods("PUT"_method)([
+            &toHex](const crow::request& req) {
+                if (!robotSocket) {
+                    return crow::response(400, "Not connected. Use /connect first.");
+                }
+
+                auto body = crow::json::load(req.body);
+                if (!body) return crow::response(400, "Invalid JSON");
+
+                std::string command = body["command"].s();
+                crow::json::wvalue resp;
+
+                PktDef* pkt = new PktDef();
+
+                if (command == "SLEEP") {
+                    pkt->SetCmd(PktDef::SLEEP);
+                    char* packetData = pkt->GenPacket();
+                    int length = pkt->GetLength();
+
+                    std::memset(App::rawBuffer, 0, App::RAW_BUFFER_SIZE);
+                    std::memcpy(App::rawBuffer, packetData, length);
+                    App::rawBufferLength = length;
+
+                    std::cout << "[TX] SLEEP | " << length << " bytes | " << toHex(App::rawBuffer, length) << std::endl;
+
+                    robotSocket->SendData(App::rawBuffer, length);
+
+                    // Await ACK
+                    char recvBuf[MySocket::DEFAULT_SIZE] = { 0 };
+                    int bytesRecv = robotSocket->GetData(recvBuf);
+
+                    resp["status"] = "ok";
+                    resp["command"] = "SLEEP";
+                    resp["txLength"] = length;
+                    resp["txHex"] = toHex(App::rawBuffer, length);
+
+                    if (bytesRecv > 0) {
+                        PktDef* ackPkt = new PktDef(recvBuf);
+                        resp["ack"] = ackPkt->GetAck() ? "ACK" : "NACK";
+                        resp["rxLength"] = bytesRecv;
+                        resp["rxHex"] = toHex(recvBuf, bytesRecv);
+                        std::cout << "[RX] " << (ackPkt->GetAck() ? "ACK" : "NACK") << " | " << bytesRecv << " bytes" << std::endl;
+                        delete ackPkt;
+                    } else {
+                        resp["ack"] = "NO RESPONSE";
+                    }
+
+                } else {
+                    // DRIVE or TURN
+                    pkt->SetCmd(PktDef::DRIVE);
+                    int direction = body["direction"].i();
+                    int duration = body["duration"].i();
+
+                    if (direction == PktDef::FORWARD || direction == PktDef::BACKWARD) {
+                        int power = body["power"].i();
+                        DriveBodyDef* driveBody = new DriveBodyDef();
+                        driveBody->Direction = direction;
+                        driveBody->Duration = duration;
+                        driveBody->Power = power;
+                        pkt->SetBodyData(driveBody);
+                        resp["power"] = power;
+                    } else {
+                        TurnBodyDef* turnBody = new TurnBodyDef();
+                        turnBody->Direction = direction;
+                        turnBody->Duration = duration;
+                        pkt->SetBodyData(turnBody);
+                    }
+
+                    char* packetData = pkt->GenPacket();
+                    int length = pkt->GetLength();
+
+                    std::memset(App::rawBuffer, 0, App::RAW_BUFFER_SIZE);
+                    std::memcpy(App::rawBuffer, packetData, length);
+                    App::rawBufferLength = length;
+
+                    std::cout << "[TX] DRIVE dir=" << direction << " dur=" << duration << " | "
+                              << length << " bytes | " << toHex(App::rawBuffer, length) << std::endl;
+
+                    robotSocket->SendData(App::rawBuffer, length);
+
+                    // Await ACK
+                    char recvBuf[MySocket::DEFAULT_SIZE] = { 0 };
+                    int bytesRecv = robotSocket->GetData(recvBuf);
+
+                    resp["status"] = "ok";
+                    resp["command"] = "DRIVE";
+                    resp["direction"] = direction;
+                    resp["duration"] = duration;
+                    resp["txLength"] = length;
+                    resp["txHex"] = toHex(App::rawBuffer, length);
+
+                    if (bytesRecv > 0) {
+                        PktDef* ackPkt = new PktDef(recvBuf);
+                        resp["ack"] = ackPkt->GetAck() ? "ACK" : "NACK";
+                        resp["rxLength"] = bytesRecv;
+                        resp["rxHex"] = toHex(recvBuf, bytesRecv);
+                        std::cout << "[RX] " << (ackPkt->GetAck() ? "ACK" : "NACK") << " | " << bytesRecv << " bytes" << std::endl;
+                        delete ackPkt;
+                    } else {
+                        resp["ack"] = "NO RESPONSE";
+                    }
+
+                    pkt->deleteBuffer = false;
+                }
+
+                delete pkt;
+                return crow::response(200, resp);
+            });
+
+        // GET /telementry_request/ - request housekeeping telemetry
+        CROW_ROUTE(crowApp, "/telementry_request/").methods("GET"_method)([
+            &toHex]() {
+                if (!robotSocket) {
+                    return crow::response(400, "Not connected. Use /connect first.");
+                }
+
+                PktDef* pkt = new PktDef();
+                pkt->SetCmd(PktDef::RESPONSE);
+
+                char* packetData = pkt->GenPacket();
+                int length = pkt->GetLength();
+
+                std::memset(App::rawBuffer, 0, App::RAW_BUFFER_SIZE);
+                std::memcpy(App::rawBuffer, packetData, length);
+                App::rawBufferLength = length;
+
+                std::cout << "[TX] TELEMETRY REQUEST | " << length << " bytes | " << toHex(App::rawBuffer, length) << std::endl;
+
+                robotSocket->SendData(App::rawBuffer, length);
+
+                // Await telemetry response
+                char recvBuf[MySocket::DEFAULT_SIZE] = { 0 };
+                int bytesRecv = robotSocket->GetData(recvBuf);
+
+                crow::json::wvalue resp;
+                resp["status"] = "ok";
+                resp["command"] = "TELEMETRY_REQUEST";
+                resp["txLength"] = length;
+                resp["txHex"] = toHex(App::rawBuffer, length);
+
+                if (bytesRecv > 0) {
+                    PktDef* resPkt = new PktDef(recvBuf);
+                    resp["rxLength"] = bytesRecv;
+                    resp["rxHex"] = toHex(recvBuf, bytesRecv);
+
+                    if (resPkt->GetCmd() == PktDef::RESPONSE && resPkt->getPacket().Header->Status) {
+                        TelemetryBodyDef* telemetry = (TelemetryBodyDef*)resPkt->getPacket().body;
+                        resp["lastPktCounter"] = telemetry->LastPktCounter;
+                        resp["currentGrade"] = telemetry->CurrentGrade;
+                        resp["hitCount"] = telemetry->HitCount;
+                        resp["heading"] = telemetry->Heading;
+                        resp["lastCmd"] = telemetry->LastCmd;
+                        resp["lastCmdValue"] = telemetry->LastCmdValue;
+                        resp["lastCmdPower"] = telemetry->LastCmdPower;
+                        std::cout << "[RX] TELEMETRY | Grade: " << telemetry->CurrentGrade
+                                  << " Hits: " << telemetry->HitCount
+                                  << " Heading: " << telemetry->Heading << std::endl;
+                    } else {
+                        resp["ack"] = resPkt->GetAck() ? "ACK" : "NACK";
+                    }
+                    delete resPkt;
+                } else {
+                    resp["ack"] = "NO RESPONSE";
+                }
+
+                delete pkt;
+                return crow::response(200, resp);
+            });
+
+        // POST /routing_table/ - route commands to another instance
+        CROW_ROUTE(crowApp, "/routing_table/").methods("POST"_method)(
+            [](const crow::request& req) {
+                auto body = crow::json::load(req.body);
+                if (!body) return crow::response(400, "Invalid JSON");
+
+                std::string nextIP = body["ip"].s();
+                int nextPort = body["port"].i();
+
+                std::cout << "[ROUTE] Next hop: " << nextIP << ":" << nextPort << std::endl;
+
+                crow::json::wvalue resp;
+                resp["status"] = "ok";
+                resp["nextHopIP"] = nextIP;
+                resp["nextHopPort"] = nextPort;
+                return crow::response(200, resp);
+            });
+
+        std::cout << "Starting Crow webserver on port 8080..." << std::endl;
+        crowApp.port(8080).multithreaded().run();
     }
 
 #ifdef _WIN32
