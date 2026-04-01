@@ -4,6 +4,7 @@
 
 
 #include "App.h"
+#include "fileFetcher.h"
 
 
 // old stuff, wouldnt be included in release
@@ -181,26 +182,80 @@ int main()
         manualInputMode();
     }
     else {
+        crow::SimpleApp crowApp;
+        fileFetcher ff;
 
-        App* app = new App();
-        std::cout << "app is running" << std::endl;
-
-        while (true) {
-            // should hold for 100ms per cycle to check for inbound data
-            // if inbound data it will daisy chain it and process it all before returning
-            // if not inbound data, it will return and proceed with the code
-            app->openListeners();
-
-            if (app->hasDataToSend) {
-                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
-
-                // put logic in here to get it back into the rest route
-                pktInstance->display();
-
-                delete pktInstance;
-                app->hasDataToSend = false;
+        // GET "/" - serve root HTML page
+        CROW_ROUTE(crowApp, "/")
+        ([&ff]() {
+            std::string html = ff.sendFile("src/index.html");
+            if (html == "not found") {
+                return crow::response(404, "Not Found");
             }
-        }
+            crow::response res(200, html);
+            res.set_header("Content-Type", "text/html");
+            return res;
+        });
+
+        // POST /commands/Drive/<int> - for drive & turn
+        CROW_ROUTE(crowApp, "/commands/Drive/<int>")
+            .methods("POST"_method)
+        ([](const crow::request& req, int direction) {
+            auto body = crow::json::load(req.body);
+            if (!body) {
+                return crow::response(400, "Invalid JSON");
+            }
+
+            crow::json::wvalue response;
+
+            if (direction == 1 || direction == 2) {
+                // Drive forward/backward - needs Duration and Power
+                if (!body.has("Duration") || !body.has("Power")) {
+                    return crow::response(400, "Duration and Power required");
+                }
+                int duration = body["Duration"].i();
+                int power = body["Power"].i();
+
+                
+                response["Ack_Flag"] = 1;
+                response["body"] = "Drive command received";
+            }
+            else if (direction == 3 || direction == 4) {
+                // Turn right/left - needs Duration
+                if (!body.has("Duration")) {
+                    return crow::response(400, "Duration required");
+                }
+                int duration = body["Duration"].i();
+
+                response["Ack_Flag"] = 1;
+                response["body"] = "Turn command received";
+            }
+            else {
+                return crow::response(404, "Invalid direction");
+            }
+
+            return crow::response(response);
+        });
+
+        // GET /commands/telemetry
+        CROW_ROUTE(crowApp, "/commands/telemetry")
+            .methods("GET"_method)
+        ([]() {
+            crow::json::wvalue response;
+            // TODO: integrate with App to get actual telemetry
+            response["Ack"] = 1;
+            return crow::response(response);
+        });
+
+        // POST /commands/sleep
+        CROW_ROUTE(crowApp, "/commands/sleep")
+            .methods("POST"_method)
+        ([]() {
+            // TODO: integrate with App to send sleep command
+            return crow::response(200, "sleep");
+        });
+
+        crowApp.port(8080).multithreaded().run();
     }
 
 #ifdef _WIN32
