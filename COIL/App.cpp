@@ -10,13 +10,20 @@
 
 
 App::App() {
+	this->dataBuffer = nullptr;
+	this->connectionType = MySocket::ConnectionType::UNDEFINED;
+
 	std::cout << "Primary(1) or Secondary Mode(2)" << std::endl;
 	int chosenInput = ConsoleUtils::getUserInt(1, 2);
+
 	if (chosenInput == 1) {
 		this->mode = appMode::Primary;
 		this->robots[0] = new Robot(0);
 		this->robots[1] = new Robot(1);
 		this->nexthop = nullptr;
+
+		std::cout << "What is my ethernet binding IP" << std::endl;
+		std::string ethernetIP = ConsoleUtils::getUserString();
 
 		for (size_t i = 0; i < 2; i++)
 		{
@@ -32,6 +39,7 @@ App::App() {
 
 			this->robots[i]->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
 			if (connectionType == MySocket::ConnectionType::TCP) {
+				this->robots[i]->socket->BindLocalIP(ethernetIP);
 				this->robots[i]->socket->ConnectTCP();
 			}
 		}
@@ -71,6 +79,8 @@ App::App() {
 		return;
 	}
 
+	std::cout << "What is my wifiIP" << std::endl;
+	std::string wifiIP = ConsoleUtils::getUserString();
 
 	std::cout << "What is my tunnel port" << std::endl;
 	const int port = ConsoleUtils::getUserInt(0, 65535);
@@ -80,7 +90,7 @@ App::App() {
 	}
 
 	// inbound
-	this->curSoc = new MySocket(MySocket::SERVER, "0.0.0.0", port, this->connectionType, 1024);
+	this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 }
 
 
@@ -92,7 +102,7 @@ void App::attachRobotID(int ID, char* data)
 
 	size_t length = pktInstance->GetLength();
 
-	data[length + 1] = ID;
+	data[length] = ID;
 
 	delete pktInstance;
 }
@@ -104,7 +114,9 @@ int App::detachRobotID(char* data)
 
 	size_t length = pktInstance->GetLength();
 
-	int ID = data[length + 1];
+	int ID = data[length];
+	std::cout << "Data at robot ID byte " << std::endl;
+	BitUtils::displayBin(length + 1, data);
 
 	delete pktInstance;
 
@@ -159,8 +171,8 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		// if a request is currently being proccessed, dont process the request
 		return NULL;
 	}
-
-	this->lock(30);
+	
+	this->lock(0);
 
 	char* returnData;
 
@@ -168,6 +180,7 @@ PktDef* App::sendData(char* buffer, bool respond) {
 	if (this->mode == appMode::Primary) {
 		std::cout << "sending to server" << std::endl;
 		int robotID = this->detachRobotID(buffer);
+		std::cout << "Sending to robot: " << robotID << std::endl;
 		returnData = this->sendToRobot(this->robots[robotID], buffer);
 	}
 	else {

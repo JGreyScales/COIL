@@ -31,7 +31,7 @@ typedef int SOCKET;
 class MySocket {
 public:
     enum SocketType { CLIENT, SERVER };
-    enum ConnectionType { TCP = 1, UDP = 2 };
+    enum ConnectionType { TCP = 1, UDP = 2 , UNDEFINED};
     static const unsigned int DEFAULT_SIZE = 255;
 
 private:
@@ -39,6 +39,7 @@ private:
     SOCKET WelcomeSocket;
     SOCKET ConnectionSocket;
     sockaddr_in SvrAddr;
+    sockaddr_in lastClientAddr;
     SocketType mySocket;
     std::string IPAddr;
     int port;
@@ -55,6 +56,7 @@ public:
     void SendData(char*, int);
     int GetData(char*);
     bool HasData(int);
+    void BindLocalIP(std::string);
 
     std::string GetIPAddr();
     void SetIPAddr(std::string ip);

@@ -5,6 +5,9 @@
 #include <thread>
 #include <chrono>
 
+
+
+
 enum appMode
 {
     Primary,
@@ -22,8 +25,9 @@ class App
 
 public:
 
+    bool restartCommand = false;
     bool hasDataToSend = false;
-    char* dataBuffer;
+    char* dataBuffer = nullptr;
 
 	App();
 
@@ -44,3 +48,24 @@ public:
     ~App();
 };
 
+static App* app = nullptr;
+
+inline App* GetAppInstance() {
+    return app;
+}
+
+inline void startAppInstance() {
+    if (app == nullptr) {
+        app = new App();
+    }
+    else {
+        delete app;
+        app = new App();
+    }
+}
+
+inline void restartAppInstance() {
+    if (app != nullptr) {
+        app->restartCommand = true;
+    }
+}
