@@ -48,23 +48,29 @@ public:
     ~App();
 };
 
+#include <mutex>
+
 static App* app = nullptr;
+static std::mutex app_mutex;
 
 inline App* GetAppInstance() {
+    std::lock_guard<std::mutex> lock(app_mutex);
     return app;
 }
 
 inline void startAppInstance() {
-    if (app == nullptr) {
-        app = new App();
-    }
-    else {
+    std::lock_guard<std::mutex> lock(app_mutex);
+
+    // If it exists, clean up the old one first
+    if (app != nullptr) {
         delete app;
-        app = new App();
     }
+
+    app = new App();
 }
 
 inline void restartAppInstance() {
+    std::lock_guard<std::mutex> lock(app_mutex);
     if (app != nullptr) {
         app->restartCommand = true;
     }
