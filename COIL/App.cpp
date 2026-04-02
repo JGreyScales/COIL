@@ -172,7 +172,7 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		return NULL;
 	}
 	
-	this->lock(0);
+	this->lock(0); // lock for 0 seconds for debug
 
 	bool terminateConnection = false;
 	char* returnData;
@@ -192,6 +192,13 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		int robotID = this->detachRobotID(buffer);
 		std::cout << "Sending to robot: " << robotID << std::endl;
 		returnData = this->sendToRobot(this->robots[robotID], buffer);
+		
+
+		// inside disconnect, it can catch if its UDP and handle it
+		if (terminateConnection) {
+			this->robots[0]->socket->DisconnectTCP();
+			this->robots[1]->socket->DisconnectTCP();
+		}
 	}
 	else {
 		std::cout << "sending to next hop" << std::endl;
