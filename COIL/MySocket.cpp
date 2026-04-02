@@ -19,6 +19,8 @@
 		WelcomeSocket = INVALID_SOCKET;
 		ConnectionSocket = INVALID_SOCKET;
 
+		lastClientAddr = { 0 };
+
 		// Configure address structure
 		memset(&SvrAddr, 0, sizeof(SvrAddr));
 		SvrAddr.sin_family = AF_INET;
@@ -255,13 +257,28 @@
 				return;
 			}
 
+			sockaddr_in* target;
+			if (mySocket == CLIENT) {
+				// Clients always talk to the defined Server Address
+				target = &SvrAddr;
+			}
+			else {
+				// Servers reply to the last person who sent them a packet
+				if (lastClientAddr.sin_port == 0) {
+					target = &SvrAddr; // Fallback if no one has talked to us yet
+				}
+				else {
+					target = &lastClientAddr;
+				}
+			}
+
 			int sentBytes = sendto(
 				ConnectionSocket,
 				data,
-				dataSize,
+				dataSize,	
 				0,
-				(struct sockaddr*)&SvrAddr,
-				sizeof(SvrAddr)
+				(struct sockaddr*)target,
+				sizeof(sockaddr_in)
 			);
 
 			if (sentBytes == SOCKET_ERROR)
@@ -335,7 +352,16 @@
 
 			sockaddr_in senderAddr;
 			socklen_t addrLen = sizeof(senderAddr);
-			int receivedBytes = recvfrom(ConnectionSocket, data, maxSize - 1, 0, (struct sockaddr*)&senderAddr, &addrLen);
+
+
+			int receivedBytes = recvfrom(
+				ConnectionSocket,
+				data,
+				maxSize - 1,
+				0,
+				(struct sockaddr*)&lastClientAddr,
+				&addrLen
+			);
 
 			if (receivedBytes == SOCKET_ERROR)
 			{

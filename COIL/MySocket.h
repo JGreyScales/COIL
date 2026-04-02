@@ -39,6 +39,7 @@ private:
     SOCKET WelcomeSocket;
     SOCKET ConnectionSocket;
     sockaddr_in SvrAddr;
+    sockaddr_in lastClientAddr;
     SocketType mySocket;
     std::string IPAddr;
     int port;

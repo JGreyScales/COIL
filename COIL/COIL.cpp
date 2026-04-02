@@ -29,6 +29,22 @@ void manualInputMode() {
     bool interfaceWithUser = true;
     char recieveBuffer[MySocket::DEFAULT_SIZE];
 
+    std::cout << "Enter TCP (1) / UDP (2)" << std::endl;
+    MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
+
+    std::cout << "Enter IP: ";
+    std::string IP = ConsoleUtils::getUserString();
+
+    std::cout << "Enter Port: ";
+    unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
+
+    MySocket* socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
+    if (connectionType == MySocket::ConnectionType::TCP) {
+        socket->ConnectTCP();
+    }
+
+    std::cout << "Sending to a server? Y(1) N(2)" << std::endl;
+    bool attachRobotID = 1 == ConsoleUtils::getUserInt(1, 2);
 
     while (interfaceWithUser) {
         std::cout << "Select robot, or 3 for exit" << std::endl;
@@ -40,19 +56,7 @@ void manualInputMode() {
         }
         Robot* chosenRobot = robots[chosenInput];
 
-        std::cout << "Enter TCP (1) / UDP (2)" << std::endl;
-        MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
 
-        std::cout << "Enter IP: ";
-        std::string IP = ConsoleUtils::getUserString();
-
-        std::cout << "Enter Port: ";
-        unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
-
-        chosenRobot->socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
-        if (connectionType == MySocket::ConnectionType::TCP) {
-            chosenRobot->socket->ConnectTCP();
-        }
 
         bool robotInterfacing = true;
 
@@ -91,12 +95,15 @@ void manualInputMode() {
                 BitUtils::displayChar(pktInstance->GetLength(), packetData);
                 std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
                 
-                App::attachRobotID(0, packetData);
-                chosenRobot->socket->SendData(packetData, pktInstance->GetLength() + 1);
+                if (attachRobotID) {
+                    App::attachRobotID(chosenRobot->id, packetData);
+                }
+
+                socket->SendData(packetData, pktInstance->GetLength() + 1);
 
 
 
-                int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                int bytesWritten = socket->GetData(recieveBuffer);
                 std::cout << bytesWritten << " Bytes written" << std::endl;
 
                 BitUtils::displayChar(bytesWritten, recieveBuffer);
@@ -117,15 +124,15 @@ void manualInputMode() {
                 pktInstance->SetCmd(PktDef::SLEEP);
 
                 char* packetData = pktInstance->GenPacket();
-                if (chosenRobot->socket) {
+                if (socket) {
                     std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
-                    chosenRobot->socket->SendData(packetData, pktInstance->GetLength());
+                    socket->SendData(packetData, pktInstance->GetLength());
                 }
 
                 // do we care about the ack here?
                 // I guess so.....
 
-                int bytesWritten = chosenRobot->socket->GetData(recieveBuffer);
+                int bytesWritten = socket->GetData(recieveBuffer);
                 std::cout << bytesWritten << " Bytes written" << std::endl;
                 if (bytesWritten > 0) {
                     PktDef* ackPacket = new PktDef(recieveBuffer);

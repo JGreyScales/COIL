@@ -102,7 +102,7 @@ void App::attachRobotID(int ID, char* data)
 
 	size_t length = pktInstance->GetLength();
 
-	data[length + 1] = ID;
+	data[length] = ID;
 
 	delete pktInstance;
 }
@@ -114,7 +114,9 @@ int App::detachRobotID(char* data)
 
 	size_t length = pktInstance->GetLength();
 
-	int ID = data[length + 1];
+	int ID = data[length];
+	std::cout << "Data at robot ID byte " << std::endl;
+	BitUtils::displayBin(length + 1, data);
 
 	delete pktInstance;
 
@@ -169,8 +171,8 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		// if a request is currently being proccessed, dont process the request
 		return NULL;
 	}
-
-	this->lock(30);
+	
+	this->lock(0);
 
 	char* returnData;
 
@@ -178,6 +180,7 @@ PktDef* App::sendData(char* buffer, bool respond) {
 	if (this->mode == appMode::Primary) {
 		std::cout << "sending to server" << std::endl;
 		int robotID = this->detachRobotID(buffer);
+		std::cout << "Sending to robot: " << robotID << std::endl;
 		returnData = this->sendToRobot(this->robots[robotID], buffer);
 	}
 	else {
