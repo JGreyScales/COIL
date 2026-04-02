@@ -41,8 +41,12 @@ void manualInputMode() {
 	std::cout << "Enter Port: ";
 	unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
 
+	std::cout << "enter binding ip: " << std::endl;
+	std::string bindingIP = ConsoleUtils::getUserString();
+
 	MySocket* socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
 	if (connectionType == MySocket::ConnectionType::TCP) {
+		socket->BindLocalIP(bindingIP);
 		socket->ConnectTCP();
 	}
 
