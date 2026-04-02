@@ -207,8 +207,9 @@ PktDef* App::sendData(char* buffer, bool respond) {
 	}
 
 	if (terminateConnection) {
-		std::cout << "terminating TCP connection" << std::endl;
-		this->curSoc->DisconnectTCP();
+		std::cout << "terminating connection" << std::endl;
+		this->curSoc->DisconnectTCP(); // this has a catch for if its udp
+		// no reason to catch that here
 		App* app = GetAppInstance();
 		app->restartCommand = true;
 	}
