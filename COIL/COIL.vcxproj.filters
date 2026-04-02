@@ -32,6 +32,9 @@
     <ClCompile Include="App.cpp">
       <Filter>TCP/UDP daisy chainer</Filter>
     </ClCompile>
+    <ClCompile Include="CrowRoutes.cpp">
+      <Filter>WebServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AckBodyDef.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="App.h">
       <Filter>TCP/UDP daisy chainer</Filter>
+    </ClInclude>
+    <ClInclude Include="CrowRoutes.h">
+      <Filter>WebServer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
