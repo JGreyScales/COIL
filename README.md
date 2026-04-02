@@ -25,7 +25,7 @@ docker run -ti --name third -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 7000
 Primary Docker: 127.0.0.1:5000
 - port 5000
 - port 29000  
-docker run -ti --name primary -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 5000:5000 -p 29000:29000 -p 29500:29500/udp webserver_dev_linux:latest 
+docker run -ti --name primary -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 5000:5000  -p 8080:8080 -p 29000:29000 -p 29500:29500/udp webserver_dev_linux:latest 
 
 # FOR UDP  
 this is because by default docker only binds on the TCP port
