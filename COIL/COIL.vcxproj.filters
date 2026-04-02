@@ -32,6 +32,9 @@
     <ClCompile Include="App.cpp">
       <Filter>TCP/UDP daisy chainer</Filter>
     </ClCompile>
+    <ClCompile Include="initializeCrowRoutes.cpp">
+      <Filter>WebServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AckBodyDef.h">
@@ -68,6 +71,9 @@
     <ClInclude Include="App.h">
       <Filter>TCP/UDP daisy chainer</Filter>
     </ClInclude>
+    <ClInclude Include="initializeCrowRoutes.h">
+      <Filter>WebServer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="PacketProtocol">
@@ -85,5 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
