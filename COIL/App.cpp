@@ -174,7 +174,17 @@ PktDef* App::sendData(char* buffer, bool respond) {
 	
 	this->lock(0);
 
+	bool terminateConnection = false;
 	char* returnData;
+
+	PktDef* pktToSend = new PktDef(buffer);
+	pktToSend->deleteBuffer = false;
+
+	if (pktToSend->cmd == PktDef::SLEEP) {
+		terminateConnection = true;
+	}
+
+	delete pktToSend;
 
 	// move down the daisy chain
 	if (this->mode == appMode::Primary) {
@@ -188,11 +198,19 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		returnData = this->forwardToNextHop(buffer);
 	}
 
+
 	PktDef* pktInstance = new PktDef(returnData);
 
 	if (respond) {
 		std::cout << "responding on socket" << std::endl;
 		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
+	}
+
+	if (terminateConnection) {
+		std::cout << "terminating TCP connection" << std::endl;
+		this->curSoc->DisconnectTCP();
+		App* app = GetAppInstance();
+		app->restartCommand = true;
 	}
 
 	return pktInstance;
@@ -217,6 +235,8 @@ void App::lock(int duration)
 {
 	this->networkLock = true;
 
+	// lol this isnt thread safe
+	// but thats okay
 	std::thread([this, duration]() {
 		// Put the background thread to sleep
 		std::this_thread::sleep_for(std::chrono::seconds(duration));
