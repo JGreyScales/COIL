@@ -174,32 +174,38 @@ int main()
     }
 #endif
 
-    std::cout << "Manual input(1) or webserver(2)" << std::endl;
-    int input = ConsoleUtils::getUserInt(1, 2);
 
-    if (input == 1) {
-        manualInputMode();
-    }
-    else {
+    while (1) {
+        std::cout << "Manual input(1) or webserver(2)" << std::endl;
+        int input = ConsoleUtils::getUserInt(1, 2);
 
-        App* app = new App();
-        std::cout << "app is running" << std::endl;
+        if (input == 1) {
+            manualInputMode();
+        }
+        else {
+            // if app already exists
+            // start app instance will delete it and start a new instance
+            startAppInstance();
+            App* app = GetAppInstance();
 
-        while (true) {
-            // should hold for 100ms per cycle to check for inbound data
-            // if inbound data it will daisy chain it and process it all before returning
-            // if not inbound data, it will return and proceed with the code
-            app->openListeners();
+            std::cout << "app is running" << std::endl;
 
-            if (app->hasDataToSend) {
-                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
-                
+            while (!(app->restartCommand)) {
+                // should hold for 100ms per cycle to check for inbound data
+                // if inbound data it will daisy chain it and process it all before returning
+                // if not inbound data, it will return and proceed with the code
+                app->openListeners();
 
-                // put logic in here to get it back into the rest route
-                pktInstance->display();
+                if (app->hasDataToSend) {
+                    PktDef* pktInstance = app->sendData(app->dataBuffer, false);
 
-                delete pktInstance;
-                app->hasDataToSend = false;
+
+                    // put logic in here to get it back into the rest route
+                    pktInstance->display();
+
+                    delete pktInstance;
+                    app->hasDataToSend = false;
+                }
             }
         }
     }
