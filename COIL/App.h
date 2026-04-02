@@ -25,16 +25,16 @@ public:
     bool hasDataToSend = false;
     char* dataBuffer;
 
-	App();
+    App();
+    App(bool webMode);
 
     void static attachRobotID(int, char*);
     int static detachRobotID(char*);
-    
 
     PktDef* sendData(char*, bool);
-    char * awaitReturn(MySocket*, char*);
-    char * forwardToNextHop(char*);
-    char * sendToRobot(Robot*, char*);
+    char* awaitReturn(MySocket*, char*);
+    char* forwardToNextHop(char*);
+    char* sendToRobot(Robot*, char*);
 
     bool openListeners();
 
@@ -43,4 +43,3 @@ public:
 
     ~App();
 };
-

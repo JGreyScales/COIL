@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COIL Robot Controller</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +21,9 @@
             padding: 2rem;
         }
 
-        h1 { margin-bottom: 1.5rem; }
+        h1 {
+            margin-bottom: 1.5rem;
+        }
 
         h2 {
             margin-bottom: 1rem;
@@ -32,6 +38,7 @@
             gap: 2rem;
             justify-content: center;
             align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .center-column {
@@ -48,49 +55,77 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            min-width: 200px;
+            min-width: 220px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
-        .panel label {
-            font-size: 0.85rem;
-            color: #aaa;
-            margin-top: 0.5rem;
-        }
+            .panel label {
+                font-size: 0.85rem;
+                color: #aaa;
+                margin-top: 0.5rem;
+            }
 
-        .panel input {
-            padding: 0.5rem;
-            border: 1px solid #333;
-            border-radius: 6px;
-            background: #0f3460;
-            color: #eee;
-            font-size: 1rem;
-            width: 100%;
-        }
+            .panel input,
+            .panel select {
+                padding: 0.5rem;
+                border: 1px solid #333;
+                border-radius: 6px;
+                background: #0f3460;
+                color: #eee;
+                font-size: 1rem;
+                width: 100%;
+            }
 
         .btn {
             margin-top: 0.5rem;
-            padding: 0.6rem;
+            padding: 0.7rem;
             border: none;
             border-radius: 8px;
             color: #fff;
             font-size: 1rem;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: background 0.15s, transform 0.1s;
         }
 
-        .btn-send { background: #27ae60; }
-        .btn-send:hover { background: #219150; }
-        .btn-telemetry { background: #8e44ad; }
-        .btn-telemetry:hover { background: #733a8e; }
+            .btn:active {
+                transform: scale(0.97);
+            }
 
-        /* Parameters panel (hidden until direction selected) */
-        .params-panel { display: none; }
-        .params-panel.visible { display: flex; }
-        .params-panel .param-group { display: none; }
-        .params-panel .param-group.visible { display: contents; }
+        .btn-send {
+            background: #27ae60;
+        }
 
-        /* D-Pad */
-        .dpad-panel { align-items: center; }
+            .btn-send:hover {
+                background: #219150;
+            }
+
+        .btn-telemetry {
+            background: #8e44ad;
+        }
+
+            .btn-telemetry:hover {
+                background: #733a8e;
+            }
+
+        .params-panel {
+            display: none;
+        }
+
+            .params-panel.visible {
+                display: flex;
+            }
+
+            .params-panel .param-group {
+                display: none;
+            }
+
+                .params-panel .param-group.visible {
+                    display: block;
+                }
+
+        .dpad-panel {
+            align-items: center;
+        }
 
         .dpad {
             display: grid;
@@ -110,60 +145,100 @@
             color: #fff;
         }
 
-        .dpad-btn:active { transform: scale(0.93); }
+            .dpad-btn:active {
+                transform: scale(0.93);
+            }
 
-        .dpad-btn.up    { grid-column: 2; grid-row: 1; background: #0f3460; }
-        .dpad-btn.left  { grid-column: 1; grid-row: 2; background: #0f3460; }
-        .dpad-btn.center{ grid-column: 2; grid-row: 2; background: #e94560; }
-        .dpad-btn.right { grid-column: 3; grid-row: 2; background: #0f3460; }
-        .dpad-btn.down  { grid-column: 2; grid-row: 3; background: #0f3460; }
+            .dpad-btn.up {
+                grid-column: 2;
+                grid-row: 1;
+                background: #0f3460;
+            }
 
-        .dpad-btn.up:hover,
-        .dpad-btn.down:hover,
-        .dpad-btn.left:hover,
-        .dpad-btn.right:hover { background: #1a5276; }
+            .dpad-btn.left {
+                grid-column: 1;
+                grid-row: 2;
+                background: #0f3460;
+            }
 
-        .dpad-btn.center:hover { background: #c0392b; }
+            .dpad-btn.center {
+                grid-column: 2;
+                grid-row: 2;
+                background: #e94560;
+            }
 
-        /* Log panel */
+            .dpad-btn.right {
+                grid-column: 3;
+                grid-row: 2;
+                background: #0f3460;
+            }
+
+            .dpad-btn.down {
+                grid-column: 2;
+                grid-row: 3;
+                background: #0f3460;
+            }
+
+                .dpad-btn.up:hover,
+                .dpad-btn.down:hover,
+                .dpad-btn.left:hover,
+                .dpad-btn.right:hover {
+                    background: #1a5276;
+                }
+
+            .dpad-btn.center:hover {
+                background: #c0392b;
+            }
+
         .log-panel {
             min-width: 350px;
             max-width: 500px;
         }
 
-        .log-panel pre {
-            background: #0a0a1a;
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            .log-panel pre,
+            .telemetry-panel pre {
+                background: #0a0a1a;
+                padding: 1rem;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                min-height: 200px;
+                max-height: 400px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+        .telemetry-panel {
+            min-width: 320px;
+            max-width: 420px;
+        }
+
+        .status-ok {
+            color: #7bed9f;
+        }
+
+        .status-bad {
+            color: #ff7675;
         }
     </style>
 </head>
 <body>
     <h1>COIL Robot Controller</h1>
 
-    <!-- Robot Selector -->
     <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
         <label for="robot-select" style="font-size:0.9rem; color:#aaa;">Robot #:</label>
-        <select id="robot-select" style="padding:0.5rem; border:1px solid #333; border-radius:6px; background:#0f3460; color:#eee; font-size:1rem;">
+        <select id="robot-select">
             <option value="0">Robot 0</option>
             <option value="1">Robot 1</option>
         </select>
     </div>
 
     <div class="controls-container">
-        <!-- Packet Log (left) -->
         <div class="panel log-panel">
             <h2>Packet Log</h2>
             <pre id="log-output">Ready.</pre>
         </div>
 
-        <!-- Movement + Parameters (center) -->
         <div class="center-column">
             <div class="panel dpad-panel">
                 <h2>Movement</h2>
@@ -193,42 +268,46 @@
             </div>
         </div>
 
-        <!-- Telemetry (right) -->
-        <div class="panel">
+        <div class="panel telemetry-panel">
             <h2>Telemetry</h2>
             <button class="btn btn-telemetry" id="btn-telemetry">Request Telemetry</button>
-            <pre id="telemetry-output" style="background:#0a0a1a; padding:0.8rem; border-radius:6px; font-size:0.8rem; min-height:80px; margin-top:0.5rem;">No telemetry data.</pre>
+            <pre id="telemetry-output">No telemetry data.</pre>
         </div>
     </div>
 
     <script>
-        var logOutput = document.getElementById("log-output");
-        var paramsPanel = document.getElementById("params-panel");
-        var paramsTitle = document.getElementById("params-title");
-        var groupPower = document.getElementById("group-power");
-        var groupDuration = document.getElementById("group-duration");
-        var selectedCommand = null;
+        const logOutput = document.getElementById("log-output");
+        const telemetryOutput = document.getElementById("telemetry-output");
+        const paramsPanel = document.getElementById("params-panel");
+        const paramsTitle = document.getElementById("params-title");
+        const groupPower = document.getElementById("group-power");
+        const groupDuration = document.getElementById("group-duration");
+
+        let selectedCommand = null;
 
         function log(msg) {
-            logOutput.textContent = msg + "\n" + logOutput.textContent;
+            const time = new Date().toLocaleTimeString();
+            logOutput.textContent = "[" + time + "] " + msg + "\n" + logOutput.textContent;
         }
 
         function getRobotId() {
             return parseInt(document.getElementById("robot-select").value, 10);
         }
 
-        // ---- VALIDATION ----
+        function validateRobotId(value) {
+            return value === 0 || value === 1;
+        }
+
         function validatePower(value) {
-            var n = parseInt(value, 10);
+            const n = parseInt(value, 10);
             return !isNaN(n) && n >= 80 && n <= 100;
         }
 
         function validateDuration(value) {
-            var n = parseInt(value, 10);
+            const n = parseInt(value, 10);
             return !isNaN(n) && n >= 1 && n <= 100;
         }
 
-        // ---- DIRECTION BUTTONS ----
         function showParams(command, fields) {
             selectedCommand = command;
             paramsTitle.textContent = command + " Parameters";
@@ -239,105 +318,163 @@
             paramsPanel.className = "panel params-panel visible";
         }
 
-        document.getElementById("btn-forward").addEventListener("click", function() {
+        function hideParams() {
+            paramsPanel.className = "panel params-panel";
+        }
+
+        function commandToDirection(command) {
+            switch (command) {
+                case "Forward": return 1;
+                case "Backward": return 2;
+                case "Right": return 3;
+                case "Left": return 4;
+                default: return -1;
+            }
+        }
+
+        async function fetchJson(url) {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            const contentType = response.headers.get("content-type") || "";
+            let data = null;
+
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error("Server returned non-JSON response: " + text);
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || data.body || ("HTTP " + response.status));
+            }
+
+            return data;
+        }
+
+        document.getElementById("btn-forward").addEventListener("click", function () {
             showParams("Forward", ["power", "duration"]);
         });
 
-        document.getElementById("btn-backward").addEventListener("click", function() {
+        document.getElementById("btn-backward").addEventListener("click", function () {
             showParams("Backward", ["power", "duration"]);
         });
 
-        document.getElementById("btn-left").addEventListener("click", function() {
+        document.getElementById("btn-left").addEventListener("click", function () {
             showParams("Left", ["duration"]);
         });
 
-        document.getElementById("btn-right").addEventListener("click", function() {
+        document.getElementById("btn-right").addEventListener("click", function () {
             showParams("Right", ["duration"]);
         });
 
-        document.getElementById("btn-sleep").addEventListener("click", function() {
-            selectedCommand = "Sleep";
-            paramsPanel.className = "panel params-panel";
+        document.getElementById("btn-sleep").addEventListener("click", async function () {
+            try {
+                selectedCommand = "Sleep";
+                hideParams();
 
-            var robotId = getRobotId();
-            log("Sending Sleep to Robot " + robotId + "...");
-            fetch("/telecommand/", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ command: "SLEEP", robotId: robotId })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) { log("Sleep response: " + JSON.stringify(data)); })
-            .catch(function(err) { log("ERROR: " + err.message); });
-        });
-
-        // ---- SEND COMMAND ----
-        document.getElementById("btn-send").addEventListener("click", function() {
-            if (!selectedCommand || selectedCommand === "Sleep") return;
-
-            var duration = document.getElementById("duration").value;
-
-            // Validate duration
-            if (!validateDuration(duration)) {
-                log("ERROR: Duration must be 1-100 seconds");
-                return;
-            }
-
-            var robotId = getRobotId();
-            var body = {
-                command: "DRIVE",
-                direction: selectedCommand.toUpperCase(),
-                duration: parseInt(duration, 10),
-                robotId: robotId
-            };
-
-            // Validate power for Forward/Backward
-            if (selectedCommand === "Forward" || selectedCommand === "Backward") {
-                var power = document.getElementById("power").value;
-                if (!validatePower(power)) {
-                    log("ERROR: Power must be 80-100%");
+                const robotId = getRobotId();
+                if (!validateRobotId(robotId)) {
+                    log("ERROR: robotId must be 0 or 1");
                     return;
                 }
-                body.power = parseInt(power, 10);
-            }
 
-            var msg = "Robot " + robotId + " | " + selectedCommand;
-            if (body.power) {
-                msg += " | Power: " + body.power + " | Duration: " + body.duration + "s";
-            } else {
-                msg += " | Duration: " + body.duration + "s";
-            }
-            log("Sending: " + msg);
+                const url = "/commands/sleep?robotId=" + encodeURIComponent(robotId);
+                log("Sending Sleep to Robot " + robotId + "...");
 
-            fetch("/telecommand/", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) { log("Response: " + JSON.stringify(data)); })
-            .catch(function(err) { log("ERROR: " + err.message); });
+                const data = await fetchJson(url);
+                log("Sleep response: ack=" + data.ack + " body=\"" + (data.body || "") + "\"");
+            } catch (err) {
+                log("ERROR: " + err.message);
+            }
         });
 
-        // ---- TELEMETRY REQUEST ----
-        document.getElementById("btn-telemetry").addEventListener("click", function() {
-            var robotId = getRobotId();
-            log("Requesting telemetry for Robot " + robotId + "...");
-            fetch("/telementry_request/?robotId=" + robotId)
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    var output = document.getElementById("telemetry-output");
-                    output.textContent =
-                        "Last Pkt Counter: " + (data.LastPktCounter || "N/A") + "\n" +
-                        "Current Grade:    " + (data.CurrentGrade || "N/A") + "\n" +
-                        "Hit Count:        " + (data.HitCount || "N/A") + "\n" +
-                        "Heading:          " + (data.Heading || "N/A") + "\n" +
-                        "Last Command:     " + (data.LastCmd || "N/A") + "\n" +
-                        "Last Cmd Value:   " + (data.LastCmdValue || "N/A") + "\n" +
-                        "Last Cmd Power:   " + (data.LastCmdPower || "N/A");
-                    log("Telemetry received");
-                })
-                .catch(function(err) { log("ERROR: " + err.message); });
+        document.getElementById("btn-send").addEventListener("click", async function () {
+            try {
+                if (!selectedCommand || selectedCommand === "Sleep") {
+                    log("ERROR: Select a movement command first");
+                    return;
+                }
+
+                const robotId = getRobotId();
+                if (!validateRobotId(robotId)) {
+                    log("ERROR: robotId must be 0 or 1");
+                    return;
+                }
+
+                const duration = document.getElementById("duration").value;
+                if (!validateDuration(duration)) {
+                    log("ERROR: Duration must be 1-100 seconds");
+                    return;
+                }
+
+                const direction = commandToDirection(selectedCommand);
+                if (direction === -1) {
+                    log("ERROR: Invalid direction selected");
+                    return;
+                }
+
+                let url = "/commands/Drive/" + encodeURIComponent(direction)
+                    + "?robotId=" + encodeURIComponent(robotId)
+                    + "&duration=" + encodeURIComponent(parseInt(duration, 10));
+
+                let logMessage = "Robot " + robotId + " | " + selectedCommand
+                    + " | Duration: " + parseInt(duration, 10) + "s";
+
+                if (selectedCommand === "Forward" || selectedCommand === "Backward") {
+                    const power = document.getElementById("power").value;
+
+                    if (!validatePower(power)) {
+                        log("ERROR: Power must be 80-100%");
+                        return;
+                    }
+
+                    url += "&power=" + encodeURIComponent(parseInt(power, 10));
+                    logMessage += " | Power: " + parseInt(power, 10);
+                }
+
+                log("Sending: " + logMessage);
+
+                const data = await fetchJson(url);
+                log("Response: ack=" + data.ack + " body=\"" + (data.body || "") + "\"");
+            } catch (err) {
+                log("ERROR: " + err.message);
+            }
+        });
+
+        document.getElementById("btn-telemetry").addEventListener("click", async function () {
+            try {
+                const robotId = getRobotId();
+                if (!validateRobotId(robotId)) {
+                    log("ERROR: robotId must be 0 or 1");
+                    return;
+                }
+
+                const url = "/commands/telem?robotId=" + encodeURIComponent(robotId);
+                log("Requesting telemetry for Robot " + robotId + "...");
+
+                const data = await fetchJson(url);
+
+                telemetryOutput.textContent =
+                    "Ack:             " + (data.ack ?? "N/A") + "\n" +
+                    "LastPktCounter:  " + (data.LastPktCounter ?? "N/A") + "\n" +
+                    "CurrentGrade:    " + (data.CurrentGrade ?? "N/A") + "\n" +
+                    "HitCount:        " + (data.HitCount ?? "N/A") + "\n" +
+                    "Heading:         " + (data.Heading ?? "N/A") + "\n" +
+                    "LastCmd:         " + (data.LastCmd ?? "N/A") + "\n" +
+                    "LastCmdValue:    " + (data.LastCmdValue ?? "N/A") + "\n" +
+                    "LastCmdPower:    " + (data.LastCmdPower ?? "N/A");
+
+                log("Telemetry received successfully");
+            } catch (err) {
+                telemetryOutput.textContent = "Telemetry request failed.";
+                log("ERROR: " + err.message);
+            }
         });
     </script>
 </body>

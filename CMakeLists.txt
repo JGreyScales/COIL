@@ -27,6 +27,7 @@ set(SOURCE_FILES
     COIL/TelemetryBodyDef.cpp
     COIL/TurnBodyDef.cpp
     COIL/App.cpp
+    COIL/initializeCrowRoutes.cpp
 )
 
 # Create the executable

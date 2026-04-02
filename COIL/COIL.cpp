@@ -2,8 +2,8 @@
 #include <bitset>
 #include <limits>
 
-
 #include "App.h"
+#include "initializeCrowRoutes.h"   // ADDED: Crow route initializer
 
 
 // old stuff, wouldnt be included in release
@@ -90,7 +90,7 @@ void manualInputMode() {
                 char* packetData = pktInstance->GenPacket();
                 BitUtils::displayChar(pktInstance->GetLength(), packetData);
                 std::cout << "Sending: " << pktInstance->GetLength() << " bytes" << std::endl;
-                
+
                 App::attachRobotID(0, packetData);
                 chosenRobot->socket->SendData(packetData, pktInstance->GetLength() + 1);
 
@@ -182,26 +182,55 @@ int main()
     }
     else {
 
-        App* app = new App();
-        std::cout << "app is running" << std::endl;
+        static App appInstance(true);
 
-        while (true) {
-            // should hold for 100ms per cycle to check for inbound data
-            // if inbound data it will daisy chain it and process it all before returning
-            // if not inbound data, it will return and proceed with the code
-            app->openListeners();
+        crow::SimpleApp web;
+        initCrow::initializeCrowRoutes(web, appInstance);
 
-            if (app->hasDataToSend) {
-                PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+        std::cout << "Crow web server running on port 8080" << std::endl;
 
-                // put logic in here to get it back into the rest route
-                pktInstance->display();
-
-                delete pktInstance;
-                app->hasDataToSend = false;
-            }
-        }
+        web.port(8080).multithreaded().run();
     }
+
+    //if (input == 1) {
+    //    manualInputMode();
+    //}
+    //else {
+
+    //    // only ever one App instance
+    //    static App appInstance;
+
+    //    crow::SimpleApp web;
+    //    initCrow::initializeCrowRoutes(web, appInstance);
+
+    //    std::cout << "Crow web server running on port 8080" << std::endl;
+
+    //    web.port(8080).multithreaded().run();
+
+    //    // OLD LOOP KEPT BELOW FOR REFERENCE ONLY
+    //    // This logic is now handled inside initializeCrowRoutes/startAppWorker
+    //    /*
+    //    App* app = new App();
+    //    std::cout << "app is running" << std::endl;
+
+    //    while (true) {
+    //        // should hold for 100ms per cycle to check for inbound data
+    //        // if inbound data it will daisy chain it and process it all before returning
+    //        // if not inbound data, it will return and proceed with the code
+    //        app->openListeners();
+
+    //        if (app->hasDataToSend) {
+    //            PktDef* pktInstance = app->sendData(app->dataBuffer, false);
+
+    //            // put logic in here to get it back into the rest route
+    //            pktInstance->display();
+
+    //            delete pktInstance;
+    //            app->hasDataToSend = false;
+    //        }
+    //    }
+    //    */
+    //}
 
 #ifdef _WIN32
     WSACleanup();
