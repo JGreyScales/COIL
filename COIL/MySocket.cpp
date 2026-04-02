@@ -333,15 +333,9 @@
 				return -1;
 			}
 
-			socklen_t addrLen = sizeof(SvrAddr);
-			int receivedBytes = recvfrom(
-				ConnectionSocket,
-				data,
-				maxSize - 1,
-				0,
-				(struct sockaddr*)&SvrAddr,
-				&addrLen
-			);
+			sockaddr_in senderAddr;
+			socklen_t addrLen = sizeof(senderAddr);
+			int receivedBytes = recvfrom(ConnectionSocket, data, maxSize - 1, 0, (struct sockaddr*)&senderAddr, &addrLen);
 
 			if (receivedBytes == SOCKET_ERROR)
 			{
@@ -361,24 +355,14 @@
 		return IPAddr;
 	}
 
-	void MySocket::SetIPAddr(std::string ipAddr)
-	{
-		if (bTCPConnect)
-		{
-			std::cerr << "Error: Cannot change IP address while a connection is established." << std::endl;
-			return;
-		}
+	void MySocket::SetIPAddr(std::string ipAddr) {
 		IPAddr = ipAddr;
+		inet_pton(AF_INET, IPAddr.c_str(), &SvrAddr.sin_addr);
 	}
 
-	void MySocket::SetPort(int portNum)
-	{
-		if (bTCPConnect)
-		{
-			std::cerr << "Error: Cannot change port while a connection is established." << std::endl;
-			return;
-		}
+	void MySocket::SetPort(int portNum) {
 		port = portNum;
+		SvrAddr.sin_port = htons(port);
 	}
 
 	int MySocket::GetPort()

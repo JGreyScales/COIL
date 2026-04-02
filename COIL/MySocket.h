@@ -31,7 +31,7 @@ typedef int SOCKET;
 class MySocket {
 public:
     enum SocketType { CLIENT, SERVER };
-    enum ConnectionType { TCP = 1, UDP = 2 };
+    enum ConnectionType { TCP = 1, UDP = 2 , UNDEFINED};
     static const unsigned int DEFAULT_SIZE = 255;
 
 private:

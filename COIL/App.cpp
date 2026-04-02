@@ -10,8 +10,12 @@
 
 
 App::App() {
+	this->dataBuffer = nullptr;
+	this->connectionType = MySocket::ConnectionType::UNDEFINED;
+
 	std::cout << "Primary(1) or Secondary Mode(2)" << std::endl;
 	int chosenInput = ConsoleUtils::getUserInt(1, 2);
+
 	if (chosenInput == 1) {
 		this->mode = appMode::Primary;
 		this->robots[0] = new Robot(0);
