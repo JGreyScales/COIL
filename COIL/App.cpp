@@ -176,7 +176,7 @@ char * App::sendToRobot(Robot* robot, char* buffer)
 // respond is for if a response on the server socket should be sent
 // if the request came from this server, it shouldnt be responding
 // it should take the PktDef* and convert it over to rest to respond to the webserver
-PktDef* App::sendData(char* buffer, bool respond) {
+PktDef* App::sendData(char* buffer) {
 	if (this->networkLock) {
 		// if a request is currently being proccessed, dont process the request
 		return NULL;
@@ -218,15 +218,17 @@ PktDef* App::sendData(char* buffer, bool respond) {
 
 	PktDef* pktInstance = new PktDef(returnData);
 
-	if (respond) {
+	if (this->curSoc != nullptr) {
 		std::cout << "responding on socket" << std::endl;
 		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
 	}
 
 	if (terminateConnection) {
 		std::cout << "terminating connection" << std::endl;
-		this->curSoc->DisconnectTCP(); // this has a catch for if its udp
-		// no reason to catch that here
+		if (this->curSoc != nullptr) {
+			this->curSoc->DisconnectTCP(); // this has a catch for if its udp
+			// no reason to catch that here
+		}
 		App* app = GetAppInstance();
 		app->restartCommand = true;
 	}
@@ -241,7 +243,7 @@ bool App::openListeners()
 	if (this->curSoc != nullptr) {
 		if (this->curSoc->HasData(100)) {
 			int bytes = this->curSoc->GetData(buffer);
-			PktDef* pktInstance = this->sendData(buffer, true);
+			PktDef* pktInstance = this->sendData(buffer);
 			if (pktInstance != NULL) {
 				delete pktInstance; // we dont need to hold onto the packet
 			}
