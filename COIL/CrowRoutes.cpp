@@ -160,6 +160,10 @@ void CrowRoutes::RegisterRoutes(crow::SimpleApp& app)
         ([](const crow::request& req) {
         return CrowRoutes::HandleTelemetry(req);
             });
+
+    // sleep
+    // and restart
+    // needed
 }
 
 crow::response CrowRoutes::HandleRoot()
