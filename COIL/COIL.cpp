@@ -220,6 +220,7 @@ int main()
 
 				// handle request created by Crow route
 				if (app->hasDataToSend) {
+					std::cout << "Main loop saw hasDataToSend = true" << std::endl;
 					char* requestCopy = nullptr;
 
 					if (app->dataBuffer != nullptr) {

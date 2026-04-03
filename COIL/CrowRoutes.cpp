@@ -181,6 +181,7 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
 {
     try
     {
+        std::cout << "HandleDrive route hit" << std::endl;
         const char* robotIdRaw = req.url_params.get("robotId");
         const char* durationRaw = req.url_params.get("duration");
         const char* powerRaw = req.url_params.get("power");
@@ -294,6 +295,7 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
         app->dataBuffer = rawBuffer;
         app->hasDataToSend = true;
 
+        std::cout << "Waiting for app response..." << std::endl;
         PktDef* responsePacket = WaitForResponseOrThrow();
         crow::json::wvalue result = BuildMovementJson(responsePacket);
         delete responsePacket;
