@@ -167,7 +167,13 @@ void CrowRoutes::RegisterRoutes(crow::SimpleApp& app)
         ([](const crow::request& req) {
 		return CrowRoutes::HandleSleep(req); 
 			});
+
     // and restart
+    CROW_ROUTE(app, "/commands/restart")
+        .methods(crow::HTTPMethod::Get)
+		([](const crow::request& req) {
+		return CrowRoutes::HandleRestart(req);
+			});
     // needed
 }
 
@@ -456,6 +462,51 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
         delete responsePacket;
 
         return JsonResponse(200, result);
+    }
+    catch (const std::exception& ex)
+    {
+        crow::json::wvalue err;
+        err["ack"] = 0;
+        err["body"] = std::string(ex.what());
+        return JsonResponse(500, err);
+    }
+}
+
+crow::response CrowRoutes::HandleRestart(const crow::request& req)
+{
+    try
+    {
+        const char* robotIdRaw = req.url_params.get("robotId");
+
+        if (robotIdRaw != nullptr)
+        {
+            int robotId = std::stoi(robotIdRaw);
+
+            if (!ConsoleUtils::validateRobotId(robotId))
+            {
+                crow::json::wvalue err;
+                err["ack"] = 0;
+                err["body"] = "robotId must be 0 or 1";
+                return JsonResponse(400, err);
+            }
+        }
+
+        App* app = GetAppInstance();
+        if (app == nullptr)
+        {
+            crow::json::wvalue err;
+            err["ack"] = 0;
+            err["body"] = "App instance is not running";
+            return JsonResponse(500, err);
+        }
+
+        restartAppInstance();
+
+        crow::json::wvalue ok;
+        ok["ack"] = 1;
+        ok["body"] = "Restart command accepted";
+
+        return JsonResponse(200, ok);
     }
     catch (const std::exception& ex)
     {
