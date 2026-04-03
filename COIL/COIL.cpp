@@ -215,50 +215,9 @@ int main()
 			std::cout << "app is running" << std::endl;
 
 			while (!(app->restartCommand)) {
-				// handle inbound tunnel traffic normally
+				// handle inbound tunnel traffic 
+				// every 100 milliseconds it returns, allowing data injection
 				app->openListeners();
-
-				// handle request created by Crow route
-				if (app->hasDataToSend) {
-					std::cout << "Main loop saw hasDataToSend = true" << std::endl;
-					char* requestCopy = nullptr;
-
-					if (app->dataBuffer != nullptr) {
-						PktDef lengthReader(app->dataBuffer);
-						lengthReader.deleteBuffer = false;
-
-						int totalBytesToCopy = lengthReader.GetLength() + 1; // +1 for robot id byte
-						requestCopy = new char[totalBytesToCopy];
-						std::memcpy(requestCopy, app->dataBuffer, totalBytesToCopy);
-
-						delete[] app->dataBuffer;
-						app->dataBuffer = nullptr;
-					}
-
-					PktDef* pktInstance = nullptr;
-
-					if (requestCopy != nullptr) {
-						pktInstance = app->sendData(requestCopy, false);
-					}
-
-					if (pktInstance != nullptr) {
-						pktInstance->display();
-
-						CrowRoutes::PublishResponse(pktInstance);
-
-						delete pktInstance;
-					}
-					else {
-						CrowRoutes::ResetResponseState();
-					}
-
-					if (requestCopy != nullptr) {
-						delete[] requestCopy;
-						requestCopy = nullptr;
-					}
-
-					app->hasDataToSend = false;
-				}
 			}
 		}
 	}
