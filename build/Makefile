@@ -225,6 +225,30 @@ COIL/COIL.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/COIL.cpp.s
 .PHONY : COIL/COIL.cpp.s
 
+COIL/CrowRoutes.o: COIL/CrowRoutes.cpp.o
+.PHONY : COIL/CrowRoutes.o
+
+# target to build an object file
+COIL/CrowRoutes.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/CrowRoutes.cpp.o
+.PHONY : COIL/CrowRoutes.cpp.o
+
+COIL/CrowRoutes.i: COIL/CrowRoutes.cpp.i
+.PHONY : COIL/CrowRoutes.i
+
+# target to preprocess a source file
+COIL/CrowRoutes.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/CrowRoutes.cpp.i
+.PHONY : COIL/CrowRoutes.cpp.i
+
+COIL/CrowRoutes.s: COIL/CrowRoutes.cpp.s
+.PHONY : COIL/CrowRoutes.s
+
+# target to generate assembly for a file
+COIL/CrowRoutes.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/COIL_App.out.dir/build.make CMakeFiles/COIL_App.out.dir/COIL/CrowRoutes.cpp.s
+.PHONY : COIL/CrowRoutes.cpp.s
+
 COIL/DriveBodyDef.o: COIL/DriveBodyDef.cpp.o
 .PHONY : COIL/DriveBodyDef.o
 
@@ -414,6 +438,9 @@ help:
 	@echo "... COIL/COIL.o"
 	@echo "... COIL/COIL.i"
 	@echo "... COIL/COIL.s"
+	@echo "... COIL/CrowRoutes.o"
+	@echo "... COIL/CrowRoutes.i"
+	@echo "... COIL/CrowRoutes.s"
 	@echo "... COIL/DriveBodyDef.o"
 	@echo "... COIL/DriveBodyDef.i"
 	@echo "... COIL/DriveBodyDef.s"
