@@ -179,6 +179,24 @@ PktDef::CmdPacket PktDef::getPacket() const
     return this->Packet;
 }
 
+bool PktDef::IsTelemetryResponse() const
+{
+    return Packet.Header != nullptr && Packet.Header->Status != 0;
+}
+
+char* PktDef::GetRawPacketCopy() const
+{
+    if (RawBuffer == nullptr || Packet.Header == nullptr)
+    {
+        return nullptr;
+    }
+
+    int length = Packet.Header->Length;
+    char* copy = new char[length];
+    std::memcpy(copy, RawBuffer, length);
+    return copy;
+}
+
 
 
 
