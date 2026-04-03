@@ -162,6 +162,11 @@ void CrowRoutes::RegisterRoutes(crow::SimpleApp& app)
             });
 
     // sleep
+    CROW_ROUTE(app, "/commands/sleep")
+        .methods(crow::HTTPMethod::Get)
+        ([](const crow::request& req) {
+		return CrowRoutes::HandleSleep(req); 
+			});
     // and restart
     // needed
 }
@@ -382,6 +387,85 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
     }
 }
 
+crow::response CrowRoutes::HandleSleep(const crow::request& req)
+{
+    try
+    {
+        const char* robotIdRaw = req.url_params.get("robotId");
+        if (robotIdRaw == nullptr)
+        {
+            crow::json::wvalue err;
+            err["ack"] = 0;
+            err["body"] = "Missing robotId";
+            return JsonResponse(400, err);
+        }
+
+        int robotId = std::stoi(robotIdRaw);
+
+        if (!ConsoleUtils::validateRobotId(robotId))
+        {
+            crow::json::wvalue err;
+            err["ack"] = 0;
+            err["body"] = "robotId must be 0 or 1";
+            return JsonResponse(400, err);
+        }
+
+        std::unique_lock<std::mutex> requestLock(g_requestMutex);
+
+        App* app = GetAppInstance();
+        if (app == nullptr)
+        {
+            crow::json::wvalue err;
+            err["ack"] = 0;
+            err["body"] = "App instance is not running";
+            return JsonResponse(500, err);
+        }
+
+        {
+            std::lock_guard<std::mutex> responseLock(g_responseMutex);
+            if (g_responsePacket != nullptr)
+            {
+                delete g_responsePacket;
+                g_responsePacket = nullptr;
+            }
+            g_responseReady = false;
+        }
+
+        PktDef outbound;
+        outbound.SetCmd(PktDef::SLEEP);
+        outbound.SetBodyData(nullptr);
+
+        char* rawBuffer = outbound.GenPacket();
+        if (rawBuffer == nullptr)
+        {
+            crow::json::wvalue err;
+            err["ack"] = 0;
+            err["body"] = "Failed to build sleep packet";
+            return JsonResponse(500, err);
+        }
+
+        App::attachRobotID(robotId, rawBuffer);
+
+        BitUtils::displayChar(outbound.GetLength() + 1, rawBuffer);
+
+        app->dataBuffer = rawBuffer;
+        app->hasDataToSend = true;
+
+        PktDef* responsePacket = WaitForResponseOrThrow();
+        crow::json::wvalue result = BuildMovementJson(responsePacket);
+        delete responsePacket;
+
+        return JsonResponse(200, result);
+    }
+    catch (const std::exception& ex)
+    {
+        crow::json::wvalue err;
+        err["ack"] = 0;
+        err["body"] = std::string(ex.what());
+        return JsonResponse(500, err);
+    }
+}
+
 void CrowRoutes::PublishResponse(PktDef* pkt)
 {
     std::lock_guard<std::mutex> lock(g_responseMutex);
@@ -409,3 +493,4 @@ void CrowRoutes::ResetResponseState()
 
     g_responseReady = false;
 }
+
