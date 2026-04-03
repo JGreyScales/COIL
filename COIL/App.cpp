@@ -64,33 +64,35 @@ App::App() {
 		}
 
 	}
-
-	std::cout << "Am I TCP(1) or UDP(2) or end(3)" << std::endl;
-	const int input = ConsoleUtils::getUserInt(1, 3);
+	std::cout << "Do I host a recieve socket? No(1), Yes(2)" << std::endl;
+	if (ConsoleUtils::getUserInt(1, 2) == 2) {
+		std::cout << "Am I TCP(1) or UDP(2) or end(3)" << std::endl;
+		const int input = ConsoleUtils::getUserInt(1, 3);
 		
-	if (input == 1) {
-		this->connectionType = MySocket::TCP;
-	}
-	else if (input == 2){
-		this->connectionType = MySocket::UDP;
-	}
-	else {
-		this->curSoc = nullptr;
-		return;
-	}
+		if (input == 1) {
+			this->connectionType = MySocket::TCP;
+		}
+		else if (input == 2){
+			this->connectionType = MySocket::UDP;
+		}
+		else {
+			this->curSoc = nullptr;
+			return;
+		}
 
-	std::cout << "What is my wifiIP" << std::endl;
-	std::string wifiIP = ConsoleUtils::getUserString();
+		std::cout << "What is my wifiIP" << std::endl;
+		std::string wifiIP = ConsoleUtils::getUserString();
 
-	std::cout << "What is my tunnel port" << std::endl;
-	const int port = ConsoleUtils::getUserInt(0, 65535);
+		std::cout << "What is my tunnel port" << std::endl;
+		const int port = ConsoleUtils::getUserInt(0, 65535);
 
-	if (this->connectionType == MySocket::TCP) {
-		std::cout << "Waiting for client to connect..." << std::endl;
+		if (this->connectionType == MySocket::TCP) {
+			std::cout << "Waiting for client to connect..." << std::endl;
+		}
+
+		// inbound
+		this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 	}
-
-	// inbound
-	this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 }
 
 
