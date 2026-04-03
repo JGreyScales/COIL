@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 
+#define NOMINMAX
 
 
 
@@ -50,7 +51,7 @@ public:
 
 #include <mutex>
 
-static App* app = nullptr;
+inline App* app = nullptr;
 static std::mutex app_mutex;
 
 inline App* GetAppInstance() {

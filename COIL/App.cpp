@@ -13,6 +13,10 @@ App::App() {
 	this->dataBuffer = nullptr;
 	this->connectionType = MySocket::ConnectionType::UNDEFINED;
 
+	this->restartCommand = false;
+	this->hasDataToSend = false;
+	this->networkLock = false;
+
 	std::cout << "Primary(1) or Secondary Mode(2)" << std::endl;
 	int chosenInput = ConsoleUtils::getUserInt(1, 2);
 
@@ -92,6 +96,10 @@ App::App() {
 
 		// inbound
 		this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
+	}
+	else {
+		this->curSoc = nullptr;
+		this->connectionType = MySocket::UNDEFINED;
 	}
 }
 
@@ -230,13 +238,16 @@ PktDef* App::sendData(char* buffer, bool respond) {
 bool App::openListeners()	
 {
 	char buffer[1024];
-	if (this->curSoc->HasData(100)) {
-		int bytes = this->curSoc->GetData(buffer);
-		PktDef* pktInstance = this->sendData(buffer, true);
-		if (pktInstance != NULL) {
-			delete pktInstance; // we dont need to hold onto the packet
+	if (this->curSoc != nullptr) {
+		if (this->curSoc->HasData(100)) {
+			int bytes = this->curSoc->GetData(buffer);
+			PktDef* pktInstance = this->sendData(buffer, true);
+			if (pktInstance != NULL) {
+				delete pktInstance; // we dont need to hold onto the packet
+			}
 		}
 	}
+
 
 	return true;
 }
