@@ -153,7 +153,7 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
 
     char* serializedDataToSend = pktInstance->GenPacket();
     int pktLen = pktInstance->GetLength();
-    int bufferLength = pktLen+1;
+    int bufferLength = MySocket::DEFAULT_SIZE;
 
     char* sendBuffer = new char[bufferLength];
     memset(sendBuffer, 0, bufferLength);
@@ -167,9 +167,7 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
 
     if (pktResponse == nullptr)
     {
-        // 6. CLEANUP: Avoid memory leaks
-        delete pktInstance; // This also cleans up the body
-        // we do not delete send buffer, because sendData already cleaned that up
+        delete pktInstance;
 
         crow::json::wvalue err;
         err["ack"] = 0;
@@ -180,8 +178,6 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
     pktResponse->display();
 
     crow::json::wvalue result = BuildCommandJson(pktResponse);
-
-    delete pktResponse;
 
     // 6. CLEANUP: Avoid memory leaks
     delete pktInstance; // This also cleans up the body
@@ -203,9 +199,8 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
             err["ack"] = 0;
             err["body"] = "robotId must be 0 or 1";
             return JsonResponse(400, err);
-        }
+        }     
 
-        // Build a telemetry request packet manually
         HeaderDef header;
         header.PktCount = 1;
         header.Drive = 0;
@@ -216,9 +211,8 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
         header.Length = HeaderDef::HEADER_SIZE + PktDef::CRCSIZE;
 
         char* headerBytes = header.serialize();
-
-        int pktLen = header.Length;
-        int bufferLength = pktLen + 1; // robot id
+;
+        int bufferLength = MySocket::DEFAULT_SIZE;
         char* sendBuffer = new char[bufferLength];
         std::memset(sendBuffer, 0, bufferLength);
         std::memcpy(sendBuffer, headerBytes, HeaderDef::HEADER_SIZE);
@@ -226,8 +220,7 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
         delete[] headerBytes;
 
         PktDef helper;
-        sendBuffer[pktLen - 1] =
-            static_cast<char>(helper.countSetBits(sendBuffer, pktLen - PktDef::CRCSIZE));
+        sendBuffer[MySocket::DEFAULT_SIZE] = static_cast<char>(helper.countSetBits(sendBuffer, PktDef::HEADERSIZE + PktDef::CRCSIZE));
 
         App::attachRobotID(robotId, sendBuffer);
 
@@ -244,9 +237,6 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
 
         PktDef* pktResponse = app->sendData(sendBuffer);
 
-        // caller owns this request buffer
-        delete[] sendBuffer;
-        sendBuffer = nullptr;
 
         if (pktResponse == nullptr)
         {
@@ -267,13 +257,13 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
             TelemetryBodyDef* telem = TelemetryBodyDef::deserialize(bodyData);
             delete[] bodyData;
 
-            result["LastPktCounter"] = static_cast<int>(telem->LastPktCounter);
-            result["CurrentGrade"] = static_cast<int>(telem->CurrentGrade);
-            result["HitCount"] = static_cast<int>(telem->HitCount);
-            result["Heading"] = static_cast<int>(telem->Heading);
-            result["LastCmd"] = static_cast<int>(telem->LastCmd);
-            result["LastCmdValue"] = static_cast<int>(telem->LastCmdValue);
-            result["LastCmdPower"] = static_cast<int>(telem->LastCmdPower);
+            result["LastPktCounter"] = telem->LastPktCounter;
+            result["CurrentGrade"] = telem->CurrentGrade;
+            result["HitCount"] = telem->HitCount;
+            result["Heading"] = telem->Heading;
+            result["LastCmd"] = telem->LastCmd;
+            result["LastCmdValue"] = telem->LastCmdValue;
+            result["LastCmdPower"] = telem->LastCmdPower;
 
             delete telem;
         }
@@ -288,7 +278,6 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
             result["LastCmdPower"] = 0;
         }
 
-        delete pktResponse;
         return JsonResponse(200, result);
     }
     catch (const std::exception& ex)
@@ -322,7 +311,7 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
         char* serializedDataToSend = pktInstance->GenPacket();
         int pktLen = pktInstance->GetLength();
 
-        char* sendBuffer = new char[pktLen + 1];
+        char* sendBuffer = new char[MySocket::DEFAULT_SIZE];
         std::memset(sendBuffer, 0, pktLen + 1);
         std::memcpy(sendBuffer, serializedDataToSend, pktLen);
 
@@ -331,7 +320,6 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
         App* app = GetAppInstance();
         if (app == nullptr)
         {
-            delete[] sendBuffer;
             delete pktInstance;
 
             crow::json::wvalue err;
@@ -342,7 +330,6 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         PktDef* pktResponse = app->sendData(sendBuffer);
 
-        delete[] sendBuffer;
         sendBuffer = nullptr;
 
         delete pktInstance;
@@ -360,7 +347,6 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         crow::json::wvalue result = BuildCommandJson(pktResponse);
 
-        delete pktResponse;
         return JsonResponse(200, result);
     }
     catch (const std::exception& ex)
@@ -374,41 +360,7 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
 crow::response CrowRoutes::HandleRestart(const crow::request& req)
 {
-    try
-    {
-        std::string robotIdStr = req.url_params.get("robotId") ? req.url_params.get("robotId") : "0";
-        int robotId = std::stoi(robotIdStr);
-
-        if (!ConsoleUtils::validateRobotId(robotId))
-        {
-            crow::json::wvalue err;
-            err["ack"] = 0;
-            err["body"] = "robotId must be 0 or 1";
-            return JsonResponse(400, err);
-        }
-
-        App* app = GetAppInstance();
-        if (app == nullptr)
-        {
-            crow::json::wvalue err;
-            err["ack"] = 0;
-            err["body"] = "App instance is not running";
-            return JsonResponse(500, err);
-        }
-
-        restartAppInstance();
-
-        crow::json::wvalue result;
-        result["ack"] = 1;
-        result["body"] = "Restart command accepted";
-
-        return JsonResponse(200, result);
-    }
-    catch (const std::exception& ex)
-    {
-        crow::json::wvalue err;
-        err["ack"] = 0;
-        err["body"] = std::string(ex.what());
-        return JsonResponse(500, err);
-    }
+    App* app = GetAppInstance();
+    app->restartCommand = true;
+    return JsonResponse(200, "yay");
 }

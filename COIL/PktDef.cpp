@@ -323,5 +323,5 @@ void PktDef::display() {
     if (this->Packet.body) {
         this->Packet.body->display();
     }
-    std::cout << "CRC: " << (int)(this->Packet.CRC) << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
+    std::cout << "CRC: " << (unsigned int)(this->Packet.CRC) << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
 }

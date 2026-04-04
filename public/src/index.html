@@ -83,6 +83,8 @@
         .btn-send:hover { background: #219150; }
         .btn-telemetry { background: #8e44ad; }
         .btn-telemetry:hover { background: #733a8e; }
+        .btn-restart { background: #e67e22; }
+        .btn-restart:hover { background: #d35400; }
 
         .params-panel { display: none; }
         .params-panel.visible { display: flex; }
@@ -196,8 +198,9 @@
         </div>
 
         <div class="panel">
-            <h2>Telemetry</h2>
+            <h2>System & Telemetry</h2>
             <button class="btn btn-telemetry" id="btn-telemetry">Request Telemetry</button>
+            <button class="btn btn-restart" id="btn-restart">Restart Server</button>
             <pre id="telemetry-output">No telemetry data.</pre>
         </div>
     </div>
@@ -253,18 +256,14 @@
 
         function buildDriveUrl(directionInt, robotId, duration, power) {
             let url = `/commands/Drive/${directionInt}?robotId=${robotId}&duration=${duration}`;
-
             if (power !== null && power !== undefined) {
                 url += `&power=${power}`;
             }
-
             return url;
         }
 
         async function sendMovementCommand() {
-            if (!selectedCommand || selectedCommand === "Sleep") {
-                return;
-            }
+            if (!selectedCommand || selectedCommand === "Sleep") return;
 
             const robotId = getRobotId();
             const duration = document.getElementById("duration").value;
@@ -275,11 +274,9 @@
             }
 
             const directionInt = directionToInt(selectedCommand);
-
             let power = null;
             if (selectedCommand === "Forward" || selectedCommand === "Backward") {
                 power = document.getElementById("power").value;
-
                 if (!validatePower(power)) {
                     log("ERROR: Power must be between 80 and 100.");
                     return;
@@ -287,24 +284,46 @@
             }
 
             const url = buildDriveUrl(directionInt, robotId, duration, power);
-
             log(`Sending ${selectedCommand} to Robot ${robotId} -> ${url}`);
 
             try {
-                const res = await fetch(url, {
-                    method: "GET"
-                });
-
+                const res = await fetch(url);
                 const data = await res.json();
-
                 if (!res.ok) {
                     log(`ERROR: ack=${data.ack ?? 0}, body=${data.body ?? "Request failed"}`);
                     return;
                 }
-
                 log(`Response: ack=${data.ack}, body=${data.body}`);
             } catch (err) {
                 log(`ERROR: ${err.message}`);
+            }
+        }
+
+        async function sendSleepCommand() {
+            const robotId = getRobotId();
+            const url = `/commands/sleep?robotId=${robotId}`;
+            log(`Sending Sleep to Robot ${robotId} -> ${url}`);
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                log(`Sleep Response: ack=${data.ack}, body=${data.body}`);
+            } catch (err) {
+                log(`Sleep ERROR: ${err.message}`);
+            }
+        }
+
+        async function sendRestartCommand() {
+            const robotId = getRobotId();
+            const url = `/commands/restart?robotId=${robotId}`;
+            log(`Sending Restart Command -> ${url}`);
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                log(`Restart Response: ${data.body} (ack=${data.ack})`);
+            } catch (err) {
+                log(`Restart ERROR: ${err.message}`);
             }
         }
 
@@ -315,10 +334,7 @@
             log(`Requesting telemetry for Robot ${robotId} -> ${url}`);
 
             try {
-                const res = await fetch(url, {
-                    method: "GET"
-                });
-
+                const res = await fetch(url);
                 const data = await res.json();
 
                 if (!res.ok) {
@@ -344,30 +360,21 @@
             }
         }
 
-        document.getElementById("btn-forward").addEventListener("click", function () {
-            showParams("Forward", ["power", "duration"]);
-        });
-
-        document.getElementById("btn-backward").addEventListener("click", function () {
-            showParams("Backward", ["power", "duration"]);
-        });
-
-        document.getElementById("btn-left").addEventListener("click", function () {
-            showParams("Left", ["duration"]);
-        });
-
-        document.getElementById("btn-right").addEventListener("click", function () {
-            showParams("Right", ["duration"]);
-        });
-
+        // Event Listeners
+        document.getElementById("btn-forward").addEventListener("click", () => showParams("Forward", ["power", "duration"]));
+        document.getElementById("btn-backward").addEventListener("click", () => showParams("Backward", ["power", "duration"]));
+        document.getElementById("btn-left").addEventListener("click", () => showParams("Left", ["duration"]));
+        document.getElementById("btn-right").addEventListener("click", () => showParams("Right", ["duration"]));
+        
         document.getElementById("btn-sleep").addEventListener("click", function () {
             selectedCommand = "Sleep";
-            paramsPanel.className = "panel params-panel";
-            log("Sleep route is not currently implemented in the new CrowRoutes. No request sent.");
+            paramsPanel.className = "panel params-panel"; // Hide parameter panel
+            sendSleepCommand();
         });
 
         document.getElementById("btn-send").addEventListener("click", sendMovementCommand);
         document.getElementById("btn-telemetry").addEventListener("click", requestTelemetry);
+        document.getElementById("btn-restart").addEventListener("click", sendRestartCommand);
     </script>
 </body>
 </html>
