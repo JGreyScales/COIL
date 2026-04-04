@@ -198,6 +198,9 @@
             <h2>Telemetry</h2>
             <button class="btn btn-telemetry" id="btn-telemetry">Request Telemetry</button>
             <pre id="telemetry-output" style="background:#0a0a1a; padding:0.8rem; border-radius:6px; font-size:0.8rem; min-height:80px; margin-top:0.5rem;">No telemetry data.</pre>
+
+            <h2 style="margin-top:1rem;">Last Ack Response</h2>
+            <pre id="ack-output" style="background:#0a0a1a; padding:0.8rem; border-radius:6px; font-size:0.8rem; min-height:60px; margin-top:0.5rem;">No response yet.</pre>
         </div>
     </div>
 
@@ -207,6 +210,7 @@
         var paramsTitle = document.getElementById("params-title");
         var groupPower = document.getElementById("group-power");
         var groupDuration = document.getElementById("group-duration");
+        var ackOutput = document.getElementById("ack-output");
         var selectedCommand = null;
 
         function log(msg) {
@@ -267,8 +271,14 @@
                 body: JSON.stringify({ robotId: robotId })
             })
             .then(function(res) { return res.text(); })
-            .then(function(data) { log("Sleep response: " + data); })
-            .catch(function(err) { log("ERROR: " + err.message); });
+            .then(function(data) {
+                ackOutput.textContent = "Sleep Response:\n" + data;
+                log("Sleep response: " + data);
+            })
+            .catch(function(err) {
+                ackOutput.textContent = "Error: " + err.message;
+                log("ERROR: " + err.message);
+            });
         });
 
         // ---- SEND COMMAND ----
@@ -314,8 +324,14 @@
                 body: JSON.stringify(body)
             })
             .then(function(res) { return res.json(); })
-            .then(function(data) { log("Response: Ack=" + data.Ack_Flag + " " + data.body); })
-            .catch(function(err) { log("ERROR: " + err.message); });
+            .then(function(data) {
+                ackOutput.textContent = "Ack: " + data.Ack_Flag + "\nBody: " + data.body;
+                log("Response: Ack=" + data.Ack_Flag + " " + data.body);
+            })
+            .catch(function(err) {
+                ackOutput.textContent = "Error: " + err.message;
+                log("ERROR: " + err.message);
+            });
         });
 
         // ---- TELEMETRY REQUEST ----
