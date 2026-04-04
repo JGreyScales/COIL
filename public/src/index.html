@@ -202,6 +202,9 @@
             <button class="btn btn-telemetry" id="btn-telemetry">Request Telemetry</button>
             <button class="btn btn-restart" id="btn-restart">Restart Server</button>
             <pre id="telemetry-output">No telemetry data.</pre>
+
+            <h2 style="margin-top:1rem;">Last Ack Response</h2>
+            <pre id="ack-output" style="background:#0a0a1a; padding:0.8rem; border-radius:6px; font-size:0.8rem; min-height:60px; margin-top:0.5rem;">No response yet.</pre>
         </div>
     </div>
 
@@ -212,6 +215,7 @@
         const groupPower = document.getElementById("group-power");
         const groupDuration = document.getElementById("group-duration");
         const telemetryOutput = document.getElementById("telemetry-output");
+        const ackOutput = document.getElementById("ack-output");
 
         let selectedCommand = null;
 
@@ -293,8 +297,10 @@
                     log(`ERROR: ack=${data.ack ?? 0}, body=${data.body ?? "Request failed"}`);
                     return;
                 }
+                ackOutput.textContent = `Ack: ${data.ack}\nBody: ${data.body}`;
                 log(`Response: ack=${data.ack}, body=${data.body}`);
             } catch (err) {
+                ackOutput.textContent = `Error: ${err.message}`;
                 log(`ERROR: ${err.message}`);
             }
         }
@@ -307,8 +313,10 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
+                ackOutput.textContent = `Ack: ${data.ack}\nBody: ${data.body}`;
                 log(`Sleep Response: ack=${data.ack}, body=${data.body}`);
             } catch (err) {
+                ackOutput.textContent = `Error: ${err.message}`;
                 log(`Sleep ERROR: ${err.message}`);
             }
         }
