@@ -115,12 +115,12 @@ void TelemetryBodyDef::display()
     std::cout << "  Heading      : " << Heading
         << "  (" << toBinary(Heading) << ")" << std::endl;
 
-    std::cout << "  LastCmd      : " << static_cast<int>(LastCmd)
+    std::cout << "  LastCmd      : " << (LastCmd)
         << "  (" << toBinary(LastCmd) << ")" << std::endl;
 
-    std::cout << "  LastCmdValue : " << static_cast<int>(LastCmdValue)
+    std::cout << "  LastCmdValue : " << (LastCmdValue)
         << "  (" << toBinary(LastCmdValue) << ")" << std::endl;
 
-    std::cout << "  LastCmdPower : " << static_cast<int>(LastCmdPower)
+    std::cout << "  LastCmdPower : " << (LastCmdPower)
         << "  (" << toBinary(LastCmdPower) << ")" << std::endl;
 }

@@ -2,12 +2,12 @@
 #include <bitset>
 #include <limits>
 #include <thread>
+#include <cstring>
 
 #define NOMINMAX
 
 #include "App.h"
-#include "fileFetcher.h"
-
+#include "CrowRoutes.h"
 
 // old stuff, wouldnt be included in release
 void test() {
@@ -33,18 +33,26 @@ void manualInputMode() {
 	char recieveBuffer[MySocket::DEFAULT_SIZE];
 
 	std::cout << "Enter TCP (1) / UDP (2)" << std::endl;
-	MySocket::ConnectionType connectionType = (MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
+	MySocket::ConnectionType connectionType =
+		(MySocket::ConnectionType)ConsoleUtils::getUserInt(1, 2);
 
 	std::cout << "Enter IP: ";
 	std::string IP = ConsoleUtils::getUserString();
 
 	std::cout << "Enter Port: ";
-	unsigned int port = ConsoleUtils::getUserInt(0, 65535); // Ports only go up to 65535
+	unsigned int port = ConsoleUtils::getUserInt(0, 65535);
 
 	std::cout << "enter binding ip: " << std::endl;
 	std::string bindingIP = ConsoleUtils::getUserString();
 
-	MySocket* socket = new MySocket(MySocket::CLIENT, IP, port, connectionType, MySocket::DEFAULT_SIZE);
+	MySocket* socket = new MySocket(
+		MySocket::CLIENT,
+		IP,
+		port,
+		connectionType,
+		MySocket::DEFAULT_SIZE
+	);
+
 	if (connectionType == MySocket::ConnectionType::TCP) {
 		socket->BindLocalIP(bindingIP);
 		socket->ConnectTCP();
@@ -61,10 +69,8 @@ void manualInputMode() {
 			interfaceWithUser = false;
 			continue;
 		}
+
 		Robot* chosenRobot = robots[chosenInput];
-
-
-
 		bool robotInterfacing = true;
 
 		while (robotInterfacing) {
@@ -108,8 +114,6 @@ void manualInputMode() {
 
 				socket->SendData(packetData, pktInstance->GetLength() + 1);
 
-
-
 				int bytesWritten = socket->GetData(recieveBuffer);
 				std::cout << bytesWritten << " Bytes written" << std::endl;
 
@@ -117,6 +121,7 @@ void manualInputMode() {
 				if (bytesWritten > 0) {
 					PktDef* ackPacket = new PktDef(recieveBuffer);
 					ackPacket->display();
+					delete ackPacket;
 				}
 
 				std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
@@ -136,17 +141,14 @@ void manualInputMode() {
 					socket->SendData(packetData, pktInstance->GetLength());
 				}
 
-				// do we care about the ack here?
-				// I guess so.....
-
 				int bytesWritten = socket->GetData(recieveBuffer);
 				std::cout << bytesWritten << " Bytes written" << std::endl;
 				if (bytesWritten > 0) {
 					PktDef* ackPacket = new PktDef(recieveBuffer);
 					ackPacket->display();
+					delete ackPacket;
 				}
 				std::memset(recieveBuffer, 0, MySocket::DEFAULT_SIZE);
-
 
 				delete pktInstance;
 				break;
@@ -173,9 +175,8 @@ void manualInputMode() {
 
 	delete robots[0];
 	delete robots[1];
+	delete socket;
 }
-
-
 
 int main()
 {
@@ -187,79 +188,11 @@ int main()
 		return 1;
 	}
 #endif
+
 	crow::SimpleApp crowApp;
-	fileFetcher ff;
 
-	// GET "/" - serve root HTML page
-	CROW_ROUTE(crowApp, "/")
-		([&ff]() {
-		std::string html = ff.sendFile("src/index.html");
-		if (html == "not found") {
-			return crow::response(404, "Not Found");
-		}
-		crow::response res(200, html);
-		res.set_header("Content-Type", "text/html");
-		return res;
-			});
-
-	// POST /commands/Drive/<int> - for drive & turn
-	CROW_ROUTE(crowApp, "/commands/Drive/<int>")
-		.methods("POST"_method)
-		([](const crow::request& req, int direction) {
-		auto body = crow::json::load(req.body);
-		if (!body) {
-			return crow::response(400, "Invalid JSON");
-		}
-
-		crow::json::wvalue response;
-
-		if (direction == 1 || direction == 2) {
-			// Drive forward/backward - needs Duration and Power
-			if (!body.has("Duration") || !body.has("Power")) {
-				return crow::response(400, "Duration and Power required");
-			}
-			int duration = body["Duration"].i();
-			int power = body["Power"].i();
-
-
-			response["Ack_Flag"] = 1;
-			response["body"] = "Drive command received";
-		}
-		else if (direction == 3 || direction == 4) {
-			// Turn right/left - needs Duration
-			if (!body.has("Duration")) {
-				return crow::response(400, "Duration required");
-			}
-			int duration = body["Duration"].i();
-
-			response["Ack_Flag"] = 1;
-			response["body"] = "Turn command received";
-		}
-		else {
-			return crow::response(404, "Invalid direction");
-		}
-
-		return crow::response(response);
-			});
-
-	// GET /commands/telemetry
-	CROW_ROUTE(crowApp, "/commands/telemetry")
-		.methods("GET"_method)
-		([]() {
-		crow::json::wvalue response;
-		// TODO: integrate with App to get actual telemetry
-		response["Ack"] = 1;
-		return crow::response(response);
-			});
-
-	// POST /commands/sleep
-	CROW_ROUTE(crowApp, "/commands/sleep")
-		.methods("POST"_method)
-		([]() {
-		// TODO: integrate with App to send sleep command
-		return crow::response(200, "sleep");
-			});
-
+	// all crow route logic lives in CrowRoutes.cpp
+	CrowRoutes::RegisterRoutes(crowApp);
 
 	std::cout << "Starting crow server" << std::endl;
 	std::thread crowThread([&crowApp]() {
@@ -267,8 +200,6 @@ int main()
 		crowApp.port(8080).multithreaded().run();
 		});
 	crowThread.detach();
-
-
 
 	while (1) {
 		std::cout << "Manual input(1) or webserver(2)" << std::endl;
@@ -278,29 +209,15 @@ int main()
 			manualInputMode();
 		}
 		else {
-			// if app already exists
-			// start app instance will delete it and start a new instance
 			startAppInstance();
 			App* app = GetAppInstance();
 
 			std::cout << "app is running" << std::endl;
 
 			while (!(app->restartCommand)) {
-				// should hold for 100ms per cycle to check for inbound data
-				// if inbound data it will daisy chain it and process it all before returning
-				// if not inbound data, it will return and proceed with the code
+				// handle inbound tunnel traffic 
+				// every 100 milliseconds it returns, allowing data injection
 				app->openListeners();
-
-				if (app->hasDataToSend) {
-					PktDef* pktInstance = app->sendData(app->dataBuffer, false);
-
-
-					// put logic in here to get it back into the rest route
-					pktInstance->display();
-
-					delete pktInstance;
-					app->hasDataToSend = false;
-				}
 			}
 		}
 	}
