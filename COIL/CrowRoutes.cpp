@@ -22,9 +22,11 @@ crow::json::wvalue CrowRoutes::BuildCommandJson(PktDef* pktResponse)
     result["ack"] = pktResponse->GetAck() ? 1 : 0;
 
     char* responseBody = pktResponse->GetBodyData();
+    int bodySize = pktResponse->GetLength() - PktDef::CRCSIZE - PktDef::HEADERSIZE;
     if (responseBody != nullptr)
     {
-        result["body"] = std::string(responseBody);
+        // there must be a null termination here otherwise it will fail
+        result["body"] = std::string(responseBody, bodySize);
         delete[] responseBody;
     }
     else
@@ -330,9 +332,6 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         PktDef* pktResponse = app->sendData(sendBuffer);
 
-        delete pktInstance;
-        pktInstance = nullptr;
-
         if (pktResponse == nullptr)
         {
             crow::json::wvalue err;
@@ -343,10 +342,8 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         pktResponse->display();
 
-        crow::json::wvalue result = BuildCommandJson(pktResponse);
-
         app->restartCommand = true;
-        return JsonResponse(200, result);
+        return JsonResponse(200, "");
     }
     catch (const std::exception& ex)
     {
