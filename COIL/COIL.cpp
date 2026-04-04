@@ -209,7 +209,7 @@ int main()
 			manualInputMode();
 		}
 		else {
-			startAppInstance();
+			startAppInstance(); // will delete current app if already running
 			App* app = GetAppInstance();
 
 			std::cout << "app is running" << std::endl;
@@ -219,6 +219,8 @@ int main()
 				// every 100 milliseconds it returns, allowing data injection
 				app->openListeners();
 			}
+
+			std::cout << "restarting app" << std::endl;
 		}
 	}
 

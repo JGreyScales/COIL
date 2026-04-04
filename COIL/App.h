@@ -36,7 +36,7 @@ public:
     int static detachRobotID(char*);
     
 
-    PktDef* sendData(char*);
+    PktDef* sendData(char*, bool = true);
     char * awaitReturn(MySocket*, char*);
     char * forwardToNextHop(char*);
     char * sendToRobot(Robot*, char*);

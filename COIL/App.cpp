@@ -176,7 +176,7 @@ char * App::sendToRobot(Robot* robot, char* buffer)
 // respond is for if a response on the server socket should be sent
 // if the request came from this server, it shouldnt be responding
 // it should take the PktDef* and convert it over to rest to respond to the webserver
-PktDef* App::sendData(char* buffer) {
+PktDef* App::sendData(char* buffer, bool respond) { // defaults to true
 	if (this->networkLock) {
 		// if a request is currently being proccessed, dont process the request
 		return NULL;
@@ -218,7 +218,7 @@ PktDef* App::sendData(char* buffer) {
 
 	PktDef* pktInstance = new PktDef(returnData);
 
-	if (this->curSoc != nullptr) {
+	if (this->curSoc != nullptr && respond) {
 		std::cout << "responding on socket" << std::endl;
 		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
 	}

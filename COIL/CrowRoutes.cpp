@@ -165,7 +165,7 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
 
     App* app = GetAppInstance();
 
-    PktDef* pktResponse = app->sendData(sendBuffer);
+    PktDef* pktResponse = app->sendData(sendBuffer, false);
 
     if (pktResponse == nullptr)
     {
@@ -237,7 +237,7 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
             return JsonResponse(500, err);
         }
 
-        PktDef* pktResponse = app->sendData(sendBuffer);
+        PktDef* pktResponse = app->sendData(sendBuffer, false);
 
 
         if (pktResponse == nullptr)
@@ -330,20 +330,11 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
             return JsonResponse(500, err);
         }
 
-        PktDef* pktResponse = app->sendData(sendBuffer);
-
-        if (pktResponse == nullptr)
-        {
-            crow::json::wvalue err;
-            err["ack"] = 0;
-            err["body"] = "No response returned from sleep command";
-            return JsonResponse(500, err);
-        }
-
-        pktResponse->display();
+        app->sendData(sendBuffer, false);
+        
 
         app->restartCommand = true;
-        return JsonResponse(200, "");
+        return JsonResponse(200, "Good Night");
     }
     catch (const std::exception& ex)
     {
