@@ -213,7 +213,7 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
         char* headerBytes = header.serialize();
 ;
         int bufferLength = MySocket::DEFAULT_SIZE;
-        char* sendBuffer = new char[bufferLength];
+        char* sendBuffer = new char[bufferLength + 5];
         std::memset(sendBuffer, 0, bufferLength);
         std::memcpy(sendBuffer, headerBytes, HeaderDef::HEADER_SIZE);
 
@@ -330,8 +330,6 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         PktDef* pktResponse = app->sendData(sendBuffer);
 
-        sendBuffer = nullptr;
-
         delete pktInstance;
         pktInstance = nullptr;
 
@@ -347,6 +345,7 @@ crow::response CrowRoutes::HandleSleep(const crow::request& req)
 
         crow::json::wvalue result = BuildCommandJson(pktResponse);
 
+        app->restartCommand = true;
         return JsonResponse(200, result);
     }
     catch (const std::exception& ex)
