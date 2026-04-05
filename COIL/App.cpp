@@ -112,7 +112,20 @@ void App::attachRobotID(int ID, char* data)
 
 	size_t length = pktInstance->GetLength();
 
-	data[length] = ID;
+	// 1. Allocate the new buffer
+	char* largerBuffer = new char[1000];
+
+	// 2. Copy the original packet data
+	std::memcpy(largerBuffer, data, length);
+
+	// 3. Append the ID at the end of the packet
+	largerBuffer[length] = ID;
+
+	// 4. Important: Delete the old buffer to prevent a memory leak
+	delete[] data;
+
+	// 5. Update the caller's pointer to point to the new memory location
+	data = largerBuffer;
 
 	delete pktInstance;
 }

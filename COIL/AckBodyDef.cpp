@@ -19,7 +19,8 @@ void AckBodyDef::setBody(const char* newBody) {
     if (newBody) {
         const int size = (int)std::strlen(newBody);
         body = new char[1024];
-        strcpy_s(body, size, newBody);
+        std::memcpy(body, newBody, size);
+        body[size] = '\0';
     }
     else {
         body = nullptr;

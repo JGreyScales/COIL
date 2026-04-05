@@ -224,7 +224,7 @@ void PktDef::CalcCRC()
 
     int totalLength = Packet.Header->Length;
 
-    delete this->RawBuffer;
+    delete[] this->RawBuffer;
     this->RawBuffer = new char[totalLength];
     memset(RawBuffer, 0, totalLength);
 

@@ -27,7 +27,6 @@ crow::json::wvalue CrowRoutes::BuildCommandJson(PktDef* pktResponse)
     {
         // there must be a null termination here otherwise it will fail
         result["body"] = std::string(responseBody, bodySize);
-        delete[] responseBody;
     }
     else
     {
