@@ -11,7 +11,7 @@ int DriveBodyDef::getSize() {
 }
 
 char* DriveBodyDef::serialize() {
-    char* buffer = new char[DRIVE_BODY_SIZE];
+    char* buffer = new char[1024];
 
     buffer[0] = static_cast<char>(this->Direction);
     buffer[1] = static_cast<char>(this->Duration);

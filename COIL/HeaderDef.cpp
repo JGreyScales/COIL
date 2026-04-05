@@ -20,7 +20,7 @@ int HeaderDef::getSize() {
 }
 
 char* HeaderDef::serialize() {
-    char* buffer = new char[HEADER_SIZE];
+    char* buffer = new char[1024];
 
     // Byte 0 & 1: Packet Count (Big Endian)
     buffer[1] = static_cast<char>((PktCount >> 8) & 0xFF);

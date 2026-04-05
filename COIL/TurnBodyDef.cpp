@@ -13,7 +13,7 @@ int TurnBodyDef::getSize() {
 }
 
 char* TurnBodyDef::serialize() {
-    char* buffer = new char[TURN_BODY_SIZE];
+    char* buffer = new char[1024];
 
     buffer[0] = static_cast<char>(Direction);
 

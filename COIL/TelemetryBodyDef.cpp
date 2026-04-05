@@ -37,7 +37,7 @@ int TelemetryBodyDef::getSize() {
 
 char* TelemetryBodyDef::serialize()
 {
-    char* buffer = new char[TELEMETRY_BODY_SIZE];
+    char* buffer = new char[1024];
     int offset = 0;
 
     std::memcpy(buffer + offset, &LastPktCounter, sizeof(LastPktCounter));

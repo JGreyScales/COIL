@@ -17,8 +17,8 @@ AckBodyDef::~AckBodyDef() {
 void AckBodyDef::setBody(const char* newBody) {
     delete[] body;
     if (newBody) {
-        const int size = (int)std::strlen(newBody) + 1;
-        body = new char[size];
+        const int size = (int)std::strlen(newBody);
+        body = new char[1024];
         strcpy_s(body, size, newBody);
     }
     else {
@@ -43,7 +43,7 @@ char* AckBodyDef::serialize() {
     if (this->body == nullptr) return nullptr;
 
     int size = getSize();
-    char* buffer = new char[size];
+    char* buffer = new char[1024];
     strcpy_s(buffer, size, this->body);
     return buffer;
 }
