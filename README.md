@@ -11,7 +11,8 @@ fuser -k 8080/tcp
 * go to Linker -> Input -> Additioanl Dependencies
 * add a new line "$(SolutionDir)COIL\\x64\\Debug<className>", you'll see other examples of it in the list
 
-
+cmake -DUSE-ASAN=ON ..
+make
 
 running docker image:
 
