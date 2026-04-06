@@ -1,20 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 project(COIL_Project)
 
-# Use C++17 or higher (standard for Crow and modern Asio)
+# 1. General Project Settings
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 1. Find Boost and its required components
-# system: error handling, thread: concurrency, regex: Crow route parsing
+# 2. Find Dependencies
 find_package(Boost REQUIRED COMPONENTS system thread regex)
 find_package(Threads REQUIRED)
 
-# 2. Include directories
-include_directories(COIL)
-include_directories(${Boost_INCLUDE_DIRS})
-
-# Define all source files
+# 3. Define Source Files
 set(SOURCE_FILES
     COIL/COIL.cpp
     COIL/AckBodyDef.cpp
@@ -30,11 +25,33 @@ set(SOURCE_FILES
     COIL/CrowRoutes.cpp
 )
 
-# Create the executable
+# 4. Create the Executable
 add_executable(COIL_App.out ${SOURCE_FILES})
 
-# 3. Link libraries
-# Boost_LIBRARIES includes system, thread, and regex as requested above
+# 5. Development vs. Production Logic
+option(USE_ASAN "Enable Address Sanitizer" OFF)
+
+if(USE_ASAN)
+    message(STATUS "Build Mode: Development (ASAN enabled)")
+    target_compile_options(COIL_App.out PRIVATE 
+        -fsanitize=address 
+        -g 
+        -O1 
+        -fno-omit-frame-pointer
+    )
+    target_link_options(COIL_App.out PRIVATE 
+        -fsanitize=address
+    )
+else()
+    message(STATUS "Build Mode: Production")
+    target_compile_options(COIL_App.out PRIVATE -O3)
+endif()
+
+# 6. Include Directories
+# Includes COIL for local headers and Boost for external headers
+target_include_directories(COIL_App.out PRIVATE COIL ${Boost_INCLUDE_DIRS})
+
+# 7. Link Libraries
 target_link_libraries(COIL_App.out 
     PRIVATE 
     Threads::Threads
