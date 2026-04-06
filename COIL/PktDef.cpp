@@ -77,16 +77,16 @@ PktDef::PktDef(char* rawData)
     }
 
     std::cout << "Isolated CRC Byte: ";
-    BitUtils::displayChar(1, &rawData[this->Packet.Header->Length - 1]);
+    BitUtils::displayChar(1, &rawData[this->Packet.Header->Length]);
     std::cout << std::endl;
-    this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length - 1]);
+    this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length]);
 }
 PktDef::~PktDef()
 {
     delete this->Packet.Header;
     delete this->Packet.body;    
     if (this->RawBuffer != nullptr && this->deleteBuffer) {
-        delete this->RawBuffer;
+        delete[] this->RawBuffer;
     }
 }
 
