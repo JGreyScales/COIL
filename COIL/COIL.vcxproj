@@ -139,6 +139,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="BodyInterface.cpp" />
     <ClCompile Include="COIL.cpp" />
+    <ClCompile Include="CrowRoutes.cpp" />
     <ClCompile Include="DriveBodyDef.cpp" />
     <ClCompile Include="HeaderDef.cpp" />
     <ClCompile Include="MySocket.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="AckBodyDef.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="BodyInterface.h" />
+    <ClInclude Include="CrowRoutes.h" />
     <ClInclude Include="DriveBodyDef.h" />
     <ClInclude Include="fileFetcher.h" />
     <ClInclude Include="HeaderDef.h" />

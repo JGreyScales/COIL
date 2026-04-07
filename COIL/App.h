@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 
+#define NOMINMAX
 
 
 
@@ -35,7 +36,7 @@ public:
     int static detachRobotID(char*);
     
 
-    PktDef* sendData(char*, bool);
+    PktDef* sendData(char*, bool = true);
     char * awaitReturn(MySocket*, char*);
     char * forwardToNextHop(char*);
     char * sendToRobot(Robot*, char*);
@@ -50,7 +51,7 @@ public:
 
 #include <mutex>
 
-static App* app = nullptr;
+inline App* app = nullptr;
 static std::mutex app_mutex;
 
 inline App* GetAppInstance() {

@@ -13,6 +13,10 @@ App::App() {
 	this->dataBuffer = nullptr;
 	this->connectionType = MySocket::ConnectionType::UNDEFINED;
 
+	this->restartCommand = false;
+	this->hasDataToSend = false;
+	this->networkLock = false;
+
 	std::cout << "Primary(1) or Secondary Mode(2)" << std::endl;
 	int chosenInput = ConsoleUtils::getUserInt(1, 2);
 
@@ -64,33 +68,39 @@ App::App() {
 		}
 
 	}
-
-	std::cout << "Am I TCP(1) or UDP(2) or end(3)" << std::endl;
-	const int input = ConsoleUtils::getUserInt(1, 3);
+	std::cout << "Do I host a recieve socket? No(1), Yes(2)" << std::endl;
+	if (ConsoleUtils::getUserInt(1, 2) == 2) {
+		std::cout << "Am I TCP(1) or UDP(2) or end(3)" << std::endl;
+		const int input = ConsoleUtils::getUserInt(1, 3);
 		
-	if (input == 1) {
-		this->connectionType = MySocket::TCP;
-	}
-	else if (input == 2){
-		this->connectionType = MySocket::UDP;
+		if (input == 1) {
+			this->connectionType = MySocket::TCP;
+		}
+		else if (input == 2){
+			this->connectionType = MySocket::UDP;
+		}
+		else {
+			this->curSoc = nullptr;
+			return;
+		}
+
+		std::cout << "What is my wifiIP" << std::endl;
+		std::string wifiIP = ConsoleUtils::getUserString();
+
+		std::cout << "What is my tunnel port" << std::endl;
+		const int port = ConsoleUtils::getUserInt(0, 65535);
+
+		if (this->connectionType == MySocket::TCP) {
+			std::cout << "Waiting for client to connect..." << std::endl;
+		}
+
+		// inbound
+		this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 	}
 	else {
 		this->curSoc = nullptr;
-		return;
+		this->connectionType = MySocket::UNDEFINED;
 	}
-
-	std::cout << "What is my wifiIP" << std::endl;
-	std::string wifiIP = ConsoleUtils::getUserString();
-
-	std::cout << "What is my tunnel port" << std::endl;
-	const int port = ConsoleUtils::getUserInt(0, 65535);
-
-	if (this->connectionType == MySocket::TCP) {
-		std::cout << "Waiting for client to connect..." << std::endl;
-	}
-
-	// inbound
-	this->curSoc = new MySocket(MySocket::SERVER, wifiIP, port, this->connectionType, 1024);
 }
 
 
@@ -155,9 +165,18 @@ char * App::sendToRobot(Robot* robot, char* buffer)
 
 	robot->socket->SendData(buffer, pktInstance->GetLength());
 
-	delete pktInstance;
+	if (pktInstance->getPacket().Header->Status) {
+		char* _ = this->awaitReturn(robot->socket, buffer); // ack response
+		delete pktInstance;
 
-	return this->awaitReturn(robot->socket, buffer);
+		return this->awaitReturn(robot->socket, buffer); // teleresponse
+	}
+	else {
+		delete pktInstance;
+
+		return this->awaitReturn(robot->socket, buffer);
+	}
+	
 }
 
 // attachRobotID must have been called previous to this function call
@@ -166,15 +185,25 @@ char * App::sendToRobot(Robot* robot, char* buffer)
 // respond is for if a response on the server socket should be sent
 // if the request came from this server, it shouldnt be responding
 // it should take the PktDef* and convert it over to rest to respond to the webserver
-PktDef* App::sendData(char* buffer, bool respond) {
+PktDef* App::sendData(char* buffer, bool respond) { // defaults to true
 	if (this->networkLock) {
 		// if a request is currently being proccessed, dont process the request
 		return NULL;
 	}
 	
-	this->lock(0);
+	this->lock(0); // lock for 0 seconds for debug
 
+	bool terminateConnection = false;
 	char* returnData;
+
+	PktDef* pktToSend = new PktDef(buffer);
+	pktToSend->deleteBuffer = false;
+
+	if (pktToSend->cmd == PktDef::SLEEP) {
+		terminateConnection = true;
+	}
+
+	delete pktToSend;
 
 	// move down the daisy chain
 	if (this->mode == appMode::Primary) {
@@ -182,17 +211,35 @@ PktDef* App::sendData(char* buffer, bool respond) {
 		int robotID = this->detachRobotID(buffer);
 		std::cout << "Sending to robot: " << robotID << std::endl;
 		returnData = this->sendToRobot(this->robots[robotID], buffer);
+		
+
+		// inside disconnect, it can catch if its UDP and handle it
+		if (terminateConnection) {
+			this->robots[0]->socket->DisconnectTCP();
+			this->robots[1]->socket->DisconnectTCP();
+		}
 	}
 	else {
 		std::cout << "sending to next hop" << std::endl;
 		returnData = this->forwardToNextHop(buffer);
 	}
 
+
 	PktDef* pktInstance = new PktDef(returnData);
 
-	if (respond) {
+	if (this->curSoc != nullptr && respond) {
 		std::cout << "responding on socket" << std::endl;
 		this->curSoc->SendData(returnData, pktInstance->GetLength()); // move up the daisy chain 
+	}
+
+	if (terminateConnection) {
+		std::cout << "terminating connection" << std::endl;
+		if (this->curSoc != nullptr) {
+			this->curSoc->DisconnectTCP(); // this has a catch for if its udp
+			// no reason to catch that here
+		}
+		App* app = GetAppInstance();
+		app->restartCommand = true;
 	}
 
 	return pktInstance;
@@ -202,13 +249,16 @@ PktDef* App::sendData(char* buffer, bool respond) {
 bool App::openListeners()	
 {
 	char buffer[1024];
-	if (this->curSoc->HasData(100)) {
-		int bytes = this->curSoc->GetData(buffer);
-		PktDef* pktInstance = this->sendData(buffer, true);
-		if (pktInstance != NULL) {
-			delete pktInstance; // we dont need to hold onto the packet
+	if (this->curSoc != nullptr) {
+		if (this->curSoc->HasData(100)) {
+			int bytes = this->curSoc->GetData(buffer);
+			PktDef* pktInstance = this->sendData(buffer);
+			if (pktInstance != NULL) {
+				delete pktInstance; // we dont need to hold onto the packet
+			}
 		}
 	}
+
 
 	return true;
 }
@@ -217,6 +267,8 @@ void App::lock(int duration)
 {
 	this->networkLock = true;
 
+	// lol this isnt thread safe
+	// but thats okay
 	std::thread([this, duration]() {
 		// Put the background thread to sleep
 		std::this_thread::sleep_for(std::chrono::seconds(duration));

@@ -56,7 +56,7 @@ PktDef::PktDef(char* rawData)
 
     if (bodySize > 0)
     {
-        char* bodyBuffer = new char[bodySize];
+        char* bodyBuffer = new char[1024];
         std::memcpy(bodyBuffer, rawData + HEADERSIZE, bodySize);
 
         // we will only recieve acks or tele responses
@@ -77,16 +77,16 @@ PktDef::PktDef(char* rawData)
     }
 
     std::cout << "Isolated CRC Byte: ";
-    BitUtils::displayChar(1, &rawData[this->Packet.Header->Length - 1]);
+    BitUtils::displayChar(1, &rawData[this->Packet.Header->Length]);
     std::cout << std::endl;
-    this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length - 1]);
+    this->Packet.CRC = static_cast<unsigned char>(rawData[this->Packet.Header->Length]);
 }
 PktDef::~PktDef()
 {
     delete this->Packet.Header;
     delete this->Packet.body;    
     if (this->RawBuffer != nullptr && this->deleteBuffer) {
-        delete this->RawBuffer;
+        delete[] this->RawBuffer;
     }
 }
 
@@ -177,6 +177,24 @@ int PktDef::GetPktCount() const
 PktDef::CmdPacket PktDef::getPacket() const
 {
     return this->Packet;
+}
+
+bool PktDef::IsTelemetryResponse() const
+{
+    return Packet.Header != nullptr && Packet.Header->Status != 0;
+}
+
+char* PktDef::GetRawPacketCopy() const
+{
+    if (RawBuffer == nullptr || Packet.Header == nullptr)
+    {
+        return nullptr;
+    }
+
+    int length = Packet.Header->Length;
+    char* copy = new char[length];
+    std::memcpy(copy, RawBuffer, length);
+    return copy;
 }
 
 
@@ -305,5 +323,5 @@ void PktDef::display() {
     if (this->Packet.body) {
         this->Packet.body->display();
     }
-    std::cout << "CRC: " << (int)(this->Packet.CRC) << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
+    std::cout << "CRC: " << (unsigned int)(this->Packet.CRC) << " [Binary: " << std::bitset<8>(this->Packet.CRC) << "]" << std::endl;
 }

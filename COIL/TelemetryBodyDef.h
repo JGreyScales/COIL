@@ -2,6 +2,11 @@
 
 #include <iostream>
 #include <bitset>
+#include <cstring>
+#include <stdexcept>
+#include <cstdint>
+
+
 #include "BodyInterface.h"
 
 template <typename T>

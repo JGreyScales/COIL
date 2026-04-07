@@ -105,4 +105,40 @@ namespace ConsoleUtils {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return input;
     }
+
+    inline bool validateRobotId(int robotId)
+    {
+        if (robotId < 0 || robotId > 1)
+        {
+			return false;
+        }
+		return true;
+    }
+
+    inline bool validateDirection(int direction)
+    {
+        if (direction < 1 || direction > 4)
+        {
+			return false;
+        }
+		return true;
+    }
+
+    inline bool validateDuration(int duration)
+    {
+        if (duration < 1 || duration > 100)
+        {
+			return false;
+        }
+		return true;
+    }
+
+    inline bool validatePower(int power)
+    {
+        if (power < 80 || power > 100)
+        {
+			return false;
+        }
+		return true;
+    }
 }

@@ -51,3 +51,5 @@ Command to get an ip of a docker container:
 ```
 docker inspect -f "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}" <containerName>
 ```
+
+command to kill program if already running: fuser -k 8080/tcp
