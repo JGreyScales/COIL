@@ -165,9 +165,18 @@ char * App::sendToRobot(Robot* robot, char* buffer)
 
 	robot->socket->SendData(buffer, pktInstance->GetLength());
 
-	delete pktInstance;
+	if (pktInstance->getPacket().Header->Status) {
+		char* _ = this->awaitReturn(robot->socket, buffer); // ack response
+		delete pktInstance;
 
-	return this->awaitReturn(robot->socket, buffer);
+		return this->awaitReturn(robot->socket, buffer); // teleresponse
+	}
+	else {
+		delete pktInstance;
+
+		return this->awaitReturn(robot->socket, buffer);
+	}
+	
 }
 
 // attachRobotID must have been called previous to this function call

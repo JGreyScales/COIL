@@ -73,28 +73,29 @@ TelemetryBodyDef* TelemetryBodyDef::deserialize(const char* buffer)
         return body;
     }
 
-    int offset = 0;
+    // Cast to uint8_t to ensure we are working with single-byte increments
+    const uint8_t* data = reinterpret_cast<const uint8_t*>(buffer);
 
-    std::memcpy(&body->LastPktCounter, buffer + offset, sizeof(body->LastPktCounter));
-    offset += sizeof(body->LastPktCounter);
+    // lastPktCounter (offset 0, 1)
+    body->LastPktCounter = (static_cast<uint16_t>(data[1]) << 8) | data[0];
 
-    std::memcpy(&body->CurrentGrade, buffer + offset, sizeof(body->CurrentGrade));
-    offset += sizeof(body->CurrentGrade);
+    // currentGrade (offset 2, 3)
+    body->CurrentGrade = (static_cast<uint16_t>(data[3]) << 8) | data[2];
 
-    std::memcpy(&body->HitCount, buffer + offset, sizeof(body->HitCount));
-    offset += sizeof(body->HitCount);
+    // hitCount (offset 4, 5)
+    body->HitCount = (static_cast<uint16_t>(data[5]) << 8) | data[4];
 
-    std::memcpy(&body->Heading, buffer + offset, sizeof(body->Heading));
-    offset += sizeof(body->Heading);
+    // heading (offset 6, 7)
+    body->Heading = (static_cast<uint16_t>(data[7]) << 8) | data[6];
 
-    std::memcpy(&body->LastCmd, buffer + offset, sizeof(body->LastCmd));
-    offset += sizeof(body->LastCmd);
+    // lastCmd (offset 8)
+    body->LastCmd = data[8];
 
-    std::memcpy(&body->LastCmdValue, buffer + offset, sizeof(body->LastCmdValue));
-    offset += sizeof(body->LastCmdValue);
+    // lastCmdValue (offset 9)
+    body->LastCmdValue = data[9];
 
-    std::memcpy(&body->LastCmdPower, buffer + offset, sizeof(body->LastCmdPower));
-    offset += sizeof(body->LastCmdPower);
+    // lastCmdPower (offset 10)
+    body->LastCmdPower = data[10];
 
     return body;
 }

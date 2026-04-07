@@ -214,15 +214,14 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
 
         char* headerBytes = header.serialize();
 ;
-        int bufferLength = MySocket::DEFAULT_SIZE;
-        char* sendBuffer = new char[bufferLength + 5];
-        std::memset(sendBuffer, 0, bufferLength);
+        char* sendBuffer = new char[MySocket::DEFAULT_SIZE];
+        std::memset(sendBuffer, 0, MySocket::DEFAULT_SIZE);
         std::memcpy(sendBuffer, headerBytes, HeaderDef::HEADER_SIZE);
 
         delete[] headerBytes;
 
         PktDef helper;
-        sendBuffer[MySocket::DEFAULT_SIZE] = static_cast<char>(helper.countSetBits(sendBuffer, PktDef::HEADERSIZE + PktDef::CRCSIZE));
+        sendBuffer[header.Length - 1] = static_cast<char>(helper.countSetBits(sendBuffer, PktDef::HEADERSIZE + PktDef::CRCSIZE));
 
         App::attachRobotID(robotId, sendBuffer);
 

@@ -56,7 +56,7 @@ PktDef::PktDef(char* rawData)
 
     if (bodySize > 0)
     {
-        char* bodyBuffer = new char[bodySize];
+        char* bodyBuffer = new char[1024];
         std::memcpy(bodyBuffer, rawData + HEADERSIZE, bodySize);
 
         // we will only recieve acks or tele responses
