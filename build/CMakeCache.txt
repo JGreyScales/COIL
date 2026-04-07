@@ -14,6 +14,9 @@
 # EXTERNAL cache entries
 ########################
 
+//No help, variable specified on the command line.
+ASN_ASAN:UNINITIALIZED=OFF
+
 //The directory containing a CMake configuration file for Boost.
 Boost_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/Boost-1.83.0
 
@@ -237,7 +240,7 @@ COIL_Project_IS_TOP_LEVEL:STATIC=ON
 COIL_Project_SOURCE_DIR:STATIC=/shared
 
 //Enable Address Sanitizer
-USE_ASAN:BOOL=ON
+USE_ASAN:BOOL=OFF
 
 //The directory containing a CMake configuration file for boost_atomic.
 boost_atomic_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_atomic-1.83.0
