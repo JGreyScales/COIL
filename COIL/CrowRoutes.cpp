@@ -7,6 +7,8 @@
 #include <cstring>
 #include <stdexcept>
 
+int CrowRoutes::robotCounts[2] = { 0, 0 };
+
 crow::response CrowRoutes::JsonResponse(int code, const crow::json::wvalue& body)
 {
     crow::response res;
@@ -25,7 +27,6 @@ crow::json::wvalue CrowRoutes::BuildCommandJson(PktDef* pktResponse)
     int bodySize = pktResponse->GetLength() - PktDef::CRCSIZE - PktDef::HEADERSIZE;
     if (responseBody != nullptr)
     {
-        // there must be a null termination here otherwise it will fail
         result["body"] = std::string(responseBody, bodySize);
         delete[] responseBody;
     }
@@ -165,6 +166,8 @@ crow::response CrowRoutes::HandleDrive(const crow::request& req, int direction)
 
     App* app = GetAppInstance();
 
+    robotCounts[robotId]++;
+
     PktDef* pktResponse = app->sendData(sendBuffer, false);
 
     if (pktResponse == nullptr)
@@ -204,7 +207,7 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
         }     
 
         HeaderDef header;
-        header.PktCount = 1;
+        header.PktCount = robotCounts[robotId];
         header.Drive = 0;
         header.Sleep = 0;
         header.Ack = 0;
@@ -236,6 +239,7 @@ crow::response CrowRoutes::HandleTelemetry(const crow::request& req)
             return JsonResponse(500, err);
         }
 
+        robotCounts[robotId]++;
         PktDef* pktResponse = app->sendData(sendBuffer, false);
 
 

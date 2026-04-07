@@ -10,6 +10,9 @@
 class CrowRoutes
 {
 public:
+
+    static int robotCounts[2];
+
     static crow::response JsonResponse(int code, const crow::json::wvalue& body);
     static crow::json::wvalue BuildCommandJson(PktDef* pktResponse);
 

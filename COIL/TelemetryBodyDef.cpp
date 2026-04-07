@@ -37,7 +37,7 @@ int TelemetryBodyDef::getSize() {
 
 char* TelemetryBodyDef::serialize()
 {
-    char* buffer = new char[TELEMETRY_BODY_SIZE];
+    char* buffer = new char[TELEMETRY_BODY_SIZE + 5]; // extra padding
     int offset = 0;
 
     std::memcpy(buffer + offset, &LastPktCounter, sizeof(LastPktCounter));
@@ -67,35 +67,22 @@ char* TelemetryBodyDef::serialize()
 TelemetryBodyDef* TelemetryBodyDef::deserialize(const char* buffer)
 {
     TelemetryBodyDef* body = new TelemetryBodyDef();
+    if (buffer == nullptr) return body;
 
-    if (buffer == nullptr)
-    {
-        return body;
-    }
-
-    // Cast to uint8_t to ensure we are working with single-byte increments
     const uint8_t* data = reinterpret_cast<const uint8_t*>(buffer);
 
-    // lastPktCounter (offset 0, 1)
-    body->LastPktCounter = (static_cast<uint16_t>(data[1]) << 8) | data[0];
+        body->LastPktCounter = (static_cast<uint16_t>(data[1]) << 8) | data[0];
+        body->CurrentGrade = (static_cast<uint16_t>(data[3]) << 8) | data[2];
+        body->HitCount = (static_cast<uint16_t>(data[5]) << 8) | data[4];
+        body->Heading = (static_cast<uint16_t>(data[7]) << 8) | data[6];
 
-    // currentGrade (offset 2, 3)
-    body->CurrentGrade = (static_cast<uint16_t>(data[3]) << 8) | data[2];
+        // for some reason there is 2 bytes of padding???
+        // but only sometimes???
+        // whatever lol, im not fixing that, it doesnt cause a crash
 
-    // hitCount (offset 4, 5)
-    body->HitCount = (static_cast<uint16_t>(data[5]) << 8) | data[4];
-
-    // heading (offset 6, 7)
-    body->Heading = (static_cast<uint16_t>(data[7]) << 8) | data[6];
-
-    // lastCmd (offset 8)
-    body->LastCmd = data[8];
-
-    // lastCmdValue (offset 9)
-    body->LastCmdValue = data[9];
-
-    // lastCmdPower (offset 10)
-    body->LastCmdPower = data[10];
+        body->LastCmd = data[8];
+        body->LastCmdValue = data[9]; 
+        body->LastCmdPower = data[10]; 
 
     return body;
 }

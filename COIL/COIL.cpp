@@ -209,6 +209,8 @@ int main()
 			manualInputMode();
 		}
 		else {
+			CrowRoutes::robotCounts[0] = 0;
+			CrowRoutes::robotCounts[1] = 0;
 			startAppInstance(); // will delete current app if already running
 			App* app = GetAppInstance();
 
