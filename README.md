@@ -19,9 +19,7 @@ Replace the file paths and image names below with your local versions
 
 ### Standard development run
 ```
-docker run -ti --name development \
-  -v "D:\Programming\COIL-CONESTOGA:/shared" \
-  webserver_dev_linux:latest
+docker run -ti --name development -v "D:\\Programming\\COIL-CONESTOGA:/shared" webserver\_dev\_linux:latest
 ```
 
 ###
@@ -34,7 +32,9 @@ docker run -ti --name third -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 7000
 Primary Docker: 127.0.0.1:5000
 - port 5000
 - port 29000  
-`docker run -ti --name primary -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 5000:5000 -p 29000:29000 -p 29500:29500/udp webserver_dev_linux:latest`
+```
+docker run -ti --name primary -v "C:\\Programming\\COIL-CONESTOGA:/shared" -p 5000:5000 -p 29000:29000 -p 29500:29500/udp webserver_dev_linux:latest
+```
 
 ---
 
